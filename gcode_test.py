@@ -16,7 +16,20 @@ def pos_gcode(pos):
 
 
 def main():
-    print("This is a test")
+
+    test_pos = {
+                "X":100,
+                "Y":100,
+                "F":1000
+                }
+
+    test_z = {
+                "Z": 10
+                }
+
+
+    print(pos_gcode(test_pos))
+    print(pos_gcode(test_z))
 
 if __name__ == "__main__":
     main()
