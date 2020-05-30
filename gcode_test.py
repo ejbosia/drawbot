@@ -9,7 +9,18 @@ def pos_gcode(pos):
     for key in pos.keys():
         gcode += key+str(pos[key])+" "
 
-    gcode += ";"
+    gcode += ";\n"
+
+    return gcode
+
+
+# iterate through a list of positions to generate gcode
+def pos_list_gcode(pos_list):
+
+    gcode = ""
+
+    for pos in pos_list:
+        gcode += pos_gcode(pos)
 
     return gcode
 
