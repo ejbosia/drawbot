@@ -4,7 +4,7 @@ import numpy as np
 # returns the gcode to enact that position
 def pos_gcode(pos):
 
-    gcode = "\bG01 "
+    gcode = "G01 "
 
     for key in pos.keys():
         gcode += key+str(pos[key])+" "
