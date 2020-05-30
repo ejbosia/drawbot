@@ -29,8 +29,9 @@ def raster_image(image):
 # get the contours
 def test_contours(image):
 
-    image, heirachy = cv2.findContours(image, None, cv2.RETR_TREE, cv2.APPROX_SIMPLE)
+    contours, heirachy = cv2.findContours(image, None, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
+    print(contours)
 
     return contours
 
