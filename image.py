@@ -71,12 +71,12 @@ def get_chain(pt, points):
             # recursivly check the new points
             chain.append(avp)
             chain.extend(get_chain(avp, points))
-        print("\t", chain)
         return chain
 
     else:
         return []
 
+# plot the points in a chain individually
 def plot_points(point_chain):
     for chain in point_chain:
         format = np.array(chain).transpose()
