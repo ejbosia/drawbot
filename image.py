@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 import gcode_test as GC
 
@@ -25,6 +25,97 @@ def raster_image(image):
 
     return pos_list
 
+
+# get available points
+# available points are all of the points around the point
+def get_available_pts(pt, points):
+    available_pts = []
+
+    # array of the different directions around the points
+    # these values are added to the test point to create the check points
+    check = np.array([
+        [0,1],
+        [1,1],
+        [1,0],
+        [1,-1],
+        [0,-1],
+        [-1,-1],
+        [-1,0],
+        [-1,1]
+    ])
+
+    for c in check:
+        check_pt = pt + c
+
+        mask = ((check_pt == points).all(axis=1))
+
+        if(mask.any()):
+            available_pts.append(points[mask][0])
+
+
+
+    return available_pts
+
+# recursively get combine points into chains
+def get_chain(pt, points):
+
+    chain = []
+    available_pts = get_available_pts(pt, points)
+
+    # remove the available pts --> they have already been checked
+    for p in available_pts:
+        points = points[(p != points).any(axis=1)]
+    # print(pt, "\t", available_pts)
+    if available_pts:
+        for avp in available_pts:
+            # recursivly check the new points
+            chain.append(avp)
+            chain.extend(get_chain(avp, points))
+        print("\t", chain)
+        return chain
+
+    else:
+        return []
+
+def plot_points(point_chain):
+    for chain in point_chain:
+        format = np.array(chain).transpose()
+        row = format[0]
+        col = format[1]
+        plt.scatter(x=col, y=row)
+
+    plt.gca().invert_yaxis()
+    plt.show()
+
+
+# converts an image into motion vectors
+def vector_test(image):
+
+    # raise NotImplementedError
+
+    # find the black pixels
+    points = np.array(np.where(image==0)).transpose()
+
+    point_chain = []
+
+    # find chains of pixels while there are pixels left
+    while(points.size > 0):
+        # pick the first points
+        pt = points[0]
+        points = points[(pt != points).any(axis=1)]
+
+        temp = [pt]
+        temp.extend(get_chain(pt, points))
+        point_chain.append(temp)
+        print(temp)
+        # remove the points already checked
+        for p in temp:
+            points = points[(p != points).any(axis=1)]
+
+        print(points.size)
+
+
+    return point_chain
 
 # get the contours
 def test_contours(image):
