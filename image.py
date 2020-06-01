@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-import gcode_test as GC
+import gcode as GC
 
 # TODO: test using np.where
 
