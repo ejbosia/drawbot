@@ -135,9 +135,14 @@ def main():
 
     image = cv2.imread(file, 0)
 
-    pos_list = raster_image(image)
+    chain_list = vector_test(image)
 
-    gcode = GC.pos_list_gcode(pos_list)
+    gcode = ""
+
+    for c in chain_list:
+        gcode += GC.chain_spiral(c)
+
+    GC.plot_gcode(gcode)
 
     text_file = open("test.gcode", 'w')
     text_file.write(gcode)

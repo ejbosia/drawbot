@@ -1,5 +1,5 @@
 import numpy as np
-
+import matplotlib.pyplot as plt
 # takes in a position (XYZF)
 # returns the gcode to enact that position
 def pos_gcode(pos):
@@ -64,8 +64,6 @@ def next_paritition(pt, points, direction):
 
     return np.array([]), direction
 
-
-
 # returns the spiral fill of gcode
 def chain_spiral(chain):
     sort_chain = np.array(chain)
@@ -102,6 +100,7 @@ def chain_spiral(chain):
             gcode += pos_gcode(format_pos(pt))
             pt = new_pt
             direction = dir
+        # if the direction does not change, no need to add the last point as gcode
         else:
             print("Option: 2\t", direction, "\t", dir, "\t", pt)
             pt = new_pt
@@ -115,6 +114,40 @@ def chain_spiral(chain):
 
     return gcode
 
+
+# input gcode which is \n separated, output a line plot
+# this is assuming all commands are XY, or Z
+def plot_gcode(gcode):
+    commands = gcode.split('\n')
+
+    X = [[]]
+    Y = [[]]
+    Z_down = []
+    Z_up = []
+
+    for c in commands:
+        print(c)
+        if "Z0" in c:
+            Z_down.append(np.array([X[-1][-1],Y[-1][-1]]))
+        if "X" in c or "Y" in c:
+            X[-1].append(int(c.split("X")[1].split(" ")[0]))
+            Y[-1].append(int(c.split("Y")[1].split(" ")[0]))
+        if not "Z0" in c and "Z" in c:
+            try:
+                Z_up.append(np.array([X[-1][-1],Y[-1][-1]]))
+            except IndexError:
+                continue
+        if c == "":
+            print("HAHAHA")
+    for i, temp in enumerate(X):
+        plt.plot(X[i], Y[i])
+
+    Z_down = np.array(Z_down).transpose()
+    Z_up = np.array(Z_up).transpose()
+    print(Z_down)
+    plt.scatter(x=Z_down[0], y=Z_down[1], c="blue")
+    plt.scatter(x=Z_up[0], y=Z_up[1], c='red')
+    plt.show()
 
 def main():
 
