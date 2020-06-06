@@ -127,8 +127,53 @@ def contour_groups(image):
     return chain_list, point_list
 
 
+def contour_groups_v2(image):
+    # get the filled and unfilled areas of the image
+
+    # if this is not done, there is the potential for overlap
+
+    contours, hierarchy = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+    filled = []
+    empty = []
+    h_list = []
+    chain_list = []
+
+    previous = False
+
+    for h in hierarchy[0]:
+        h_list.append(list(h))
 
 
+    mask = np.zeros_like(image)
+
+    for x, c in enumerate(contours):
+        h = h_list[x]
+        # if there are no parents, this is an external contour
+        if h[3] == -1:
+            h_list[x].append(0)
+        else:
+            h_list[x].append(h_list[x-1][4]+1)
+
+        print(h_list[x])
+
+        # if the contour does not have children add the mask to points and reset
+        if h_list[x][2] == -1:
+            mask = cv2.drawContours(mask, [c], 0, 255, -1)
+            chain = np.flip(np.array(np.where(mask == 255)).transpose())
+            chain_list.append(chain)
+            mask = np.zeros_like(image)
+        # even contours are filled space
+        elif h_list[x][4] % 2 == 0:
+            mask = cv2.drawContours(mask, [c], 0, 255, -1)
+        # odd contours are empty-space
+        # create a chain with the parent
+        else:
+            mask = cv2.drawContours(mask, [c], 0, 0, -1)
+            chain = np.flip(np.array(np.where(mask == 255)).transpose())
+            chain_list.append(chain)
+            mask = np.zeros_like(image)
+    return chain_list
 
 def main(file = "test.png"):
     print(file)
@@ -136,15 +181,16 @@ def main(file = "test.png"):
     image = cv2.imread(file, 0)
     image = 255-image
     #chain_list = vector_test(image)
-    chain_list, point_list = contour_groups(image)
-
+    #chain_list, point_list = contour_groups(image)
+    point_list = contour_groups_v2(image)
     gcode = ""
-
+    '''
     for c in chain_list:
         gcode += GC.chain_contour(c)
-
+    '''
     for p in point_list:
-        gcode += GC.chain_spiral(p[0],debug=False)
+        #print(p)
+        gcode += GC.line_fill(p)
 
     GC.plot_gcode(gcode,debug=False)
 
