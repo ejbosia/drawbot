@@ -135,6 +135,23 @@ def chain_contour(chain):
 
     gcode += "G01 Z5;\n"
     return gcode
+
+
+def fill_contour(chain):
+
+    first_point = True
+
+    gcode = ""
+    for pt in chain:
+        gcode += pos_gcode(format_pos(pt))
+
+        if first_point:
+            gcode += "G01 Z0;\n"
+            first_point = False
+
+    gcode += "G01 Z5;\n"
+    return gcode
+
 # input gcode which is \n separated, output a line plot
 # this is assuming all commands are XY, or Z
 def plot_gcode(gcode, debug=True):

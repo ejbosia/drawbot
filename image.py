@@ -106,7 +106,11 @@ def contour_groups(image):
         chain_list[-1].append(c[0][0])
         chain_list.append([])
 
-        points = np.flip(np.array(np.where(cv2.drawContours(mask, [c], -1, 255, -1)==255))).transpose()
+        mask = cv2.drawContours(mask, [c], -1, 255, -1)
+
+        masked_image = cv2.bitwise_and(image, mask)
+
+        points = np.flip(np.array(np.where(masked_image == 255)).transpose())
 
         x = points.size
         for cp in chain_list[-2]:
