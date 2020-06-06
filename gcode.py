@@ -140,7 +140,7 @@ def chain_contour(chain):
 #fill the chain with back and forth horizontal lines
 # hopefully minimizes the pen up and down motions
 def line_fill(chain):
-    direction_neg = True
+ direction_neg = True
 
     gcode = ""
 
@@ -148,6 +148,7 @@ def line_fill(chain):
 
     for i in range(chain[:,1].min(), chain[:,1].max()+1):
         temp = chain[chain[:,1]==i]
+        print(temp)
 
         sort_temp = temp[temp[:,0].argsort()]
 
@@ -156,16 +157,16 @@ def line_fill(chain):
 
         if abs(sort_temp[0][0]-previous[0]) <= 1:
             gcode += GC.pos_gcode(GC.format_pos(sort_temp[0]))
-            print(sort_temp[0][0], previous[0], "FOO")
+            #print(sort_temp[0][0], previous[0], "FOO")
 
-        else:
-            print(sort_temp[0][0], previous[0])
+        #else:
+            #print(sort_temp[0][0], previous[0])
 
 
         for pt in sort_temp:
 
             if abs(pt[0]-previous[0]) > 1:
-
+                gcode += GC.pos_gcode(GC.format_pos(previous))
                 gcode += "G01 Z10;\n"
                 gcode += GC.pos_gcode(GC.format_pos(pt))
                 gcode += "G01 Z0;\n"
@@ -177,6 +178,7 @@ def line_fill(chain):
 
         direction_neg = not direction_neg
 
+    # raise pen at the end of the chain
     gcode += "G01 Z10;\n"
     return gcode
 
