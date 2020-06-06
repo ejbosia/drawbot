@@ -137,19 +137,47 @@ def chain_contour(chain):
     return gcode
 
 
-def fill_contour(chain):
-
-    first_point = True
+#fill the chain with back and forth horizontal lines
+# hopefully minimizes the pen up and down motions
+def line_fill(chain):
+    direction_neg = True
 
     gcode = ""
-    for pt in chain:
-        gcode += pos_gcode(format_pos(pt))
 
-        if first_point:
-            gcode += "G01 Z0;\n"
-            first_point = False
+    previous = np.array([-2,-2])
 
-    gcode += "G01 Z5;\n"
+    for i in range(chain[:,1].min(), chain[:,1].max()+1):
+        temp = chain[chain[:,1]==i]
+
+        sort_temp = temp[temp[:,0].argsort()]
+
+        if direction_neg:
+            sort_temp = sort_temp[::-1]
+
+        if abs(sort_temp[0][0]-previous[0]) <= 1:
+            gcode += GC.pos_gcode(GC.format_pos(sort_temp[0]))
+            print(sort_temp[0][0], previous[0], "FOO")
+
+        else:
+            print(sort_temp[0][0], previous[0])
+
+
+        for pt in sort_temp:
+
+            if abs(pt[0]-previous[0]) > 1:
+
+                gcode += "G01 Z10;\n"
+                gcode += GC.pos_gcode(GC.format_pos(pt))
+                gcode += "G01 Z0;\n"
+            previous = pt
+
+        # the final command in the list should move to a position and raise the pen
+        gcode += GC.pos_gcode(GC.format_pos(pt))
+        # gcode += "G01 Z10;\n"
+
+        direction_neg = not direction_neg
+
+    gcode += "G01 Z10;\n"
     return gcode
 
 # input gcode which is \n separated, output a line plot
