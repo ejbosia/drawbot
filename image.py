@@ -136,15 +136,17 @@ def test_contours(image):
         chain_list[-1].append(c[0][0])
         chain_list.append([])
 
-        point_list.append([])
         points = np.flip(np.array(np.where(cv2.drawContours(mask, [c], -1, 255, -1)==255))).transpose()
 
         x = points.size
         for cp in chain_list[-2]:
-            print(cp,points[0], points.shape)
+            #print(cp,points[0], points.shape)
             points = points[(cp != points).any(axis=1)]
         # print(x, points.size)
-        point_list[-1].append(points)
+
+        if len(points) > 0:
+            point_list.append([])
+            point_list[-1].append(points)
         #plt.imshow(cv2.drawContours(mask, [c], -1, 255, -1))
         #plt.show()
     # print(np.array(point_list).shape, point_list[0])

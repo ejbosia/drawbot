@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import config as CONFIG
 # takes in a position (XYZF)
 # returns the gcode to enact that position
 def pos_gcode(pos):
@@ -7,7 +8,7 @@ def pos_gcode(pos):
     gcode = "G01 "
 
     for key in pos.keys():
-        gcode += key+str(pos[key])+" "
+        gcode += key+str(pos[key] * CONFIG.SCALE)+" "
 
     gcode += ";\n"
 
@@ -159,10 +160,10 @@ def plot_gcode(gcode, debug=True):
             pen_down=True
         if ("X" in c or "Y" in c):
             if pen_down:
-                X[-1].append(int(c.split("X")[1].split(" ")[0]))
-                Y[-1].append(int(c.split("Y")[1].split(" ")[0]))
-            prev_x = int(c.split("X")[1].split(" ")[0])
-            prev_y = int(c.split("Y")[1].split(" ")[0])
+                X[-1].append(float(c.split("X")[1].split(" ")[0]))
+                Y[-1].append(float(c.split("Y")[1].split(" ")[0]))
+            prev_x = float(c.split("X")[1].split(" ")[0])
+            prev_y = float(c.split("Y")[1].split(" ")[0])
 
         if not "Z0" in c and "Z" in c:
             try:
