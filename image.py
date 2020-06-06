@@ -64,17 +64,18 @@ def get_chain(pt, points):
 
     # remove the available pts --> they have already been checked
     for p in available_pts:
+        #print(points)
         points = points[(p != points).any(axis=1)]
-    # print(pt, "\t", available_pts)
     if available_pts:
         for avp in available_pts:
             # recursivly check the new points
             chain.append(avp)
-            chain.extend(get_chain(avp, points))
-        return chain
+            temp, points = get_chain(avp,points)
+            chain.extend(temp)
+        return chain, points
 
     else:
-        return []
+        return [], points
 
 # plot the points in a chain individually
 def plot_points(point_chain):
@@ -84,6 +85,7 @@ def plot_points(point_chain):
         col = format[1]
         plt.scatter(x=col, y=row)
 
+    plt.legend()
     plt.gca().invert_yaxis()
     plt.show()
 
@@ -103,11 +105,12 @@ def vector_test(image):
         # pick the first points
         pt = points[0]
         points = points[(pt != points).any(axis=1)]
-
+        print(points)
         temp = [pt]
-        temp.extend(get_chain(pt, points))
+        x, points = get_chain(pt, points)
+        temp.extend(x)
         point_chain.append(temp)
-        print(temp)
+        #print(temp)
         # remove the points already checked
         for p in temp:
             points = points[(p != points).any(axis=1)]
@@ -120,29 +123,52 @@ def vector_test(image):
 # get the contours
 def test_contours(image):
 
-    contours, heirachy = cv2.findContours(image, None, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, heirachy = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-    print(contours)
+    chain_list = [[]]
+    point_list = []
 
-    return contours
+    for c in contours:
+        mask = np.zeros_like(image)
+
+        for pt in c:
+            chain_list[-1].append(pt[0])
+        chain_list[-1].append(c[0][0])
+        chain_list.append([])
+
+        point_list.append([])
+        points = np.flip(np.array(np.where(cv2.drawContours(mask, [c], -1, 255, -1)==255))).transpose()
+
+        for cp in chain_list[-1]:
+            points = points[(points != cp).any()]
+
+        point_list[-1].append()
+        #plt.imshow(cv2.drawContours(mask, [c], -1, 255, -1))
+        #plt.show()
+    print(np.array(point_list).shape, point_list[0])
+    return chain_list, point_list
 
 
 
 
 
-def main():
-    file = "test.png"
+def main(file = "test.png"):
+    print(file)
 
     image = cv2.imread(file, 0)
-
-    chain_list = vector_test(image)
+    image = 255-image
+    #chain_list = vector_test(image)
+    chain_list, point_list = test_contours(image)
 
     gcode = ""
 
     for c in chain_list:
-        gcode += GC.chain_spiral(c)
+        gcode += GC.chain_contour(c)
 
-    GC.plot_gcode(gcode)
+    for p in point_list:
+        gcode += GC.chain_spiral(p[0],debug=False)
+
+    GC.plot_gcode(gcode,debug=False)
 
     text_file = open("test.gcode", 'w')
     text_file.write(gcode)

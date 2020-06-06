@@ -65,7 +65,7 @@ def next_paritition(pt, points, direction):
     return np.array([]), direction
 
 # returns the spiral fill of gcode
-def chain_spiral(chain):
+def chain_spiral(chain, debug=True):
     sort_chain = np.array(chain)
     # sort the partitions (first is top left, sorts row before column)
     sort_chain = sort_chain[sort_chain[:,0].argsort()]
@@ -84,25 +84,30 @@ def chain_spiral(chain):
         new_pt, dir = next_paritition(pt, sort_chain, direction)
 
         if pen_up:
+            gcode += pos_gcode(format_pos(pt))
             gcode += "G01 Z0;\n"
             pen_up = False
 
         # if there are no new points, add the last point as gcode
         if new_pt.size == 0:
-            print("Option: 0\t", direction, "\t", dir, "\t", pt)
+            if debug:
+                print("Option: 0\t", direction, "\t", dir, "\t", pt)
             gcode += pos_gcode(format_pos(pt))
             gcode += "G01 Z5;\n"
+            pen_up = True
             pt = sort_chain[0]
             direction = 0
         # if the direction changes, add the last point as gcode
         elif dir != direction:
-            print("Option: 1\t", direction, "\t", dir, "\t", pt)
+            if debug:
+                print("Option: 1\t", direction, "\t", dir, "\t", pt)
             gcode += pos_gcode(format_pos(pt))
             pt = new_pt
             direction = dir
         # if the direction does not change, no need to add the last point as gcode
         else:
-            print("Option: 2\t", direction, "\t", dir, "\t", pt)
+            if debug:
+                print("Option: 2\t", direction, "\t", dir, "\t", pt)
             pt = new_pt
 
 
@@ -115,9 +120,23 @@ def chain_spiral(chain):
     return gcode
 
 
+def chain_contour(chain):
+
+    first_point = True
+
+    gcode = ""
+    for pt in chain:
+        gcode += pos_gcode(format_pos(pt))
+
+        if first_point:
+            gcode += "G01 Z0;\n"
+            first_point = False
+
+    gcode += "G01 Z5;\n"
+    return gcode
 # input gcode which is \n separated, output a line plot
 # this is assuming all commands are XY, or Z
-def plot_gcode(gcode):
+def plot_gcode(gcode, debug=True):
     commands = gcode.split('\n')
 
     X = [[]]
@@ -125,28 +144,44 @@ def plot_gcode(gcode):
     Z_down = []
     Z_up = []
 
+    pen_down = False
+    prev_x = 0
+    prev_y = 0
+
+
     for c in commands:
-        print(c)
+        if debug:
+            print(c)
         if "Z0" in c:
-            Z_down.append(np.array([X[-1][-1],Y[-1][-1]]))
-        if "X" in c or "Y" in c:
-            X[-1].append(int(c.split("X")[1].split(" ")[0]))
-            Y[-1].append(int(c.split("Y")[1].split(" ")[0]))
+            Z_down.append(np.array([prev_x, prev_y]))
+            X.append([prev_x])
+            Y.append([prev_y])
+            pen_down=True
+        if ("X" in c or "Y" in c):
+            if pen_down:
+                X[-1].append(int(c.split("X")[1].split(" ")[0]))
+                Y[-1].append(int(c.split("Y")[1].split(" ")[0]))
+            prev_x = int(c.split("X")[1].split(" ")[0])
+            prev_y = int(c.split("Y")[1].split(" ")[0])
+
         if not "Z0" in c and "Z" in c:
             try:
-                Z_up.append(np.array([X[-1][-1],Y[-1][-1]]))
+                pen_down=False
+                Z_up.append(np.array([prev_x, prev_y]))
             except IndexError:
                 continue
-        if c == "":
+        if c == "" and debug:
             print("HAHAHA")
     for i, temp in enumerate(X):
         plt.plot(X[i], Y[i])
 
     Z_down = np.array(Z_down).transpose()
     Z_up = np.array(Z_up).transpose()
-    print(Z_down)
-    plt.scatter(x=Z_down[0], y=Z_down[1], c="blue")
-    plt.scatter(x=Z_up[0], y=Z_up[1], c='red')
+    if debug:
+        print(Z_down)
+    plt.scatter(x=Z_down[0], y=Z_down[1], c="blue", s=5)
+    plt.scatter(x=Z_up[0], y=Z_up[1], c='red', s=3)
+    #plt.gca().invert_yaxis()
     plt.show()
 
 def main():
