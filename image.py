@@ -123,7 +123,7 @@ def vector_test(image):
 # get the contours
 def test_contours(image):
 
-    contours, heirachy = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, heirachy = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
     chain_list = [[]]
     point_list = []
@@ -139,13 +139,15 @@ def test_contours(image):
         point_list.append([])
         points = np.flip(np.array(np.where(cv2.drawContours(mask, [c], -1, 255, -1)==255))).transpose()
 
-        for cp in chain_list[-1]:
-            points = points[(points != cp).any()]
-
-        point_list[-1].append()
+        x = points.size
+        for cp in chain_list[-2]:
+            print(cp,points[0], points.shape)
+            points = points[(cp != points).any(axis=1)]
+        # print(x, points.size)
+        point_list[-1].append(points)
         #plt.imshow(cv2.drawContours(mask, [c], -1, 255, -1))
         #plt.show()
-    print(np.array(point_list).shape, point_list[0])
+    # print(np.array(point_list).shape, point_list[0])
     return chain_list, point_list
 
 
