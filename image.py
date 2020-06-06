@@ -90,38 +90,8 @@ def plot_points(point_chain):
     plt.show()
 
 
-# converts an image into motion vectors
-def vector_test(image):
-
-    # raise NotImplementedError
-
-    # find the black pixels
-    points = np.array(np.where(image==0)).transpose()
-
-    point_chain = []
-
-    # find chains of pixels while there are pixels left
-    while(points.size > 0):
-        # pick the first points
-        pt = points[0]
-        points = points[(pt != points).any(axis=1)]
-        print(points)
-        temp = [pt]
-        x, points = get_chain(pt, points)
-        temp.extend(x)
-        point_chain.append(temp)
-        #print(temp)
-        # remove the points already checked
-        for p in temp:
-            points = points[(p != points).any(axis=1)]
-
-        print(points.size)
-
-
-    return point_chain
-
 # get the contours
-def test_contours(image):
+def contour_groups(image):
 
     contours, heirachy = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
@@ -162,7 +132,7 @@ def main(file = "test.png"):
     image = cv2.imread(file, 0)
     image = 255-image
     #chain_list = vector_test(image)
-    chain_list, point_list = test_contours(image)
+    chain_list, point_list = contour_groups(image)
 
     gcode = ""
 

@@ -1,3 +1,5 @@
 *.png
 *.gcode
 *.pyc
+*.odt
+*.odt#
