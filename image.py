@@ -153,26 +153,27 @@ def contour_groups_v2(image):
         if h[3] == -1:
             h_list[x].append(0)
         else:
-            h_list[x].append(h_list[x-1][4]+1)
+            h_list[x].append(h_list[h_list[x][3]][4]+1)
 
-        print(h_list[x])
+        print(x,h_list[x])
 
-        # if the contour does not have children add the mask to points and reset
-        if h_list[x][2] == -1:
-            mask = cv2.drawContours(mask, [c], 0, 255, -1)
-            chain = np.flip(np.array(np.where(mask == 255)).transpose())
-            chain_list.append(chain)
-            mask = np.zeros_like(image)
-        # even contours are filled space
-        elif h_list[x][4] % 2 == 0:
-            mask = cv2.drawContours(mask, [c], 0, 255, -1)
-        # odd contours are empty-space
-        # create a chain with the parent
-        else:
+
+        if h_list[x][4] % 2 == 1:
             mask = cv2.drawContours(mask, [c], 0, 0, -1)
             chain = np.flip(np.array(np.where(mask == 255)).transpose())
             chain_list.append(chain)
             mask = np.zeros_like(image)
+        # even contours are filled space
+        else:
+            mask = cv2.drawContours(mask, [c], 0, 255, -1)
+
+            # if the contour does not have children add the mask to points and reset
+            if h_list[x][2] == -1:
+                chain = np.flip(np.array(np.where(mask == 255)).transpose())
+                chain_list.append(chain)
+                mask = np.zeros_like(image)
+    #print(chain_list)
+
     return chain_list
 
 def main(file = "test.png"):
@@ -182,15 +183,20 @@ def main(file = "test.png"):
     image = 255-image
     #chain_list = vector_test(image)
     #chain_list, point_list = contour_groups(image)
-    point_list = contour_groups_v2(image)
+    #point_list = contour_groups_v2(image)
+
+    p = np.array(np.where(image==255)).transpose()
+
     gcode = ""
     '''
     for c in chain_list:
         gcode += GC.chain_contour(c)
     '''
+    '''
     for p in point_list:
         #print(p)
-        gcode += GC.line_fill(p)
+    '''
+    gcode += GC.line_fill(p)
 
     GC.plot_gcode(gcode,debug=False)
 
