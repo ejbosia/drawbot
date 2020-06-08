@@ -231,7 +231,7 @@ def line_fill_2(chain):
             pt = sort_temp[0]
             direction_neg = True
 
-def next_point_lf(pt,points, direction_neg)
+def next_point_lf(pt,points, direction_neg):
         # find the next point to target
         check = np.array([
             [1,1],
@@ -249,7 +249,15 @@ def next_point_lf(pt,points, direction_neg)
 
         raise ValueError
 
-# 
+# fill using the contours
+def line_fill_contours(contours, heirachy):
+
+    # loop through the contours
+    for x, contours in enumerate(contours):
+        print("FOO")
+
+
+
 
 
 

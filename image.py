@@ -90,26 +90,29 @@ def plot_points(point_chain):
     plt.show()
 
 
-# get the contours
+# get the contour groups using hierarchy
 def contour_groups(image):
 
-    contours, heirachy = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    chain_list = []
 
-    chain_list = [[]]
+    # find the contours and the hierarchy
+    # cv2.RETR_CCOMP returns the filled areas and holes (hierarchy is only two levels)
+    contours,hierarchy = cv2.findContours(image, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
 
-    for c in contours:
-        mask = np.zeros_like(image)
+    # loop through the contours and the hierarchy
+    for c,h in zip(contours, hierarchy[0]):
 
-        for pt in c:
-            chain_list[-1].append(pt[0])
-        chain_list[-1].append(c[0][0])
-        chain_list.append([])
+        # only fill in if there are no parents
+        if h[3] == -1:
+            mask = cv2.drawContours(np.zeros_like(image), [c], 0, 255, -1)
+            next_contour = h[2]
+            while(next_contour != -1):
+                # remove this area from the contour
+                mask = cv2.drawContours(mask, contours, next_contour, 0, -1)
+                next_contour = hierarchy[0][next_contour, 0]
+            points = np.array(np.where(mask == 255)).transpose()
+            chain_list.append(points)
 
-        x = points.size
-        for cp in chain_list[-2]:
-            #print(cp,points[0], points.shape)
-            points = points[(cp != points).any(axis=1)]
-        # print(x, points.size)
     return chain_list
 
 
@@ -119,21 +122,21 @@ def main(file = "test.png"):
     image = cv2.imread(file, 0)
     image = 255-image
     #chain_list = vector_test(image)
-    #chain_list, point_list = contour_groups(image)
+    chain_list = contour_groups(image)
     #point_list = contour_groups_v2(image)
 
-    p = np.array(np.where(image==255)).transpose()
+    #p = np.array(np.where(image==255)).transpose()
 
     gcode = ""
-    '''
+
     for c in chain_list:
-        gcode += GC.chain_contour(c)
-    '''
+        gcode += GC.line_fill(c)
+
     '''
     for p in point_list:
         #print(p)
     '''
-    gcode += GC.line_fill_2(p)
+    #gcode += GC.line_fill_2(p)
 
     GC.plot_gcode(gcode,debug=False)
 
