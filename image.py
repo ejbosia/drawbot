@@ -133,7 +133,7 @@ def main(file = "test.png"):
     for p in point_list:
         #print(p)
     '''
-    gcode += GC.line_fill(p)
+    gcode += GC.line_fill_2(p)
 
     GC.plot_gcode(gcode,debug=False)
 

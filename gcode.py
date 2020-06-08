@@ -182,6 +182,77 @@ def line_fill(chain):
     gcode += "G01 Z10;\n"
     return gcode
 
+
+#fill the chain with back and forth horizontal lines
+# hopefully minimizes the pen up and down motions - OPTIMIZED
+def line_fill_2(chain):
+    direction_neg = True
+
+    gcode = ""
+
+    # sort chain by row
+    chain = chain[chain[:,1].argsort()]
+    previous = np.array([-2,-2])
+
+    # create a temporary line of points
+    temp = chain[chain[:,1]==index]
+    sort_temp = temp[temp[:,0].argsort()]
+    pt = sort_temp[0]
+
+    # loop while points exist in the chains
+    while(chain.size > 0):
+
+        # loop until the end of the chain breaks the loop
+        while True:
+
+            if direction_neg:
+                next_point = pt + np.array([0,-1])
+            else:
+                next_point = pt + np.array([0,1])
+
+            # if the next point does not exist, break the loop
+            if ((next_point == sort_temp).all(axis=1)).any():
+                continue
+            else:
+                break
+
+        direction_neg  = not direction_neg
+        try:
+            # find the next point
+            pt = next_point_lf(pt,points, direction_neg)
+            index = index+1
+            temp = chain[chain[:,1]==index]
+            sort_temp = temp[temp[:,0].argsort()]
+        # if no point is found, pick the highest point
+        except ValueError:
+            index = chain[:,1].min()
+            temp = chain[chain[:,1]==index]
+            sort_temp = temp[temp[:,0].argsort()]
+            pt = sort_temp[0]
+            direction_neg = True
+
+def next_point_lf(pt,points, direction_neg)
+        # find the next point to target
+        check = np.array([
+            [1,1],
+            [1,0],
+            [1,-1]
+        ])
+
+        if direction_neg:
+            check = check[::-1]
+
+        for c in check:
+            check_pt = pt + c
+            if ((check_pt == points).all(axis=1)).any():
+                return check_pt
+
+        raise ValueError
+
+# 
+
+
+
 # input gcode which is \n separated, output a line plot
 # this is assuming all commands are XY, or Z
 def plot_gcode(gcode, debug=True):
