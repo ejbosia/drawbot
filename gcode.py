@@ -188,65 +188,104 @@ def line_fill(chain):
 def line_fill_2(chain):
     direction_neg = True
 
-    gcode = ""
+    gcode = "G01 Z10;\n"
 
     # sort chain by row
-    chain = chain[chain[:,1].argsort()]
+    chain = chain[chain[:,0].argsort()]
     previous = np.array([-2,-2])
 
     # create a temporary line of points
+    index = chain[:,1].min()
     temp = chain[chain[:,1]==index]
     sort_temp = temp[temp[:,0].argsort()]
     pt = sort_temp[0]
+    gcode += pos_gcode(format_pos(pt))
+    gcode+= "G01 Z0;\n"
+    prev_direction = True
 
     # loop while points exist in the chains
     while(chain.size > 0):
-
+        #print(chain.size)
         # loop until the end of the chain breaks the loop
+        #print(sort_temp[(sort_temp != pt).any(axis=1)])
         while True:
+            # remove the point from the chain
+            sort_temp = sort_temp[(sort_temp != pt).any(axis=1)]
+            chain = chain[(chain!=pt).any(axis=1)]
 
             if direction_neg:
-                next_point = pt + np.array([0,-1])
+                next_point = pt + np.array([-1,0])
+                prev_point = pt + np.array([1,0])
             else:
-                next_point = pt + np.array([0,1])
+                next_point = pt + np.array([1,0])
+                prev_point = pt + np.array([-1,0])
 
+            #print(next_point,'\t',(next_point == sort_temp).all(axis=1))
             # if the next point does not exist, break the loop
-            if ((next_point == sort_temp).all(axis=1)).any():
+            if (next_point == sort_temp).all(axis=1).any():
+                #print("OPTION 1",pt)
+                pt = next_point
+                continue
+            elif (prev_point == sort_temp).all(axis=1).any():
+                #print("OPTION 2",pt)
+                pt = prev_point
+                direction_neg = not direction_neg
                 continue
             else:
+                #print("OPTION 3",pt)
+                gcode += pos_gcode(format_pos(pt))
                 break
+        if chain.size == 0:
+            break
 
         direction_neg  = not direction_neg
         try:
             # find the next point
-            pt = next_point_lf(pt,points, direction_neg)
+            pt = next_point_lf(pt,chain, direction_neg)
+            gcode += pos_gcode(format_pos(pt))
+            chain = chain[(chain!=pt).any(axis=1)]
             index = index+1
             temp = chain[chain[:,1]==index]
             sort_temp = temp[temp[:,0].argsort()]
         # if no point is found, pick the highest point
         except ValueError:
-            index = chain[:,1].min()
-            temp = chain[chain[:,1]==index]
-            sort_temp = temp[temp[:,0].argsort()]
+            gcode += "GO1 Z10;\n"
+            index = chain[:,0].min()
+            temp = chain[chain[:,0]==index]
+            sort_temp = temp[temp[:,1].argsort()]
             pt = sort_temp[0]
+            chain = chain[(chain!=pt).any(axis=1)]
+            gcode += pos_gcode(format_pos(pt))
+            gcode += "GO1 Z0;"
             direction_neg = True
+
+    gcode += "G01 Z10;\n"
+    return gcode
 
 def next_point_lf(pt,points, direction_neg):
         # find the next point to target
         check = np.array([
-            [1,1],
-            [1,0],
-            [1,-1]
+            [-1,1],
+            [0,1],
+            [1,1]
         ])
-
+        '''
+        check = np.array([
+            [1,-1],
+            [1,0],
+            [1,1]
+        ])
+        '''
         if direction_neg:
             check = check[::-1]
 
         for c in check:
             check_pt = pt + c
+            print(c)
             if ((check_pt == points).all(axis=1)).any():
+                print(check_pt,direction_neg,c,pt)
                 return check_pt
-
+        print("\nFAIL", pt,"\n")
         raise ValueError
 
 # fill using the contours
@@ -304,13 +343,19 @@ def plot_gcode(gcode, debug=True):
 
     Z_down = np.array(Z_down).transpose()
     Z_up = np.array(Z_up).transpose()
+
+
+
+
     if debug:
         print(Z_down)
-    plt.scatter(x=Z_down[0], y=Z_down[1], c="blue", s=5)
-    plt.scatter(x=Z_up[0], y=Z_up[1], c='red', s=3)
+    plt.scatter(x=Z_down[0], y=Z_down[1], c="blue", s=50)
+    plt.scatter(x=Z_up[0], y=Z_up[1], c='red', s=10)
     #plt.gca().invert_yaxis()
     plt.show()
 
+    print("DOWN:\t", Z_down.shape)
+    print("UP:\t", Z_up.shape)
 def main():
 
     test_pos = {
