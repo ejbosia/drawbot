@@ -252,7 +252,7 @@ def line_fill_2(chain):
     gcode += "G01 Z10;\n"
     return gcode
 
-def closest_point():
+def closest_point(pt, chain):
     print("NOT DONE")
 
 
@@ -261,7 +261,10 @@ def next_point_lf(pt,points, direction_neg):
         check = np.array([
             [-1,1],
             [0,1],
-            [1,1]
+            [1,1],
+            [-1,-1],
+            [0,-1],
+            [1,-1]
         ])
 
         if direction_neg:

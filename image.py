@@ -130,7 +130,8 @@ def main(file = "test.png"):
     gcode = ""
 
     for c in chain_list:
-        gcode += GC.line_fill(c)
+        print(c)
+        gcode += GC.line_fill_2(c)
 
     '''
     for p in point_list:
