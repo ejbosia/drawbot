@@ -282,7 +282,6 @@ def line_fill_3(chain, contour):
             # remove the point from the chain
             # remove the point from the contour
             chain = chain[(chain!=pt).any(axis=1)]
-            contour = contour[(contour != pt).any(axis=1)]
 
             if direction_neg:
                 next_point = pt + np.array([-1,0])
@@ -327,14 +326,20 @@ def line_fill_3(chain, contour):
 
 def next_point_contour(pt,points,contour):
 
-        print(pt, contour)
+        #print(pt, contour[contour[:,1]==pt[1]])
 
-        index = np.where((contour==pt).all(axis=1))
-        print(index)
+        index = np.where((contour==pt).all(axis=1))[0]
 
-        check_pt = contour[index+1]
+        if not index:
+            raise ValueError
 
-        print(check_pt, points)
+        print(index,pt,contour[index+1][0],contour[index-1][0])
+
+
+        index = index[0]
+        check_pt = contour[index+1][0]
+
+        #print(check_pt, points)
 
         # check one direction
         if ((check_pt == points).all(axis=1)).any():
@@ -342,7 +347,7 @@ def next_point_contour(pt,points,contour):
             return check_pt
 
         # check the other direction
-        check_pt = contour[index-1]
+        check_pt = contour[index-1][0]
 
 
         if ((check_pt == points).all(axis=1)).any():
