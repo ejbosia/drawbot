@@ -94,10 +94,11 @@ def plot_points(point_chain):
 def contour_groups(image):
 
     chain_list = []
+    contour_list = []
 
     # find the contours and the hierarchy
     # cv2.RETR_CCOMP returns the filled areas and holes (hierarchy is only two levels)
-    contours,hierarchy = cv2.findContours(image, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    contours,hierarchy = cv2.findContours(image, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
 
     # loop through the contours and the hierarchy
     for c,h in zip(contours, hierarchy[0]):
@@ -105,15 +106,30 @@ def contour_groups(image):
         # only fill in if there are no parents
         if h[3] == -1:
             mask = cv2.drawContours(np.zeros_like(image), [c], 0, 255, -1)
+
+            contour_list.append(get_contour_points(c))
+
+
             next_contour = h[2]
             while(next_contour != -1):
                 # remove this area from the contour
                 mask = cv2.drawContours(mask, contours, next_contour, 0, -1)
+                contour_list[-1].extend(get_contour_points(contours[next_contour]))
                 next_contour = hierarchy[0][next_contour, 0]
+
+
             points = np.array(np.where(mask == 255)).transpose()
             chain_list.append(points)
 
-    return chain_list
+    return chain_list, contour_list
+
+
+def get_contour_points(contour):
+    pts = []
+    for c in contour:
+         pts.append(c[0][::-1])
+
+    return pts
 
 
 def main(file = "test.png"):
@@ -122,17 +138,19 @@ def main(file = "test.png"):
     image = cv2.imread(file, 0)
     image = 255-image
     #chain_list = vector_test(image)
-    chain_list = contour_groups(image)
+    chain_list, contour_list = contour_groups(image)
     #point_list = contour_groups_v2(image)
 
     #p = np.array(np.where(image==255)).transpose()
 
     gcode = ""
-
+    '''
     for c in chain_list:
         print(c)
         gcode += GC.line_fill_2(c)
-
+    '''
+    for chain,contour in zip(chain_list,contour_list):
+        gcode += GC.line_fill_3(chain,contour)
     '''
     for p in point_list:
         #print(p)

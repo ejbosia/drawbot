@@ -252,8 +252,105 @@ def line_fill_2(chain):
     gcode += "G01 Z10;\n"
     return gcode
 
-def closest_point(pt, chain):
-    print("NOT DONE")
+#fill the chain with back and forth horizontal lines
+# hopefully minimizes the pen up and down motions - OPTIMIZED
+def line_fill_3(chain, contour):
+    direction_neg = True
+
+    gcode = "G01 Z10;\n"
+
+    # sort chain by row
+    chain = chain[chain[:,0].argsort()]
+    previous = np.array([-2,-2])
+    contour = np.array(contour)
+
+    # create a temporary line of points
+    index = chain[:,1].min()
+    temp = chain[chain[:,1]==index]
+    sort_temp = temp[temp[:,0].argsort()]
+    pt = sort_temp[0]
+    gcode += pos_gcode(format_pos(pt))
+    gcode+= "G01 Z0;\n"
+    prev_direction = True
+
+    # loop while points exist in the chains
+    while(chain.size > 0):
+        #print(chain.size)
+        # loop until the end of the chain breaks the loop
+        #print(sort_temp[(sort_temp != pt).any(axis=1)])
+        while True:
+            # remove the point from the chain
+            # remove the point from the contour
+            chain = chain[(chain!=pt).any(axis=1)]
+            contour = contour[(contour != pt).any(axis=1)]
+
+            if direction_neg:
+                next_point = pt + np.array([-1,0])
+                prev_point = pt + np.array([1,0])
+            else:
+                next_point = pt + np.array([1,0])
+                prev_point = pt + np.array([-1,0])
+
+            #print(next_point,'\t',(next_point == sort_temp).all(axis=1))
+            # if the next point does not exist, break the loop
+            if (next_point == chain).all(axis=1).any():
+                pt = next_point
+            elif (prev_point == chain).all(axis=1).any():
+                pt = prev_point
+                direction_neg = not direction_neg
+            else:
+                gcode += pos_gcode(format_pos(pt))
+                break
+
+        if chain.size == 0:
+            break
+
+        direction_neg  = not direction_neg
+        try:
+            # find the next point
+            pt = next_point_contour(pt,chain, contour)
+            gcode += pos_gcode(format_pos(pt))
+            chain = chain[(chain!=pt).any(axis=1)]
+            contour = contour[(contour!=pt).any(axis=1)]
+        # if no point is found, pick the highest point
+        except ValueError:
+            gcode += "GO1 Z10;\n"
+            pt = chain[0]
+            chain = chain[(chain!=pt).any(axis=1)]
+            contour = contour[(contour!=pt).any(axis=1)]
+            gcode += pos_gcode(format_pos(pt))
+            gcode += "GO1 Z0;"
+            direction_neg = True
+
+    gcode += "G01 Z10;\n"
+    return gcode
+
+def next_point_contour(pt,points,contour):
+
+        print(pt, contour)
+
+        index = np.where((contour==pt).all(axis=1))
+        print(index)
+
+        check_pt = contour[index+1]
+
+        print(check_pt, points)
+
+        # check one direction
+        if ((check_pt == points).all(axis=1)).any():
+            #print(check_pt,direction_neg,c,pt)
+            return check_pt
+
+        # check the other direction
+        check_pt = contour[index-1]
+
+
+        if ((check_pt == points).all(axis=1)).any():
+            #print(check_pt,direction_neg,c,pt)
+            return check_pt
+
+        #print("\nFAIL", pt,"\n")
+        raise ValueError
 
 
 def next_point_lf(pt,points, direction_neg):
