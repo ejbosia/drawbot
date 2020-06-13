@@ -205,31 +205,44 @@ def line_fill_2(chain):
     gcode += pos_gcode(format_pos(pt))
     gcode+= "G01 Z0;\n"
 
+
+
     # loop while points exist in the chains
     while(chain.size > 0):
+
+        next_pt = pt + np.array([1,0])
+
+        # set the direction
+        direction = (next_pt == chain).all(axis=1).any()
+        temp = chain[chain[:,0] == pt[0]]
+        print(temp.size, pt)
         #print(chain.size)
         # loop until the end of the chain breaks the loop
         #print(sort_temp[(sort_temp != pt).any(axis=1)])
-
+        temp_chain = []
         start_pt = pt
+
+
         while True:
             # remove the point from the chain
-            chain = chain[(chain!=pt).any(axis=1)]
-
-            left_pt = pt + np.array([-1,0])
-            right_pt = pt + np.array([1,0])
-
-            #print(next_point,'\t',(next_point == sort_temp).all(axis=1))
+            temp_chain.append(pt)
+            #print(pt)
+            if direction:
+                next_pt = pt + np.array([1,0])
+            else:
+                next_pt = pt + np.array([-1,0])
+            # print(pt)
+            # print(next_point,'\t',(next_point == sort_temp).all(axis=1))
             # if the next point does not exist, break the loop
-            if (left_pt == chain).all(axis=1).any():
-                pt = left_pt
-                direction = False
-            elif (right_pt == chain).all(axis=1).any():
-                pt = right_pt
-                direction = True
+            if (next_pt == temp).all(axis=1).any():
+                pt = next_pt
             else:
                 gcode += pos_gcode(format_pos(pt))
                 break
+        # print("NEW ROW", pt)
+        temp_chain = np.array(temp_chain)
+        dims = np.maximum(temp_chain.max(0),chain.max(0))+1
+        chain = chain[~np.in1d(np.ravel_multi_index(chain.T,dims),np.ravel_multi_index(temp_chain.T,dims))]
 
         if chain.size == 0:
             break
@@ -283,10 +296,15 @@ def line_fill_3(chain, contour):
         #print(chain.size)
         # loop until the end of the chain breaks the loop
         #print(sort_temp[(sort_temp != pt).any(axis=1)])
+
+        temp_chain = []
+
         while True:
+
+
             # remove the point from the chain
             # remove the point from the contour
-            chain = chain[(chain!=pt).any(axis=1)]
+            temp_chain.append(pt)
 
             left_pt = pt + np.array([-1,0])
             right_pt = pt + np.array([1,0])
@@ -300,6 +318,10 @@ def line_fill_3(chain, contour):
             else:
                 gcode += pos_gcode(format_pos(pt))
                 break
+        temp_chain = np.array(temp_chain)
+        #print(temp_chain)
+
+        chain = chain[(chain!=temp_chain).any(axis=1)]
 
         if chain.size == 0:
             break
@@ -326,7 +348,7 @@ def line_fill_3(chain, contour):
     return gcode
 
 def next_point_contour(pt,points,contour):
-
+        #print("NP")
         #print(pt, contour[contour[:,1]==pt[1]])
 
         index = np.where((contour==pt).all(axis=1))[0]
@@ -363,7 +385,7 @@ def next_point_contour(pt,points,contour):
         raise ValueError
 
 def next_point_lf(pt,start_pt, points, direction):
-
+        direction = not direction
         #Sprint("NEXT FUNC",pt)
         x_min = points.min(axis=0)[0]
         x_max = points.max(axis=0)[0]
@@ -382,7 +404,7 @@ def next_point_lf(pt,start_pt, points, direction):
         '''
         # if there are still no points
         if check_x.size == 0:
-            print("NO POINTS")
+            # print("NO POINTS")
             #print("NO POINTS")
             raise ValueError
 
@@ -395,7 +417,7 @@ def next_point_lf(pt,start_pt, points, direction):
                 #print("NEGATIVE", direction, start_value)
                 #print(check_x)
 
-                for x in range(pt[0], x_max+1, 1):
+                for x in range(pt[0], x_max, 1):
                     value = x in check_x
                     #print(start_value, value, x)
 
@@ -411,7 +433,7 @@ def next_point_lf(pt,start_pt, points, direction):
                 #print("POSITIVE", direction, start_value)
                 #print(check_x)
                 #print(pt)
-                for x in range(pt[0], 0, -1):
+                for x in range(pt[0], x_min, -1):
                     value = x in check_x
                     #print(start_value, value, x)
                     # if the value is positive, set the index
@@ -428,6 +450,10 @@ def next_point_lf(pt,start_pt, points, direction):
 
             x_min = np.array([pt[0],start_pt[0]]).min()
             x_max = np.array([pt[0],start_pt[0]]).max()
+            '''
+            x_min = pt[0]-6
+            x_max = pt[0]+6
+            '''
             #print("POS", x_min, x_max, pt, start_pt)
             if direction:
                 #print(check_x)
@@ -473,7 +499,7 @@ def line_fill_contours(contours, heirachy):
 
 # input gcode which is \n separated, output a line plot
 # this is assuming all commands are XY, or Z
-def plot_gcode(gcode, debug=True, show=True):
+def plot_gcode(gcode, debug=True, show=True, image=False):
     commands = gcode.split('\n')
 
     X = [[]]
@@ -524,6 +550,10 @@ def plot_gcode(gcode, debug=True, show=True):
     plt.scatter(x=Z_up[0], y=Z_up[1], c='red', s=10)
     #plt.ylim(25)
     #plt.gca().invert_yaxis()
+    try:
+        plt.imshow(image.transpose(),'gray')
+    except:
+        print("No Image")
     if show:
         plt.show()
 

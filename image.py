@@ -136,37 +136,26 @@ def get_contour_points(contour):
     return pts
 
 
-def main(file = "test.png"):
+def main(file = "test.png", inverse=False):
     print(file)
 
     image = cv2.imread(file, 0)
-    image = 255-image
-    #chain_list = vector_test(image)
-    chain_list, contour_list = contour_groups(image)
-    #point_list = contour_groups_v2(image)
 
-    #p = np.array(np.where(image==255)).transpose()
+    if inverse:
+        image = 255-image
+
+    chain_list, contour_list = contour_groups(image)
 
     gcode = ""
     start = datetime.datetime.now()
 
     for c in chain_list:
-        print(c)
+        #print(c)
         gcode += GC.line_fill_2(c)
 
     print("Line Fill 2", datetime.datetime.now()-start)
-    GC.plot_gcode(gcode,debug=False)
+    GC.plot_gcode(gcode,debug=False, image=image)
 
-    '''
-    gcode = ""
-    start = datetime.datetime.now()
-
-    for chain,contour in zip(chain_list,contour_list):
-        gcode += GC.line_fill_3(chain,contour)
-
-    print("Line Fill 3", datetime.datetime.now()-start)
-    GC.plot_gcode(gcode,debug=False)
-    '''
     text_file = open("test.gcode", 'w')
     text_file.write(gcode)
     text_file.close()
