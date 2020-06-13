@@ -196,7 +196,6 @@ def line_fill_2(chain):
 
     # sort chain by row
     chain = chain[chain[:,0].argsort()]
-    previous = np.array([-2,-2])
 
     # create a temporary line of points
     index = chain[:,1].min()
@@ -225,9 +224,11 @@ def line_fill_2(chain):
             if (left_pt == chain).all(axis=1).any():
                 pt = left_pt
                 direction = False
+                print(pt, direction)
             elif (right_pt == chain).all(axis=1).any():
                 pt = right_pt
                 direction = True
+                print(pt,direction)
             else:
                 gcode += pos_gcode(format_pos(pt))
                 break
@@ -244,7 +245,12 @@ def line_fill_2(chain):
         # if no point is found, pick the highest point
         except ValueError:
             gcode += "GO1 Z10;\n"
-            pt = chain[0]
+            print("VALUE ERROR")
+            index = chain[:,1].min()
+            temp = chain[chain[:,1]==index]
+            sort_temp = temp[temp[:,0].argsort()]
+            pt = sort_temp[0]
+
             chain = chain[(chain!=pt).any(axis=1)]
             gcode += pos_gcode(format_pos(pt))
             gcode += "GO1 Z0;"
@@ -359,7 +365,8 @@ def next_point_contour(pt,points,contour):
         raise ValueError
 
 def next_point_lf(pt,start_pt, points, direction):
-        print("NEXT FUNC",pt)
+
+        #Sprint("NEXT FUNC",pt)
         x_min = points.min(axis=0)[0]
         x_max = points.max(axis=0)[0]
 
@@ -367,25 +374,30 @@ def next_point_lf(pt,start_pt, points, direction):
         check_x = points[np.where(points[:,1] == pt[1]+1)].transpose()[0]
         row = pt[1]+1
         # if there are no points
+
+        '''
         if check_x.size == 0:
-            print("DOWN")
+            #print("DOWN")
             check_x = points[np.where(points[:,1] == pt[1]-1)].transpose()[0]
 
             row = pt[1]-1
+        '''
         # if there are still no points
         if check_x.size == 0:
             print("NO POINTS")
+            #print("NO POINTS")
             raise ValueError
 
         start_value = pt[0] in check_x
         value = False
 
-
         # if the start value is positive, there is no limit
         if start_value:
             if direction:
-                print("NEGATIVE", direction, start_value)
-                print(check_x)
+
+                print("OPTION 1")
+                #print("NEGATIVE", direction, start_value)
+                #print(check_x)
 
                 for x in range(pt[0], x_max+1, 1):
                     value = x in check_x
@@ -397,30 +409,35 @@ def next_point_lf(pt,start_pt, points, direction):
 
                     # if the value is different
                     if value != start_value:
-                        print("FOUND NEG")
+                        #print("FOUND NEG")
                         return np.array([index, row])
-                else:
-                    print("POSITIVE", direction, start_value)
-                    print(check_x)
-                    for x in range(pt[0], x_min-1, -1):
-                        value = x in check_x
-                        #print(start_value, value, x)
-                        # if the value is positive, set the index
-                        if value:
-                            index = x
+            else:
+                print("OPTION 2")
 
-                        # if the value is different
-                        if value != start_value:
-                            print("FOUND POS")
-                            return np.array([index, row])
+                #print("POSITIVE", direction, start_value)
+                #print(check_x)
+                #print(pt)
+                for x in range(pt[0], 0, -1):
+                    value = x in check_x
+                    #print(start_value, value, x)
+                    # if the value is positive, set the index
+                    if value:
+                        index = x
+
+                    # if the value is different
+                    if value != start_value:
+                        #print("FOUND POS")
+                        return np.array([index, row])
 
         # if the start value is false, set the limits to be between start_pt and pt
         else:
+            print("YAYYY")
+
             x_min = np.array([pt[0],start_pt[0]]).min()
             x_max = np.array([pt[0],start_pt[0]]).max()
-            print("POS", x_min, x_max, pt, start_pt)
+            #print("POS", x_min, x_max, pt, start_pt)
             if direction:
-                #print("POSITIVE", direction, start_value)
+                print("OPTION 3")
                 #print(check_x)
                 for x in range(pt[0], x_min-1, -1):
                     value = x in check_x
@@ -431,15 +448,14 @@ def next_point_lf(pt,start_pt, points, direction):
 
                     # if the value is different
                     if value != start_value:
-                        print("FOUND POS")
+                        #print("FOUND POS")
                         return np.array([index, row])
             else:
-                print("NEGATIVE", direction, start_value)
-                print(check_x)
-
+                #print("NEGATIVE", direction, start_value)
+                #print(check_x)
+                print("OPTION 4")
                 for x in range(pt[0], x_max+1, 1):
                     value = x in check_x
-                    #print(start_value, value, x)
 
                     # if the value is positive, set the index
                     if value:
@@ -447,7 +463,7 @@ def next_point_lf(pt,start_pt, points, direction):
 
                     # if the value is different
                     if value != start_value:
-                        print("FOUND NEG")
+                        #print("FOUND NEG")
                         return np.array([index, row])
 
 
@@ -466,7 +482,7 @@ def line_fill_contours(contours, heirachy):
 
 # input gcode which is \n separated, output a line plot
 # this is assuming all commands are XY, or Z
-def plot_gcode(gcode, debug=True):
+def plot_gcode(gcode, debug=True, show=True):
     commands = gcode.split('\n')
 
     X = [[]]
@@ -517,7 +533,8 @@ def plot_gcode(gcode, debug=True):
     plt.scatter(x=Z_up[0], y=Z_up[1], c='red', s=10)
     #plt.ylim(25)
     #plt.gca().invert_yaxis()
-    plt.show()
+    if show:
+        plt.show()
 
     print("DOWN:\t", Z_down.shape)
     print("UP:\t", Z_up.shape)
