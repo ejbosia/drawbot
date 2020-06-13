@@ -211,7 +211,8 @@ def line_fill_2(chain):
         #print(chain.size)
         # loop until the end of the chain breaks the loop
         #print(sort_temp[(sort_temp != pt).any(axis=1)])
-        print("START",pt)
+
+        start_pt = pt
         while True:
             # remove the point from the chain
             chain = chain[(chain!=pt).any(axis=1)]
@@ -236,7 +237,7 @@ def line_fill_2(chain):
 
         try:
             # find the next point
-            pt = next_point_lf(pt,chain, direction)
+            pt = next_point_lf(pt, start_pt,chain, direction)
             gcode += pos_gcode(format_pos(pt))
             chain = chain[(chain!=pt).any(axis=1)]
             #print(pt)
@@ -357,7 +358,7 @@ def next_point_contour(pt,points,contour):
 
         raise ValueError
 
-def next_point_lf(pt,points, direction):
+def next_point_lf(pt,start_pt, points, direction):
         print("NEXT FUNC",pt)
         x_min = points.min(axis=0)[0]
         x_max = points.max(axis=0)[0]
@@ -379,39 +380,76 @@ def next_point_lf(pt,points, direction):
         start_value = pt[0] in check_x
         value = False
 
-        # if the direction is positive, and the start value is true, look positive
-        # if the direction is negative and the start value is false, look positive
-        if (direction and start_value) or ((not direction) and (not start_value)):
-            print("NEGATIVE", direction, start_value)
-            print(check_x)
 
-            for x in range(pt[0], x_max+1, 1):
-                value = x in check_x
-                #print(start_value, value, x)
+        # if the start value is positive, there is no limit
+        if start_value:
+            if direction:
+                print("NEGATIVE", direction, start_value)
+                print(check_x)
 
-                # if the value is positive, set the index
-                if value:
-                    index = x
+                for x in range(pt[0], x_max+1, 1):
+                    value = x in check_x
+                    #print(start_value, value, x)
 
-                # if the value is different
-                if value != start_value:
-                    print("FOUND NEG")
-                    return np.array([index, row])
+                    # if the value is positive, set the index
+                    if value:
+                        index = x
 
+                    # if the value is different
+                    if value != start_value:
+                        print("FOUND NEG")
+                        return np.array([index, row])
+                else:
+                    print("POSITIVE", direction, start_value)
+                    print(check_x)
+                    for x in range(pt[0], x_min-1, -1):
+                        value = x in check_x
+                        #print(start_value, value, x)
+                        # if the value is positive, set the index
+                        if value:
+                            index = x
+
+                        # if the value is different
+                        if value != start_value:
+                            print("FOUND POS")
+                            return np.array([index, row])
+
+        # if the start value is false, set the limits to be between start_pt and pt
         else:
-            print("POSITIVE", direction, start_value)
-            print(check_x)
-            for x in range(pt[0], x_min-1, -1):
-                value = x in check_x
-                #print(start_value, value, x)
-                # if the value is positive, set the index
-                if value:
-                    index = x
+            x_min = np.array([pt[0],start_pt[0]]).min()
+            x_max = np.array([pt[0],start_pt[0]]).max()
+            print("POS", x_min, x_max, pt, start_pt)
+            if direction:
+                #print("POSITIVE", direction, start_value)
+                #print(check_x)
+                for x in range(pt[0], x_min-1, -1):
+                    value = x in check_x
+                    #print(start_value, value, x)
+                    # if the value is positive, set the index
+                    if value:
+                        index = x
 
-                # if the value is different
-                if value != start_value:
-                    print("FOUND POS")
-                    return np.array([index, row])
+                    # if the value is different
+                    if value != start_value:
+                        print("FOUND POS")
+                        return np.array([index, row])
+            else:
+                print("NEGATIVE", direction, start_value)
+                print(check_x)
+
+                for x in range(pt[0], x_max+1, 1):
+                    value = x in check_x
+                    #print(start_value, value, x)
+
+                    # if the value is positive, set the index
+                    if value:
+                        index = x
+
+                    # if the value is different
+                    if value != start_value:
+                        print("FOUND NEG")
+                        return np.array([index, row])
+
 
         if value:
             return np.array([index, row])
