@@ -190,7 +190,7 @@ def line_fill(chain):
 #fill the chain with back and forth horizontal lines
 # hopefully minimizes the pen up and down motions - OPTIMIZED
 def line_fill_2(chain):
-    direction_neg = True
+    direction = True
 
     gcode = "G01 Z10;\n"
 
@@ -205,31 +205,28 @@ def line_fill_2(chain):
     pt = sort_temp[0]
     gcode += pos_gcode(format_pos(pt))
     gcode+= "G01 Z0;\n"
-    prev_direction = True
 
     # loop while points exist in the chains
     while(chain.size > 0):
         #print(chain.size)
         # loop until the end of the chain breaks the loop
         #print(sort_temp[(sort_temp != pt).any(axis=1)])
+        print("START",pt)
         while True:
             # remove the point from the chain
             chain = chain[(chain!=pt).any(axis=1)]
 
-            if direction_neg:
-                next_point = pt + np.array([-1,0])
-                prev_point = pt + np.array([1,0])
-            else:
-                next_point = pt + np.array([1,0])
-                prev_point = pt + np.array([-1,0])
+            left_pt = pt + np.array([-1,0])
+            right_pt = pt + np.array([1,0])
 
             #print(next_point,'\t',(next_point == sort_temp).all(axis=1))
             # if the next point does not exist, break the loop
-            if (next_point == chain).all(axis=1).any():
-                pt = next_point
-            elif (prev_point == chain).all(axis=1).any():
-                pt = prev_point
-                direction_neg = not direction_neg
+            if (left_pt == chain).all(axis=1).any():
+                pt = left_pt
+                direction = False
+            elif (right_pt == chain).all(axis=1).any():
+                pt = right_pt
+                direction = True
             else:
                 gcode += pos_gcode(format_pos(pt))
                 break
@@ -237,13 +234,12 @@ def line_fill_2(chain):
         if chain.size == 0:
             break
 
-        direction_neg  = not direction_neg
         try:
             # find the next point
-            pt = next_point_lf(pt,chain, direction_neg)
+            pt = next_point_lf(pt,chain, direction)
             gcode += pos_gcode(format_pos(pt))
             chain = chain[(chain!=pt).any(axis=1)]
-
+            print(pt)
         # if no point is found, pick the highest point
         except ValueError:
             gcode += "GO1 Z10;\n"
@@ -251,7 +247,6 @@ def line_fill_2(chain):
             chain = chain[(chain!=pt).any(axis=1)]
             gcode += pos_gcode(format_pos(pt))
             gcode += "GO1 Z0;"
-            direction_neg = True
 
     gcode += "G01 Z10;\n"
     return gcode
@@ -362,28 +357,63 @@ def next_point_contour(pt,points,contour):
 
         raise ValueError
 
+def next_point_lf(pt,points, direction):
+        print("NEXT FUNC",pt)
+        x_min = points.min(axis=0)[0]
+        x_max = points.max(axis=0)[0]
 
-def next_point_lf(pt,points, direction_neg):
-        # find the next point to target
-        check = np.array([
-            [-1,1],
-            [0,1],
-            [1,1],
-            [-1,-1],
-            [0,-1],
-            [1,-1]
-        ])
+        # if there are any points remaining above
+        check_x = points[np.where(points[:,1] == pt[1]+1)].transpose()[0]
+        row = pt[1]+1
+        # if there are no points
+        if check_x.size == 0:
+            print("DOWN")
+            check_x = points[np.where((points[:,1] == pt[1]-1).any())].transpose()[0]
 
-        if direction_neg:
-            check = check[::-1]
+            row = pt[1]-1
+        # if there are still no points
+        if check_x.size == 0:
+            print("NO POINTS")
+            raise ValueError
 
-        for c in check:
-            check_pt = pt + c
-            #print(c)
-            if ((check_pt == points).all(axis=1)).any():
-                #print(check_pt,direction_neg,c,pt)
-                return check_pt
-        #print("\nFAIL", pt,"\n")
+        start_value = pt[0] in check_x
+        value = False
+
+        # if the direction is positive, and the start value is true, look positive
+        # if the direction is negative and the start value is false, look positive
+        if (direction and start_value) or ((not direction) and (not start_value)):
+            print("NEGATIVE", direction, start_value)
+            for x in range(pt[0], x_max+1, 1):
+                value = x in check_x
+                print(start_value, value, x)
+
+                # if the value is positive, set the index
+                if value:
+                    index = x
+
+                # if the value is different
+                if value != start_value:
+                    print("FOUND NEG")
+                    return np.array([index, row])
+
+        else:
+            print("POSITIVE", direction, start_value)
+            print(check_x)
+            for x in range(pt[0], x_min-1, -1):
+                value = x in check_x
+                print(start_value, value, x)
+                # if the value is positive, set the index
+                if value:
+                    index = x
+
+                # if the value is different
+                if value != start_value:
+                    print("FOUND POS")
+                    return np.array([index, row])
+
+        if value:
+            return np.array([index, row])
+
         raise ValueError
 
 # fill using the contours
