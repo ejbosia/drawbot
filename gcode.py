@@ -260,7 +260,6 @@ def line_fill_3(chain, contour):
     gcode = "G01 Z10;\n"
 
     # sort chain by row
-    chain = chain[chain[:,0].argsort()]
     previous = np.array([-2,-2])
     contour = np.array(contour)
 
@@ -269,6 +268,8 @@ def line_fill_3(chain, contour):
     temp = chain[chain[:,1]==index]
     sort_temp = temp[temp[:,0].argsort()]
     pt = sort_temp[0]
+
+
     gcode += pos_gcode(format_pos(pt))
     gcode+= "G01 Z0;\n"
     prev_direction = True
@@ -283,20 +284,15 @@ def line_fill_3(chain, contour):
             # remove the point from the contour
             chain = chain[(chain!=pt).any(axis=1)]
 
-            if direction_neg:
-                next_point = pt + np.array([-1,0])
-                prev_point = pt + np.array([1,0])
-            else:
-                next_point = pt + np.array([1,0])
-                prev_point = pt + np.array([-1,0])
+            left_pt = pt + np.array([-1,0])
+            right_pt = pt + np.array([1,0])
 
             #print(next_point,'\t',(next_point == sort_temp).all(axis=1))
             # if the next point does not exist, break the loop
-            if (next_point == chain).all(axis=1).any():
-                pt = next_point
-            elif (prev_point == chain).all(axis=1).any():
-                pt = prev_point
-                direction_neg = not direction_neg
+            if (left_pt == chain).all(axis=1).any():
+                pt = left_pt
+            elif (right_pt == chain).all(axis=1).any():
+                pt = right_pt
             else:
                 gcode += pos_gcode(format_pos(pt))
                 break
@@ -308,18 +304,20 @@ def line_fill_3(chain, contour):
         try:
             # find the next point
             pt = next_point_contour(pt,chain, contour)
+            print(pt)
             gcode += pos_gcode(format_pos(pt))
             chain = chain[(chain!=pt).any(axis=1)]
             contour = contour[(contour!=pt).any(axis=1)]
+
         # if no point is found, pick the highest point
         except ValueError:
+            print("VALUE ERROR")
             gcode += "GO1 Z10;\n"
             pt = chain[0]
             chain = chain[(chain!=pt).any(axis=1)]
             contour = contour[(contour!=pt).any(axis=1)]
             gcode += pos_gcode(format_pos(pt))
             gcode += "GO1 Z0;"
-            direction_neg = True
 
     gcode += "G01 Z10;\n"
     return gcode
@@ -329,17 +327,24 @@ def next_point_contour(pt,points,contour):
         #print(pt, contour[contour[:,1]==pt[1]])
 
         index = np.where((contour==pt).all(axis=1))[0]
+        #print(pt, contour)
 
         if not index:
             raise ValueError
 
-        print(index,pt,contour[index+1][0],contour[index-1][0])
 
 
         index = index[0]
-        check_pt = contour[index+1][0]
+        #print(index, contour.size, contour.shape[0])
+        if index+1 == contour.shape[0]:
+            check_pt = contour[0]
+        else:
+            check_pt = contour[index+1]
 
-        #print(check_pt, points)
+
+        #print("NPC",index,pt,check_pt,contour[index-1], contour.size)
+
+        #print(check_pt, points, (check_pt == points))
 
         # check one direction
         if ((check_pt == points).all(axis=1)).any():
@@ -347,14 +352,14 @@ def next_point_contour(pt,points,contour):
             return check_pt
 
         # check the other direction
-        check_pt = contour[index-1][0]
+        check_pt = contour[index-1]
 
 
         if ((check_pt == points).all(axis=1)).any():
             #print(check_pt,direction_neg,c,pt)
             return check_pt
 
-        #print("\nFAIL", pt,"\n")
+        print("\nFAIL", pt,"\n")
         raise ValueError
 
 

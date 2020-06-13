@@ -114,6 +114,10 @@ def contour_groups(image):
             while(next_contour != -1):
                 # remove this area from the contour
                 mask = cv2.drawContours(mask, contours, next_contour, 0, -1)
+
+                # fill in inner edge
+                mask = cv2.drawContours(mask, contours, next_contour, 255, 1)
+
                 contour_list[-1].extend(get_contour_points(contours[next_contour]))
                 next_contour = hierarchy[0][next_contour, 0]
 
