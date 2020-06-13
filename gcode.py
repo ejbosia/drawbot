@@ -3,12 +3,16 @@ import matplotlib.pyplot as plt
 import config as CONFIG
 # takes in a position (XYZF)
 # returns the gcode to enact that position
-def pos_gcode(pos):
+def pos_gcode(pos, no_scale=True):
 
     gcode = "G01 "
 
     for key in pos.keys():
-        gcode += key+str(pos[key] * CONFIG.SCALE)+" "
+        if no_scale:
+            gcode += key+str(pos[key])+" "
+
+        else:
+            gcode += key+str(pos[key] * CONFIG.SCALE)+" "
 
     gcode += ";\n"
 
@@ -304,14 +308,13 @@ def line_fill_3(chain, contour):
         try:
             # find the next point
             pt = next_point_contour(pt,chain, contour)
-            print(pt)
             gcode += pos_gcode(format_pos(pt))
             chain = chain[(chain!=pt).any(axis=1)]
             contour = contour[(contour!=pt).any(axis=1)]
 
         # if no point is found, pick the highest point
         except ValueError:
-            print("VALUE ERROR")
+            # print("VALUE ERROR")
             gcode += "GO1 Z10;\n"
             pt = chain[0]
             chain = chain[(chain!=pt).any(axis=1)]
@@ -331,8 +334,6 @@ def next_point_contour(pt,points,contour):
 
         if not index:
             raise ValueError
-
-
 
         index = index[0]
         #print(index, contour.size, contour.shape[0])
@@ -359,7 +360,6 @@ def next_point_contour(pt,points,contour):
             #print(check_pt,direction_neg,c,pt)
             return check_pt
 
-        print("\nFAIL", pt,"\n")
         raise ValueError
 
 
@@ -392,10 +392,6 @@ def line_fill_contours(contours, heirachy):
     # loop through the contours
     for x, contours in enumerate(contours):
         print("FOO")
-
-
-
-
 
 
 # input gcode which is \n separated, output a line plot
@@ -449,6 +445,7 @@ def plot_gcode(gcode, debug=True):
         print(Z_down)
     plt.scatter(x=Z_down[0], y=Z_down[1], c="blue", s=50)
     plt.scatter(x=Z_up[0], y=Z_up[1], c='red', s=10)
+    #plt.ylim(25)
     #plt.gca().invert_yaxis()
     plt.show()
 

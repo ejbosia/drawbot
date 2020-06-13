@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-
+import datetime
 import gcode as GC
 
 # TODO: test using np.where
@@ -107,7 +107,7 @@ def contour_groups(image):
         if h[3] == -1:
             mask = cv2.drawContours(np.zeros_like(image), [c], 0, 255, -1)
 
-            contour_list.append(get_contour_points(c))
+            contour_list.append([get_contour_points(c)])
 
 
             next_contour = h[2]
@@ -118,7 +118,7 @@ def contour_groups(image):
                 # fill in inner edge
                 mask = cv2.drawContours(mask, contours, next_contour, 255, 1)
 
-                contour_list[-1].extend(get_contour_points(contours[next_contour]))
+                contour_list[-1].append(get_contour_points(contours[next_contour]))
                 next_contour = hierarchy[0][next_contour, 0]
 
 
@@ -148,19 +148,23 @@ def main(file = "test.png"):
     #p = np.array(np.where(image==255)).transpose()
 
     gcode = ""
-    '''
+    start = datetime.datetime.now()
+
     for c in chain_list:
         print(c)
         gcode += GC.line_fill_2(c)
-    '''
+
+    print("Line Fill 2", datetime.datetime.now()-start)
+    GC.plot_gcode(gcode,debug=False)
+
+
+    gcode = ""
+    start = datetime.datetime.now()
+
     for chain,contour in zip(chain_list,contour_list):
         gcode += GC.line_fill_3(chain,contour)
-    '''
-    for p in point_list:
-        #print(p)
-    '''
-    #gcode += GC.line_fill_2(p)
 
+    print("Line Fill 3", datetime.datetime.now()-start)
     GC.plot_gcode(gcode,debug=False)
 
     text_file = open("test.gcode", 'w')
