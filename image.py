@@ -157,7 +157,7 @@ def main(file = "test.png"):
     print("Line Fill 2", datetime.datetime.now()-start)
     GC.plot_gcode(gcode,debug=False)
 
-
+    '''
     gcode = ""
     start = datetime.datetime.now()
 
@@ -166,7 +166,7 @@ def main(file = "test.png"):
 
     print("Line Fill 3", datetime.datetime.now()-start)
     GC.plot_gcode(gcode,debug=False)
-
+    '''
     text_file = open("test.gcode", 'w')
     text_file.write(gcode)
     text_file.close()

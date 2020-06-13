@@ -239,7 +239,7 @@ def line_fill_2(chain):
             pt = next_point_lf(pt,chain, direction)
             gcode += pos_gcode(format_pos(pt))
             chain = chain[(chain!=pt).any(axis=1)]
-            print(pt)
+            #print(pt)
         # if no point is found, pick the highest point
         except ValueError:
             gcode += "GO1 Z10;\n"
@@ -368,7 +368,7 @@ def next_point_lf(pt,points, direction):
         # if there are no points
         if check_x.size == 0:
             print("DOWN")
-            check_x = points[np.where((points[:,1] == pt[1]-1).any())].transpose()[0]
+            check_x = points[np.where(points[:,1] == pt[1]-1)].transpose()[0]
 
             row = pt[1]-1
         # if there are still no points
@@ -383,9 +383,11 @@ def next_point_lf(pt,points, direction):
         # if the direction is negative and the start value is false, look positive
         if (direction and start_value) or ((not direction) and (not start_value)):
             print("NEGATIVE", direction, start_value)
+            print(check_x)
+
             for x in range(pt[0], x_max+1, 1):
                 value = x in check_x
-                print(start_value, value, x)
+                #print(start_value, value, x)
 
                 # if the value is positive, set the index
                 if value:
@@ -401,7 +403,7 @@ def next_point_lf(pt,points, direction):
             print(check_x)
             for x in range(pt[0], x_min-1, -1):
                 value = x in check_x
-                print(start_value, value, x)
+                #print(start_value, value, x)
                 # if the value is positive, set the index
                 if value:
                     index = x
