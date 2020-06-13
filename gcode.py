@@ -224,11 +224,9 @@ def line_fill_2(chain):
             if (left_pt == chain).all(axis=1).any():
                 pt = left_pt
                 direction = False
-                print(pt, direction)
             elif (right_pt == chain).all(axis=1).any():
                 pt = right_pt
                 direction = True
-                print(pt,direction)
             else:
                 gcode += pos_gcode(format_pos(pt))
                 break
@@ -245,7 +243,7 @@ def line_fill_2(chain):
         # if no point is found, pick the highest point
         except ValueError:
             gcode += "GO1 Z10;\n"
-            print("VALUE ERROR")
+            # print("VALUE ERROR")
             index = chain[:,1].min()
             temp = chain[chain[:,1]==index]
             sort_temp = temp[temp[:,0].argsort()]
@@ -394,8 +392,6 @@ def next_point_lf(pt,start_pt, points, direction):
         # if the start value is positive, there is no limit
         if start_value:
             if direction:
-
-                print("OPTION 1")
                 #print("NEGATIVE", direction, start_value)
                 #print(check_x)
 
@@ -412,8 +408,6 @@ def next_point_lf(pt,start_pt, points, direction):
                         #print("FOUND NEG")
                         return np.array([index, row])
             else:
-                print("OPTION 2")
-
                 #print("POSITIVE", direction, start_value)
                 #print(check_x)
                 #print(pt)
@@ -431,13 +425,11 @@ def next_point_lf(pt,start_pt, points, direction):
 
         # if the start value is false, set the limits to be between start_pt and pt
         else:
-            print("YAYYY")
 
             x_min = np.array([pt[0],start_pt[0]]).min()
             x_max = np.array([pt[0],start_pt[0]]).max()
             #print("POS", x_min, x_max, pt, start_pt)
             if direction:
-                print("OPTION 3")
                 #print(check_x)
                 for x in range(pt[0], x_min-1, -1):
                     value = x in check_x
@@ -453,7 +445,6 @@ def next_point_lf(pt,start_pt, points, direction):
             else:
                 #print("NEGATIVE", direction, start_value)
                 #print(check_x)
-                print("OPTION 4")
                 for x in range(pt[0], x_max+1, 1):
                     value = x in check_x
 
