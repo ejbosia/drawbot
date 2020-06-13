@@ -213,9 +213,9 @@ def line_fill_2(chain):
         next_pt = pt + np.array([1,0])
 
         # set the direction
-        direction = (next_pt == chain).all(axis=1).any()
-        temp = chain[chain[:,0] == pt[0]]
-        print(temp.size, pt)
+        direction = not (next_pt == chain).all(axis=1).any()
+        temp = chain[np.where(chain[:,1] == pt[1])]
+        print(temp.size, pt, temp)
         #print(chain.size)
         # loop until the end of the chain breaks the loop
         #print(sort_temp[(sort_temp != pt).any(axis=1)])
@@ -234,10 +234,13 @@ def line_fill_2(chain):
             # print(pt)
             # print(next_point,'\t',(next_point == sort_temp).all(axis=1))
             # if the next point does not exist, break the loop
+            #print(next_pt, next_pt==temp, temp)
             if (next_pt == temp).all(axis=1).any():
                 pt = next_pt
+                print("A")
             else:
                 gcode += pos_gcode(format_pos(pt))
+                print("B")
                 break
         # print("NEW ROW", pt)
         temp_chain = np.array(temp_chain)
@@ -385,7 +388,7 @@ def next_point_contour(pt,points,contour):
         raise ValueError
 
 def next_point_lf(pt,start_pt, points, direction):
-        direction = not direction
+        #direction = not direction
         #Sprint("NEXT FUNC",pt)
         x_min = points.min(axis=0)[0]
         x_max = points.max(axis=0)[0]
