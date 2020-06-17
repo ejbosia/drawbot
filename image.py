@@ -106,11 +106,11 @@ def contour_groups(image):
         # only fill in if there are no parents
         if h[3] == -1:
             mask = cv2.drawContours(np.zeros_like(image), [c], 0, 255, -1)
-
-            contour_list.append([get_contour_points(c)])
-
-
+            contour_list.append([])
+            contour_list[-1].append(get_contour_points(c))
+            print(len(contour_list[-1][0]))
             next_contour = h[2]
+
             while(next_contour != -1):
                 # remove this area from the contour
                 mask = cv2.drawContours(mask, contours, next_contour, 0, -1)
@@ -120,7 +120,9 @@ def contour_groups(image):
 
                 contour_list[-1].append(get_contour_points(contours[next_contour]))
                 next_contour = hierarchy[0][next_contour, 0]
-
+                plt.imshow(mask, 'gray')
+                plt.title(len(contour_list[-1]))
+                plt.show()
 
             points = np.array(np.where(mask == 255)).transpose()
             chain_list.append(points)
