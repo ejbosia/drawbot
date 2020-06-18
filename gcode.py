@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import config as CONFIG
+
+
 # takes in a position (XYZF)
 # returns the gcode to enact that position
 def pos_gcode(pos, no_scale=False):
@@ -29,6 +31,7 @@ def pos_list_gcode(pos_list):
 
     return gcode
 
+
 # assuming XYZF order
 # convert array to dict format
 def format_pos(pos):
@@ -39,6 +42,7 @@ def format_pos(pos):
         format_pos[axis[i]] = value
 
     return format_pos
+
 
 # get the next avaiable partition
 # start looking to the right of the partition, clockwise search
@@ -68,6 +72,7 @@ def next_paritition(pt, points, direction):
             return points[mask][0], (direction+i)%8
 
     return np.array([]), direction
+
 
 # returns the spiral fill of gcode
 def chain_spiral(chain, debug=True):
@@ -349,6 +354,30 @@ def line_fill_3(chain, contour):
 
     gcode += "G01 Z10;\n"
     return gcode
+
+# next point contour function
+def next_point(p, temp, i):
+    y = p["Y"]
+
+    # print(temp.head())
+    index = temp.index.get_loc(p.name[1])
+    # print(index)
+
+    next_pt = temp.iloc[(index + 1) % temp.shape[0]]
+    prev_pt = temp.iloc[index - 1]
+    # print(i, index)
+
+    if next_pt["Available"] and next_pt["Y"] - y == 1:
+        next_pt.name = (i, next_pt.name)
+        return next_pt
+    elif prev_pt["Available"] and prev_pt["Y"] - y == 1:
+        prev_pt.name = (i, prev_pt.name)
+        return prev_pt
+    else:
+        raise ValueError
+
+
+
 
 def next_point_contour(pt,points,contour):
         #print("NP")
