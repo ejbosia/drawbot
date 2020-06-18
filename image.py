@@ -173,6 +173,19 @@ def contour_to_dataframe(contours):
     return data_list
 
 
+# remove unnecessary points from a list of dataframes
+def clean_points(g_list):
+    gradient_list = []
+    for gtest in g_list:
+        gradient = gtest[(gtest["Y-"] != gtest["Y+"])]
+
+        gradient = gradient[(gradient["Y+"] == gradient["Y"]+1)|
+                            (gradient["Y-"] == gradient["Y"]+1)]
+
+        gradient_list.append(gradient)
+    return gradient_list
+
+
 def main(file="test.png", inverse=False):
     print(file)
 
