@@ -186,6 +186,16 @@ def clean_points(g_list):
     return gradient_list
 
 
+def create_super_list(contours):
+    super_list = []
+
+    for c in contours:
+        data_list = contour_to_dataframe(c)
+        super_list.append(data_list)
+
+    return list(map(clean_points, super_list))
+
+
 def main(file="test.png", inverse=False):
     print(file)
 
