@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import config as CONFIG
 # takes in a position (XYZF)
 # returns the gcode to enact that position
-def pos_gcode(pos, no_scale=True):
+def pos_gcode(pos, no_scale=False):
 
     gcode = "G01 "
 
@@ -502,7 +502,7 @@ def line_fill_contours(contours, heirachy):
 
 # input gcode which is \n separated, output a line plot
 # this is assuming all commands are XY, or Z
-def plot_gcode(gcode, debug=True, show=True, image=False):
+def plot_gcode(gcode, debug=True, show=True, image=False, startstop = True):
     commands = gcode.split('\n')
 
     X = [[]]
@@ -539,7 +539,7 @@ def plot_gcode(gcode, debug=True, show=True, image=False):
         if c == "" and debug:
             print("HAHAHA")
     for i, temp in enumerate(X):
-        plt.plot(X[i], Y[i])
+        plt.plot(X[i], Y[i], linewidth=0.2)
 
     Z_down = np.array(Z_down).transpose()
     Z_up = np.array(Z_up).transpose()
@@ -549,8 +549,10 @@ def plot_gcode(gcode, debug=True, show=True, image=False):
 
     if debug:
         print(Z_down)
-    plt.scatter(x=Z_down[0], y=Z_down[1], c="blue", s=50)
-    plt.scatter(x=Z_up[0], y=Z_up[1], c='red', s=10)
+
+    if startstop:
+        plt.scatter(x=Z_down[0], y=Z_down[1], c="blue", s=50)
+        plt.scatter(x=Z_up[0], y=Z_up[1], c='red', s=10)
     #plt.ylim(25)
     #plt.gca().invert_yaxis()
     try:

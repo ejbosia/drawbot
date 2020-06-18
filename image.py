@@ -77,6 +77,7 @@ def get_chain(pt, points):
     else:
         return [], points
 
+
 # plot the points in a chain individually
 def plot_points(point_chain):
     for chain in point_chain:
@@ -120,10 +121,11 @@ def contour_groups(image):
 
                 contour_list[-1].append(get_contour_points(contours[next_contour]))
                 next_contour = hierarchy[0][next_contour, 0]
+                '''
                 plt.imshow(mask, 'gray')
                 plt.title(len(contour_list[-1]))
                 plt.show()
-
+                '''
             points = np.array(np.where(mask == 255)).transpose()
             chain_list.append(points)
 
@@ -138,7 +140,21 @@ def get_contour_points(contour):
     return pts
 
 
-def main(file = "test.png", inverse=False):
+# add the previous and next point values to the gradient data
+def gradient_data(data):
+    data.loc[:, "Y-"] = data["Y"].shift()
+    data.loc[:, "Y+"] = data["Y"].shift(-1)
+
+    data.iloc[0, data.columns.get_loc('Y-')] = data.iloc[-1, data.columns.get_loc('Y')]
+    data.iloc[-1, data.columns.get_loc('Y+')] = data.iloc[0, data.columns.get_loc('Y')]
+    data.loc[:, "dY"] = data["Y+"] - data["Y-"]
+
+    data.loc[:, "Available"] = True
+
+    return data
+
+
+def main(file="test.png", inverse=False):
     print(file)
 
     image = cv2.imread(file, 0)
