@@ -154,6 +154,25 @@ def gradient_data(data):
     return data
 
 
+# convert a list of contours to a list of dataframes - one dataframe for each contour
+def contour_to_dataframe(contours):
+    c_list = []
+
+    data_list = []
+
+    for x, contour in enumerate(contours):
+        print(x)
+        for c in contour:
+            c_list.append({"X": c[0], "Y": c[1]})
+            c_list[-1]["FRAME"] = x
+
+        temp = gradient_data(pd.DataFrame(c_list))
+        data_list.append(temp)
+        c_list = []
+
+    return data_list
+
+
 def main(file="test.png", inverse=False):
     print(file)
 
