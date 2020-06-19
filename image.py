@@ -209,9 +209,9 @@ def main(file="test.png", inverse=False):
     gcode = ""
     start = datetime.datetime.now()
 
-    for c in chain_list:
-        #print(c)
-        gcode += GC.line_fill_2(c)
+    super_list = GC
+
+
 
     print("Line Fill 2", datetime.datetime.now()-start)
     GC.plot_gcode(gcode,debug=False, image=image)

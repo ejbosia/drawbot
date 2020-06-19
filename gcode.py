@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
+
 import config as CONFIG
 
 
@@ -36,98 +38,13 @@ def pos_list_gcode(pos_list):
 # convert array to dict format
 def format_pos(pos):
 
-    axis = ["X","Y","Z","F"]
+    axis = ["X", "Y", "Z", "F"]
+
     format_pos = {}
     for i,value in enumerate(pos):
         format_pos[axis[i]] = value
 
     return format_pos
-
-
-# get the next avaiable partition
-# start looking to the right of the partition, clockwise search
-def next_paritition(pt, points, direction):
-
-    # array of the different directions around the points
-    # these values are added to the test point to create the check points
-    check = np.array([
-        [0,1],
-        [1,1],
-        [1,0],
-        [1,-1],
-        [0,-1],
-        [-1,-1],
-        [-1,0],
-        [-1,1]
-    ])
-
-    # do one full loop if no partitions are found
-    for i in range(8):
-
-        check_pt = pt + check[(direction+i)%8]
-
-        mask = ((check_pt == points).all(axis=1))
-
-        if(mask.any()):
-            return points[mask][0], (direction+i)%8
-
-    return np.array([]), direction
-
-
-# returns the spiral fill of gcode
-def chain_spiral(chain, debug=True):
-    sort_chain = np.array(chain)
-    # sort the partitions (first is top left, sorts row before column)
-    sort_chain = sort_chain[sort_chain[:,0].argsort()]
-
-    # take the first partition out of the list
-    pt = sort_chain[0]
-    sort_chain = np.delete(sort_chain, 0, axis=0)
-    gcode = "\nG01 Z5;\n"
-    gcode += pos_gcode(format_pos(pt))
-
-    direction = 0
-
-    pen_up = True
-
-    while sort_chain.size > 0:
-        new_pt, dir = next_paritition(pt, sort_chain, direction)
-
-        if pen_up:
-            gcode += pos_gcode(format_pos(pt))
-            gcode += "G01 Z0;\n"
-            pen_up = False
-
-        # if there are no new points, add the last point as gcode
-        if new_pt.size == 0:
-            if debug:
-                print("Option: 0\t", direction, "\t", dir, "\t", pt)
-            gcode += pos_gcode(format_pos(pt))
-            gcode += "G01 Z5;\n"
-            pen_up = True
-            pt = sort_chain[0]
-            direction = 0
-        # if the direction changes, add the last point as gcode
-        elif dir != direction:
-            if debug:
-                print("Option: 1\t", direction, "\t", dir, "\t", pt)
-            gcode += pos_gcode(format_pos(pt))
-            pt = new_pt
-            direction = dir
-        # if the direction does not change, no need to add the last point as gcode
-        else:
-            if debug:
-                print("Option: 2\t", direction, "\t", dir, "\t", pt)
-            pt = new_pt
-
-
-        # remove the current point from the sort chain
-        sort_chain = sort_chain[(pt != sort_chain).any(axis=1)]
-
-    gcode += pos_gcode(format_pos(pt))
-    gcode += "G01 Z5;\n"
-
-    return gcode
 
 
 def chain_contour(chain):
@@ -145,215 +62,6 @@ def chain_contour(chain):
     gcode += "G01 Z5;\n"
     return gcode
 
-
-#fill the chain with back and forth horizontal lines
-# hopefully minimizes the pen up and down motions
-def line_fill(chain):
-    direction_neg = True
-
-    gcode = ""
-
-    previous = np.array([-2,-2])
-
-    for i in range(chain[:,1].min(), chain[:,1].max()+1):
-        temp = chain[chain[:,1]==i]
-        #print(temp)
-
-        sort_temp = temp[temp[:,0].argsort()]
-
-        if direction_neg:
-            sort_temp = sort_temp[::-1]
-
-        if abs(sort_temp[0][0]-previous[0]) <= 1:
-            gcode += pos_gcode(format_pos(sort_temp[0]))
-            #print(sort_temp[0][0], previous[0], "FOO")
-
-        #else:
-            #print(sort_temp[0][0], previous[0])
-
-
-        for pt in sort_temp:
-
-            if abs(pt[0]-previous[0]) > 1:
-                gcode += pos_gcode(format_pos(previous))
-                gcode += "G01 Z10;\n"
-                gcode += pos_gcode(format_pos(pt))
-                gcode += "G01 Z0;\n"
-            previous = pt
-
-        # the final command in the list should move to a position and raise the pen
-        gcode += pos_gcode(format_pos(pt))
-        # gcode += "G01 Z10;\n"
-
-        direction_neg = not direction_neg
-
-    # raise pen at the end of the chain
-    gcode += "G01 Z10;\n"
-    return gcode
-
-
-#fill the chain with back and forth horizontal lines
-# hopefully minimizes the pen up and down motions - OPTIMIZED
-def line_fill_2(chain):
-    direction = True
-
-    gcode = "G01 Z10;\n"
-
-    # sort chain by row
-    chain = chain[chain[:,0].argsort()]
-
-    # create a temporary line of points
-    index = chain[:,1].min()
-    temp = chain[chain[:,1]==index]
-    sort_temp = temp[temp[:,0].argsort()]
-    pt = sort_temp[0]
-    gcode += pos_gcode(format_pos(pt))
-    gcode+= "G01 Z0;\n"
-
-
-
-    # loop while points exist in the chains
-    while(chain.size > 0):
-
-        next_pt = pt + np.array([1,0])
-
-        # set the direction
-        direction = not (next_pt == chain).all(axis=1).any()
-        temp = chain[np.where(chain[:,1] == pt[1])]
-        print(temp.size, pt, temp)
-        #print(chain.size)
-        # loop until the end of the chain breaks the loop
-        #print(sort_temp[(sort_temp != pt).any(axis=1)])
-        temp_chain = []
-        start_pt = pt
-
-
-        while True:
-            # remove the point from the chain
-            temp_chain.append(pt)
-            #print(pt)
-            if direction:
-                next_pt = pt + np.array([1,0])
-            else:
-                next_pt = pt + np.array([-1,0])
-            # print(pt)
-            # print(next_point,'\t',(next_point == sort_temp).all(axis=1))
-            # if the next point does not exist, break the loop
-            #print(next_pt, next_pt==temp, temp)
-            if (next_pt == temp).all(axis=1).any():
-                pt = next_pt
-                print("A")
-            else:
-                gcode += pos_gcode(format_pos(pt))
-                print("B")
-                break
-        # print("NEW ROW", pt)
-        temp_chain = np.array(temp_chain)
-        dims = np.maximum(temp_chain.max(0),chain.max(0))+1
-        chain = chain[~np.in1d(np.ravel_multi_index(chain.T,dims),np.ravel_multi_index(temp_chain.T,dims))]
-
-        if chain.size == 0:
-            break
-
-        try:
-            # find the next point
-            pt = next_point_lf(pt, start_pt,chain, direction)
-            gcode += pos_gcode(format_pos(pt))
-            chain = chain[(chain!=pt).any(axis=1)]
-            #print(pt)
-        # if no point is found, pick the highest point
-        except ValueError:
-            gcode += "GO1 Z10;\n"
-            # print("VALUE ERROR")
-            index = chain[:,1].min()
-            temp = chain[chain[:,1]==index]
-            sort_temp = temp[temp[:,0].argsort()]
-            pt = sort_temp[0]
-
-            chain = chain[(chain!=pt).any(axis=1)]
-            gcode += pos_gcode(format_pos(pt))
-            gcode += "GO1 Z0;"
-
-    gcode += "G01 Z10;\n"
-    return gcode
-
-#fill the chain with back and forth horizontal lines
-# hopefully minimizes the pen up and down motions - OPTIMIZED
-def line_fill_3(chain, contour):
-    direction_neg = True
-
-    gcode = "G01 Z10;\n"
-
-    # sort chain by row
-    previous = np.array([-2,-2])
-    contour = np.array(contour)
-
-    # create a temporary line of points
-    index = chain[:,1].min()
-    temp = chain[chain[:,1]==index]
-    sort_temp = temp[temp[:,0].argsort()]
-    pt = sort_temp[0]
-
-
-    gcode += pos_gcode(format_pos(pt))
-    gcode+= "G01 Z0;\n"
-    prev_direction = True
-
-    # loop while points exist in the chains
-    while(chain.size > 0):
-        #print(chain.size)
-        # loop until the end of the chain breaks the loop
-        #print(sort_temp[(sort_temp != pt).any(axis=1)])
-
-        temp_chain = []
-
-        while True:
-
-
-            # remove the point from the chain
-            # remove the point from the contour
-            temp_chain.append(pt)
-
-            left_pt = pt + np.array([-1,0])
-            right_pt = pt + np.array([1,0])
-
-            #print(next_point,'\t',(next_point == sort_temp).all(axis=1))
-            # if the next point does not exist, break the loop
-            if (left_pt == chain).all(axis=1).any():
-                pt = left_pt
-            elif (right_pt == chain).all(axis=1).any():
-                pt = right_pt
-            else:
-                gcode += pos_gcode(format_pos(pt))
-                break
-        temp_chain = np.array(temp_chain)
-        #print(temp_chain)
-
-        chain = chain[(chain!=temp_chain).any(axis=1)]
-
-        if chain.size == 0:
-            break
-
-        direction_neg  = not direction_neg
-        try:
-            # find the next point
-            pt = next_point_contour(pt,chain, contour)
-            gcode += pos_gcode(format_pos(pt))
-            chain = chain[(chain!=pt).any(axis=1)]
-            contour = contour[(contour!=pt).any(axis=1)]
-
-        # if no point is found, pick the highest point
-        except ValueError:
-            # print("VALUE ERROR")
-            gcode += "GO1 Z10;\n"
-            pt = chain[0]
-            chain = chain[(chain!=pt).any(axis=1)]
-            contour = contour[(contour!=pt).any(axis=1)]
-            gcode += pos_gcode(format_pos(pt))
-            gcode += "GO1 Z0;"
-
-    gcode += "G01 Z10;\n"
-    return gcode
 
 # next point contour function
 def next_point(p, temp, i):
@@ -377,156 +85,101 @@ def next_point(p, temp, i):
         raise ValueError
 
 
+# fill the contour
+def contour_fill(data):
+    if data.empty:
+        return ""
 
+    test = data.copy()
 
-def next_point_contour(pt,points,contour):
-        #print("NP")
-        #print(pt, contour[contour[:,1]==pt[1]])
+    p = test.iloc[0]
 
-        index = np.where((contour==pt).all(axis=1))[0]
-        #print(pt, contour)
+    gcode = "G01 Z10;\n"
+    gcode += pos_gcode(format_pos([p["X"], p["Y"]]), no_scale=False)
+    gcode += "G01 Z0;\n"
 
-        if not index:
-            raise ValueError
+    while test["Available"].any():
 
-        index = index[0]
-        #print(index, contour.size, contour.shape[0])
-        if index+1 == contour.shape[0]:
-            check_pt = contour[0]
-        else:
-            check_pt = contour[index+1]
+        try:
+            test.at[p.name, "Available"] = False
+            row = test[test["Y"] == p["Y"]]
 
+            gcode += pos_gcode(format_pos([p["X"], p["Y"]]), no_scale=False)
 
-        #print("NPC",index,pt,check_pt,contour[index-1], contour.size)
+            xp = row[row["X"] > p["X"]].sort_values("X")
+            xm = row[row["X"] < p["X"]].sort_values("X", ascending=False)
+            pminus = pd.DataFrame()
+            pplus = pd.DataFrame()
 
-        #print(check_pt, points, (check_pt == points))
+            if not xp[xp["Available"]].empty:
+                pplus = xp[xp["Available"]].iloc[0]
+            if not xm[xm["Available"]].empty:
+                pminus = xm[xm["Available"]].iloc[0]
 
-        # check one direction
-        if ((check_pt == points).all(axis=1)).any():
-            #print(check_pt,direction_neg,c,pt)
-            return check_pt
-
-        # check the other direction
-        check_pt = contour[index-1]
-
-
-        if ((check_pt == points).all(axis=1)).any():
-            #print(check_pt,direction_neg,c,pt)
-            return check_pt
-
-        raise ValueError
-
-def next_point_lf(pt,start_pt, points, direction):
-        #direction = not direction
-        #Sprint("NEXT FUNC",pt)
-        x_min = points.min(axis=0)[0]
-        x_max = points.max(axis=0)[0]
-
-        # if there are any points remaining above
-        check_x = points[np.where(points[:,1] == pt[1]+1)].transpose()[0]
-        row = pt[1]+1
-        # if there are no points
-
-        '''
-        if check_x.size == 0:
-            #print("DOWN")
-            check_x = points[np.where(points[:,1] == pt[1]-1)].transpose()[0]
-
-            row = pt[1]-1
-        '''
-        # if there are still no points
-        if check_x.size == 0:
-            # print("NO POINTS")
-            #print("NO POINTS")
-            raise ValueError
-
-        start_value = pt[0] in check_x
-        value = False
-
-        # if the start value is positive, there is no limit
-        if start_value:
-            if direction:
-                #print("NEGATIVE", direction, start_value)
-                #print(check_x)
-
-                for x in range(pt[0], x_max, 1):
-                    value = x in check_x
-                    #print(start_value, value, x)
-
-                    # if the value is positive, set the index
-                    if value:
-                        index = x
-
-                    # if the value is different
-                    if value != start_value:
-                        #print("FOUND NEG")
-                        return np.array([index, row])
+            # determine the direction
+            # any contours, except the outer contour, cannot travel to themselves
+            # outer contour only goes towards odd direction - even direction is closed contours
+            if p.name[0] == 0:
+                if (not pminus.empty) and xm.shape[0] % 2 == 1:
+                    p2 = pminus
+                elif (not pplus.empty) and xp.shape[0] % 2 == 1:
+                    p2 = pplus
+                else:
+                    raise ValueError
             else:
-                #print("POSITIVE", direction, start_value)
-                #print(check_x)
-                #print(pt)
-                for x in range(pt[0], x_min, -1):
-                    value = x in check_x
-                    #print(start_value, value, x)
-                    # if the value is positive, set the index
-                    if value:
-                        index = x
+                if not pminus.empty and xm.shape[0] % 2 == 1:
+                    p2 = pminus
+                elif not pplus.empty and xp.shape[0] % 2 == 1:
+                    p2 = pplus
+                else:
+                    raise ValueError
 
-                    # if the value is different
-                    if value != start_value:
-                        #print("FOUND POS")
-                        return np.array([index, row])
+            test.at[p2.name, "Available"] = False
 
-        # if the start value is false, set the limits to be between start_pt and pt
-        else:
+            gcode += pos_gcode(format_pos([p2["X"], p2["Y"]]), no_scale=False)
 
-            x_min = np.array([pt[0],start_pt[0]]).min()
-            x_max = np.array([pt[0],start_pt[0]]).max()
-            '''
-            x_min = pt[0]-6
-            x_max = pt[0]+6
-            '''
-            #print("POS", x_min, x_max, pt, start_pt)
-            if direction:
-                #print(check_x)
-                for x in range(pt[0], x_min-1, -1):
-                    value = x in check_x
-                    #print(start_value, value, x)
-                    # if the value is positive, set the index
-                    if value:
-                        index = x
+            p = next_point(p2, test.loc[p2.name[0]], p2.name[0])
 
-                    # if the value is different
-                    if value != start_value:
-                        #print("FOUND POS")
-                        return np.array([index, row])
-            else:
-                #print("NEGATIVE", direction, start_value)
-                #print(check_x)
-                for x in range(pt[0], x_max+1, 1):
-                    value = x in check_x
+        except ValueError as e:
 
-                    # if the value is positive, set the index
-                    if value:
-                        index = x
+            gcode += "G01 Z10;\n"
 
-                    # if the value is different
-                    if value != start_value:
-                        #print("FOUND NEG")
-                        return np.array([index, row])
+            if not test["Available"].any():
+                break
+
+            p = test[test["Available"]].sort_values(["Y", "X"]).iloc[0]
+
+            gcode += pos_gcode(format_pos([p["X"], p["Y"]]), no_scale=False)
+
+            gcode += "G01 Z0;\n"
+
+            direction = True
+
+    return gcode
 
 
-        if value:
-            return np.array([index, row])
+# process all of the contours from an image
+def process_contours(super_list):
+    gcode = ""
 
-        raise ValueError
+    for x, data_list in enumerate(super_list):
 
-# fill using the contours
-def line_fill_contours(contours, heirachy):
+        print(round(x * 100 / len(super_list), 2), "%")
 
-    # loop through the contours
-    for x, contours in enumerate(contours):
-        print("FOO")
+        # build the dataframe
+        temp = pd.DataFrame()
+
+        for data in data_list:
+            temp = temp.append(data)
+        temp = temp.reset_index()
+        temp = temp.set_index(["FRAME", "index"])
+
+        # print(temp.head())
+        gcode += contour_fill(temp)
+
+    plot_gcode(gcode, debug=False, show=True)
+
+    return gcode
 
 
 # input gcode which is \n separated, output a line plot
