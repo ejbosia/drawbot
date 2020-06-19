@@ -1,7 +1,7 @@
 ### CONFIG FILE ###
 
 # SCALE OF IMAGE
-SCALE = 0.25 # mm / px
+SCALE = 0.1 # mm / px
 
 
 # SPEED

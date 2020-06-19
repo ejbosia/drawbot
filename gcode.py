@@ -17,7 +17,7 @@ def pos_gcode(pos, no_scale=False):
 
         else:
             gcode += key+str(pos[key] * CONFIG.SCALE)+" "
-
+    gcode += "F12000 "
     gcode += ";\n"
 
     return gcode
@@ -177,18 +177,17 @@ def process_contours(super_list):
         # print(temp.head())
         gcode += contour_fill(temp)
 
-    plot_gcode(gcode, debug=False, show=True)
-
     return gcode
 
 
 # input gcode which is \n separated, output a line plot
 # this is assuming all commands are XY, or Z
-def plot_gcode(gcode, debug=True, show=True, image=False, startstop = True):
+def plot_gcode(gcode, debug=True, show=True, image=False, startstop=True, scale=True):
     commands = gcode.split('\n')
 
     X = [[]]
     Y = [[]]
+
     Z_down = []
     Z_up = []
 
@@ -205,16 +204,24 @@ def plot_gcode(gcode, debug=True, show=True, image=False, startstop = True):
             X.append([prev_x])
             Y.append([prev_y])
             pen_down=True
-        if ("X" in c or "Y" in c):
+        if "X" in c or "Y" in c:
             if pen_down:
-                X[-1].append(float(c.split("X")[1].split(" ")[0]))
-                Y[-1].append(float(c.split("Y")[1].split(" ")[0]))
-            prev_x = float(c.split("X")[1].split(" ")[0])
-            prev_y = float(c.split("Y")[1].split(" ")[0])
+                if scale:
+                    X[-1].append(float(c.split("X")[1].split(" ")[0]))
+                    Y[-1].append(float(c.split("Y")[1].split(" ")[0]))
+                else:
+                    X[-1].append(float(c.split("X")[1].split(" ")[0]) / CONFIG.SCALE)
+                    Y[-1].append(float(c.split("Y")[1].split(" ")[0]) / CONFIG.SCALE)
+            if scale:
+                prev_x = float(c.split("X")[1].split(" ")[0])
+                prev_y = float(c.split("Y")[1].split(" ")[0])
+            else:
+                prev_x = float(c.split("X")[1].split(" ")[0]) / CONFIG.SCALE
+                prev_y = float(c.split("Y")[1].split(" ")[0]) / CONFIG.SCALE
 
-        if not "Z0" in c and "Z" in c:
+        if not ("Z0" in c) and "Z" in c:
             try:
-                pen_down=False
+                pen_down = False
                 Z_up.append(np.array([prev_x, prev_y]))
             except IndexError:
                 continue

@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 import gcode as GC
+import pandas as pd
 
-# TODO: test using np.where
 
 # returns a list of "points" for each position
 # every point travels up, to the point, and then down
@@ -14,7 +14,7 @@ def raster_image(image):
 
     for row in range(image.shape[0]):
         for col in range(image.shape[1]):
-            if(image[row,col] > 0):
+            if image[row, col] > 0:
 
                 pos_list.append({"Z": 10})
                 pos_list.append({
@@ -196,29 +196,32 @@ def create_super_list(contours):
     return list(map(clean_points, super_list))
 
 
-def main(file="test.png", inverse=False):
+def main(file="test.png", inverse=False, resize = 1):
     print(file)
 
     image = cv2.imread(file, 0)
 
+    image = cv2.resize(image, None, fx=resize, fy=resize, interpolation=cv2.INTER_NEAREST)
+
     if inverse:
         image = 255-image
 
-    chain_list, contour_list = contour_groups(image)
+    chain_list, contours = contour_groups(image)
 
-    gcode = ""
     start = datetime.datetime.now()
+    super_list = create_super_list(contours)
 
-    super_list = GC
+    # gcode += GC.chain_contour(contour_list)
+    gcode = GC.process_contours(super_list)
 
+    print("Total time:", datetime.datetime.now()-start)
 
-
-    print("Line Fill 2", datetime.datetime.now()-start)
-    GC.plot_gcode(gcode,debug=False, image=image)
+    GC.plot_gcode(gcode, debug=False, image=image, scale=False)
 
     text_file = open("test.gcode", 'w')
     text_file.write(gcode)
     text_file.close()
 
-if __name__ =="__main__":
+
+if __name__ == "__main__":
     main()
