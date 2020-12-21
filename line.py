@@ -47,7 +47,7 @@ class Line:
             return False
 
         # to be on the line, the point must be between the two existing points
-        if self.length >= temp.length:
+        if self.length() >= temp.length():
             return True
         else:
             return False
@@ -60,9 +60,42 @@ class Line:
             return None
 
         # find the intersection point
-
+        point = self.__intersection_ray(line)
 
         # check if the point is on the line
+        if self.check_on_line(point):
+            return point
+        
+        else:
+            return None
+
+    # find the intersection point of the two lines, treated as rays
+    def __intersection_ray(self, line):
+        # Px + dx * U = lx + dlx * V
+        # Py + dy * U = ly + dly * V
+
+        '''
+        dx, dy = self.slope()
+        lx, ly = line.slope()
+
+        self.p1[0] + dx * U = line.p1[0] + lx * V
+        self.p1[1] + dy * U = line.p1[1] + ly * V
+
+        U = ((line.p1[0] + lx * V - self.p1[0]) / dx)
+
+        self.p1[1] + dy * U = line.p1[1] + ly * V
+
+        self.p1[1]  - line.p1[1] = ly * V - dy * U 
+        self.p1[1] - line.p1[1] + (dy/dx) * (line.p1[0] - self.p1[0]) = (ly - (dy/dx) * lx) * V 
+        '''
+        dx, dy = self.slope()
+        lx, ly = line.slope()
+
+        V = (self.p1[1] - line.p1[1] + (dy/dx) * (line.p1[0] - self.p1[0])) / (ly - (dy/dx) * lx)
+
+        px = line.p1[0] + lx * V
+        py = line.p1[1] + ly * V
+        return (px, py)
 
 
     def length(self):
@@ -72,11 +105,7 @@ class Line:
         dx,dy = self.slope()
 
         return math.sqrt(dx**2 + dy**2)
-        
-
-    # compare the lengths of the lines
-    def __le__(self,other):
-        return(self.seq<=other)
+    
         
     def __eq__(self, line):
         return line.p1 == p1 and line.p2 == p2
