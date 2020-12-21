@@ -7,6 +7,9 @@ This class represents a line (two points) or a ray (point and angle). Has logic 
 
 import numpy as np
 import math
+import logging
+
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 class Line:
 
@@ -28,12 +31,17 @@ class Line:
     # find the angle of the line from p1 to p2
     def angle(self):
         dx, dy = self.slope()
-        return np.arctan(dy/dx)
+        return np.arctan2(dy,dx)
 
     # find the slope of the line (dy/dx)
     def slope(self):
-        dx = self.p2[0] - self.p1[0]
-        dy = self.p2[1] - self.p1[1]
+
+        if self.p2 is None:
+            dx = 1
+            dy = math.tan(self.angle)
+        else:
+            dx = self.p2[0] - self.p1[0]
+            dy = self.p2[1] - self.p1[1]
         
         return dx,dy
 
@@ -59,16 +67,18 @@ class Line:
         
         # check if the angles are the same
         if (self.angle - line.angle) % 180 == 0:
+            logging.debug("LINES ARE PARALLEL")
             return None
 
         # find the intersection point
         point = self.__intersection_ray(line)
 
-        # check if the point is on the line
-        if self.check_on_line(point):
+        # check if the point is on both lines
+        if self.check_on_line(point) and line.check_on_line(point):
             return point
-        
         else:
+            logging.debug("LINE ONE: " + str(self.check_on_line(point)))
+            logging.debug("LINE TWO: " + str(line.check_on_line(point)))
             return None
 
     # find the intersection point of the two lines, treated as rays

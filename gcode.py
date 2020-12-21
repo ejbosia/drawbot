@@ -253,6 +253,7 @@ def plot_gcode(gcode, debug=True, show=True, image=False, startstop=True, scale=
 
     print("DOWN:\t", Z_down.shape)
     print("UP:\t", Z_up.shape)
+    
 def main():
 
     test_pos = {
