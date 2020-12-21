@@ -10,8 +10,10 @@ import math
 
 class Line:
 
-    def init(self, p1, p2=None, angle=None):
+    def __init__(self, p1, p2=None, angle=None):
+        
         self.p1 = p1
+
         if p2 is None and angle is None:
             raise Exception("P2 or Angle required")
         
@@ -30,8 +32,8 @@ class Line:
 
     # find the slope of the line (dy/dx)
     def slope(self):
-        dx = p2[0] - p1[0]
-        dy = p2[1] - p1[1]
+        dx = self.p2[0] - self.p1[0]
+        dy = self.p2[1] - self.p1[1]
         
         return dx,dy
 
@@ -43,7 +45,7 @@ class Line:
         temp = Line(self.p1, p2=point)
 
         # if the angle is not equivalent, return false
-        if not self.angle == temp.angle
+        if not self.angle == temp.angle:
             return False
 
         # to be on the line, the point must be between the two existing points
@@ -108,7 +110,7 @@ class Line:
     
         
     def __eq__(self, line):
-        return line.p1 == p1 and line.p2 == p2
+        return line.p1 == self.p1 and line.p2 == self.p2
 
     def __repr__(self):
         return str(p1) + " - " + str(p2)
