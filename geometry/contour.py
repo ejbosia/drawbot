@@ -118,6 +118,7 @@ class Contour:
         
         # find the starting point in the contour
         start_line = self.__find_point(point)
+        print("START:", start_line)
 
         # move across the lines by length
         # new_list = self.__rotate_lines(start_line)
@@ -125,13 +126,14 @@ class Contour:
         index = self.line_list.index(start_line)
 
         if distance < 0:
-            temp = Line(start_line.p1, p2 = point)
+            temp = Line(point, p2 = start_line.p2)
             forward = False   
         else: 
-            temp = Line(point, p2 = start_line.p2)   
+            temp = Line(point, p2 = start_line.p1)   
             forward = True
 
         final_traverse = False
+        print("LINE:", temp)
 
         while True:
 
@@ -148,10 +150,8 @@ class Contour:
                 temp = self.line_list[index % len(self.line_list)]
 
             else:
-                if forward:
-                    return temp.traverse(distance) 
-                else:
-                    return temp.traverse(temp.length()+distance)
+                return temp.traverse(abs(distance)) 
+
 
 
 
