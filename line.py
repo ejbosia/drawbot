@@ -83,23 +83,7 @@ class Line:
 
     # find the intersection point of the two lines, treated as rays
     def __intersection_ray(self, line):
-        # Px + dx * U = lx + dlx * V
-        # Py + dy * U = ly + dly * V
 
-        '''
-        dx, dy = self.slope()
-        lx, ly = line.slope()
-
-        self.p1[0] + dx * U = line.p1[0] + lx * V
-        self.p1[1] + dy * U = line.p1[1] + ly * V
-
-        U = ((line.p1[0] + lx * V - self.p1[0]) / dx)
-
-        self.p1[1] + dy * U = line.p1[1] + ly * V
-
-        self.p1[1]  - line.p1[1] = ly * V - dy * U 
-        self.p1[1] - line.p1[1] + (dy/dx) * (line.p1[0] - self.p1[0]) = (ly - (dy/dx) * lx) * V 
-        '''
         dx, dy = self.slope()
         lx, ly = line.slope()
 
@@ -123,4 +107,4 @@ class Line:
         return line.p1 == self.p1 and line.p2 == self.p2
 
     def __repr__(self):
-        return str(p1) + " - " + str(p2)
+        return str(self.p1) + " - " + str(self.p2)

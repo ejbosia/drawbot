@@ -5,6 +5,8 @@ import datetime
 import gcode as GC
 import pandas as pd
 
+from line import Line
+from contour import Contour
 
 # returns a list of "points" for each position
 # every point travels up, to the point, and then down
@@ -195,17 +197,10 @@ def create_super_list(contours):
 
     return list(map(clean_points, super_list))
 
-
-def main(file="test.png", inverse=False, resize = 1):
-    print(file)
-
-    image = cv2.imread(file, 0)
-
-    image = cv2.resize(image, None, fx=resize, fy=resize, interpolation=cv2.INTER_NEAREST)
-
-    if inverse:
-        image = 255-image
-
+'''
+Run the old method of contours
+'''
+def old_method(image):
     chain_list, contours = contour_groups(image)
 
     start = datetime.datetime.now()
@@ -221,6 +216,90 @@ def main(file="test.png", inverse=False, resize = 1):
     text_file = open("test.gcode", 'w')
     text_file.write(gcode)
     text_file.close()
+
+
+def ravel_lines(line_list):
+
+    X = []
+    Y = []
+
+    for line in line_list:
+        if not X and not Y:
+            X.append(line.p1[0])
+            Y.append(line.p1[1])
+
+        X.append(line.p2[0])
+        Y.append(line.p2[1])
+    
+    return X, Y
+
+def plot_contours(contour_list):
+
+    for contour in contour_list:
+
+        X,Y = ravel_lines(contour.line_list)
+        plt.plot(X,Y)
+        for x,y in zip(X,Y):
+            plt.scatter(x,y)
+
+    plt.show()
+
+
+# create border lines for the image
+# return a list of lists of lines
+def generate_border_lines(image):
+
+    contours,heirarchy = cv2.findContours(image, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)  
+
+    contour_list = []
+
+    for contour,heirarchy in zip(contours, heirarchy[0]):
+        line_list = []
+        pt0 = None
+        for c in contour:
+            if pt0 is None:
+                pt0 = tuple(c[0])
+            else:
+                line_list.append(Line(pt0, p2 = tuple(c[0])))
+                pt0 = tuple(c[0])
+
+        line_list.append(Line(pt0, p2 = tuple(contour[0][0])))
+
+        contour_list.append(Contour(line_list, heirarchy))
+    #plot_contours(image, contour_list)
+    
+    for contour in contour_list:
+        print(contour)
+
+    plot_contours(contour_list)
+
+    return contour_list
+
+
+def fill_contours(contour_list, line_thickness=1):
+    pass
+
+    # start at contour 0
+
+    # pick a point
+
+    # determine "in"
+
+    # fill until you cannot
+
+
+def main(file="test_ring.png", inverse=False, resize = 1):
+    print(file)
+
+    image = cv2.imread(file, 0)
+
+    image = cv2.resize(image, None, fx=resize, fy=resize, interpolation=cv2.INTER_NEAREST)
+
+    if inverse:
+        image = 255-image
+
+    generate_border_lines(image)
+
 
 
 if __name__ == "__main__":
