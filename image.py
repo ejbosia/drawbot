@@ -360,6 +360,9 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
 
     traverse_amount = line_thickness
 
+    line_x = [new_point[0]]
+    line_y = [new_point[1]]
+
     for i in range(10):
         # determine a direction
         angle = fill_direction(contour, new_point, angle)
@@ -376,8 +379,12 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
 
         ray.p2 = point
 
-        plt.plot(*ray.plot())
+        line_x.append(point[0])
+        line_y.append(point[1])
+
         plot_contours(contour_list,show=False,points=False)
+        
+        plt.plot(line_x, line_y)
         plt.show()
 
 
@@ -388,62 +395,10 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
 
         new_point = contour.traverse(point, traverse_amount)
         
+        line_x.append(new_point[0])
+        line_y.append(new_point[1])
+
         print("COMPLETE", i)
-
-
-    '''
-    # TODO ONLY USED FOR PLOTTING
-    _ray = Line(start_point, angle = angle)
-    _x, _y = _ray.slope()
-    _end_point = (start_point[0] + _x * 10, start_point[0] + _y *10)
-    plt.plot(*Line(start_point, p2=_end_point).plot())
-
-
-    _ray2 = Line(start_point, angle = angle-math.pi)
-
-    print(_ray2)
-
-    _x, _y = _ray2.slope()
-    print(_x, _y)
-    _end_point = (start_point[0] + _x * 10, start_point[0] + _y *10)
-    plt.plot(*Line(start_point, p2=_end_point).plot())
-
-    plot_contours(contour_list, show = False, points = False)
-    '''
-    '''
-    # determine "in"
-    for contour in contour_list:
-
-        print("CONTOUR ", contour.heirarchy)
-
-        plt.scatter(contour.min[0], contour.min[1])
-        plt.scatter(contour.max[0], contour.max[1])
-
-        points = contour.intersection(_ray)
-        print("POINTS: ", len(points))
-        if points:
-            plt.scatter(*zip(*points))
-
-        
-        points = contour.intersection(_ray2)
-        print("POINTS: ", len(points))
-        
-        if points:
-            plt.scatter(*zip(*points))
-    '''
-    '''
-    points = contour_list[1].intersection(_ray2)
-    print("POINTS: ", len(points))
-    
-    if points:
-        plt.scatter(*zip(*points))
-
-
-
-    plt.show()
-    '''
-
-    # fill until you cannot
 
 
 def main(file="test_ring.png", inverse=False, resize = 1):
