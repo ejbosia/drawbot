@@ -4,9 +4,10 @@ import matplotlib.pyplot as plt
 import datetime
 import gcode as GC
 import pandas as pd
+import math
 
-from line import Line
-from contour import Contour
+from geometry.line import Line
+from geometry.contour import Contour
 
 # returns a list of "points" for each position
 # every point travels up, to the point, and then down
@@ -233,16 +234,19 @@ def ravel_lines(line_list):
     
     return X, Y
 
-def plot_contours(contour_list):
+def plot_contours(contour_list, show=True, points=True):
 
     for contour in contour_list:
 
         X,Y = ravel_lines(contour.line_list)
         plt.plot(X,Y)
-        for x,y in zip(X,Y):
-            plt.scatter(x,y)
 
-    plt.show()
+        if points:
+            for x,y in zip(X,Y):
+                plt.scatter(x,y)
+    
+    if show:
+        plt.show()
 
 
 # create border lines for the image
@@ -266,24 +270,42 @@ def generate_border_lines(image):
         line_list.append(Line(pt0, p2 = tuple(contour[0][0])))
 
         contour_list.append(Contour(line_list, heirarchy))
-    #plot_contours(image, contour_list)
-    
-    for contour in contour_list:
-        print(contour)
-
-    plot_contours(contour_list)
 
     return contour_list
 
 
-def fill_contours(contour_list, line_thickness=1):
-    pass
+def fill_contours(contour_list, line_thickness=1, angle=math.pi/4):
+
+
+    for contour in contour_list:
+        print(contour)
 
     # start at contour 0
+    contour = contour_list[0]
 
     # pick a point
+    start_point = contour.line_list[0].bisect()
+
+    # TODO ONLY USED FOR PLOTTING
+    _ray = Line(start_point, angle = angle)
+    _x, _y = _ray.slope()
+    _end_point = (start_point[0] + _x * 10, start_point[0] + _y *10)
+    
+
+    plt.plot(*Line(start_point, p2=_end_point).plot())
+
+    plot_contours(contour_list, show = False, points = False)
 
     # determine "in"
+    for contour in contour_list:
+        plt.scatter(contour.min[0], contour.min[1])
+        plt.scatter(contour.max[0], contour.max[1])
+
+        points = contour.intersection(_ray)
+        plt.scatter(*zip(*points))
+
+
+    plt.show()
 
     # fill until you cannot
 
@@ -298,9 +320,9 @@ def main(file="test_ring.png", inverse=False, resize = 1):
     if inverse:
         image = 255-image
 
-    generate_border_lines(image)
+    contours = generate_border_lines(image)
 
-
+    fill_contours(contours)
 
 if __name__ == "__main__":
     main()

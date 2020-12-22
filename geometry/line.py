@@ -45,6 +45,18 @@ class Line:
         
         return dx,dy
 
+    def bisect(self):
+        
+        if self.p2 is None:
+            return None
+
+        x = (self.p1[0] + self.p2[0])/2
+        y = (self.p1[1] + self.p2[1])/2
+
+        return (x,y)
+
+
+
     # check if the input point is on the line
     def check_on_line(self, point):
 
@@ -102,7 +114,15 @@ class Line:
 
         return math.sqrt(dx**2 + dy**2)
     
-        
+    # return a zip of the line for plotting
+    def plot(self):
+        points = [self.p1, self.p2]
+
+       
+
+        return zip(*points)
+
+
     def __eq__(self, line):
         return line.p1 == self.p1 and line.p2 == self.p2
 
