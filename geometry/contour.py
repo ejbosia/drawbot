@@ -4,10 +4,14 @@ This class has a list of Lines that make up the contour, and its heirarchy. the 
 
 @author ejbosia
 '''
+import logging
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
 import math
 from geometry.line import Line
+
+
 
 class Contour:
 
@@ -116,16 +120,39 @@ class Contour:
         start_line = self.__find_point(point)
 
         # move across the lines by length
-        new_list = self.__rotate_lines(start_line)
+        # new_list = self.__rotate_lines(start_line)
 
-        # loop through the lines in the new list
-        for line in new_list:
-            if distance > line.length():
-                distance = distance - line.length()
+        index = self.line_list.index(start_line)
+
+        if distance < 0:
+            temp = Line(start_line.p1, p2 = point)
+            forward = False   
+        else: 
+            temp = Line(point, p2 = start_line.p2)   
+            forward = True
+
+        final_traverse = False
+
+        while True:
+
+            print('\t', temp.length(), distance, forward)
+            if temp.length() < abs(distance):
+                if forward:
+                    distance -= temp.length()
+                    index -= 1
+                else:
+                    distance += temp.length()
+                    index += 1
+                
+                # move to the next line
+                temp = self.line_list[index % len(self.line_list)]
+
             else:
-                return line.traverse(distance)
+                if forward:
+                    return temp.traverse(distance) 
+                else:
+                    return temp.traverse(temp.length()+distance)
 
-        return None
 
 
     # return a string representation of the contour

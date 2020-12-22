@@ -9,7 +9,7 @@ import math
 
 
 import logging
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 
 
@@ -322,6 +322,7 @@ def find_closest_intersection(contour_list, ray):
 
     # find all intersection points
     for contour in possible_contours:
+
         point = contour.intersection(ray)
         if not point is None:
             points.extend(point)
@@ -358,7 +359,7 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
     # pick a point
     new_point = contour.line_list[0].bisect()
 
-    traverse_amount = line_thickness
+    traverse_amount = -line_thickness
 
     line_x = [new_point[0]]
     line_y = [new_point[1]]
@@ -371,10 +372,13 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
         print("\tANGLE:", angle)
 
         plt.scatter(ray.p1[0],ray.p1[1])
+        plt.plot(*ray.plot())
         plot_contours(contour_list,show=False,points=False)
         plt.show()
 
         # find new intersection
+
+
         contour, point = find_closest_intersection(contour_list, ray)
 
         ray.p2 = point
@@ -393,8 +397,10 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
         if(contour == parent_contour):
             traverse_amount = -traverse_amount
 
+
+        print(traverse_amount)
         new_point = contour.traverse(point, traverse_amount)
-        
+        print(point, new_point)
         line_x.append(new_point[0])
         line_y.append(new_point[1])
 

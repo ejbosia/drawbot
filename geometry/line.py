@@ -133,9 +133,13 @@ class Line:
     
     # return a zip of the line for plotting
     def plot(self):
-        points = [self.p1, self.p2]
-
-       
+        
+        if not self.p2 is None:
+            points = [self.p1, self.p2]
+    
+        else:
+            dx, dy = self.slope()
+            points = [self.p1, (dx*20+self.p1[0], dy*20+self.p1[1])]
 
         return zip(*points)
 
