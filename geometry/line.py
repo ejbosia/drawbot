@@ -37,8 +37,8 @@ class Line:
     def slope(self):
 
         if self.p2 is None:
-            dx = 1
-            dy = math.tan(self.angle)
+            dx = math.cos(self.angle)
+            dy = math.sin(self.angle)
         else:
             dx = self.p2[0] - self.p1[0]
             dy = self.p2[1] - self.p1[1]
@@ -63,7 +63,9 @@ class Line:
         # build a temporary line from p1 to the input point
         # TODO this might not be the most efficient method
         temp = Line(self.p1, p2=point)
+        
 
+        print(self, temp)
         # if the angle is not equivalent, return false
         if not self.angle == temp.angle:
             return False
@@ -101,8 +103,8 @@ class Line:
 
         V = (self.p1[1] - line.p1[1] + (dy/dx) * (line.p1[0] - self.p1[0])) / (ly - (dy/dx) * lx)
 
-        px = line.p1[0] + lx * V
-        py = line.p1[1] + ly * V
+        px = round(line.p1[0] + lx * V,5)
+        py = round(line.p1[1] + ly * V,5)
         return (px, py)
 
 
@@ -127,4 +129,4 @@ class Line:
         return line.p1 == self.p1 and line.p2 == self.p2
 
     def __repr__(self):
-        return str(self.p1) + " - " + str(self.p2)
+        return str(self.p1) + " - " + str(self.p2) + " ANGLE: " + str(self.angle)

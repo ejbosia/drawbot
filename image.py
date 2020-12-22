@@ -277,9 +277,6 @@ def generate_border_lines(image):
 def fill_contours(contour_list, line_thickness=1, angle=math.pi/4):
 
 
-    for contour in contour_list:
-        print(contour)
-
     # start at contour 0
     contour = contour_list[0]
 
@@ -290,19 +287,48 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/4):
     _ray = Line(start_point, angle = angle)
     _x, _y = _ray.slope()
     _end_point = (start_point[0] + _x * 10, start_point[0] + _y *10)
-    
+    plt.plot(*Line(start_point, p2=_end_point).plot())
 
+
+    _ray2 = Line(start_point, angle = angle-math.pi)
+
+    print(_ray2)
+
+    _x, _y = _ray2.slope()
+    print(_x, _y)
+    _end_point = (start_point[0] + _x * 10, start_point[0] + _y *10)
     plt.plot(*Line(start_point, p2=_end_point).plot())
 
     plot_contours(contour_list, show = False, points = False)
 
+    '''
     # determine "in"
     for contour in contour_list:
+
+        print("CONTOUR ", contour.heirarchy)
+
         plt.scatter(contour.min[0], contour.min[1])
         plt.scatter(contour.max[0], contour.max[1])
 
         points = contour.intersection(_ray)
+        print("POINTS: ", len(points))
+        if points:
+            plt.scatter(*zip(*points))
+
+        
+        points = contour.intersection(_ray2)
+        print("POINTS: ", len(points))
+        
+        if points:
+            plt.scatter(*zip(*points))
+    '''
+
+    points = contour_list[1].intersection(_ray2)
+    print("POINTS: ", len(points))
+    
+    if points:
         plt.scatter(*zip(*points))
+
 
 
     plt.show()
