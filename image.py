@@ -1,13 +1,21 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import interactive
 import datetime
 import gcode as GC
 import pandas as pd
 import math
 
+
+import logging
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
+
+
 from geometry.line import Line
 from geometry.contour import Contour
+
 
 # returns a list of "points" for each position
 # every point travels up, to the point, and then down
@@ -261,12 +269,13 @@ def generate_border_lines(image):
         line_list = []
         pt0 = None
         for c in contour:
-            if pt0 is None:
-                pt0 = tuple(c[0])
-            else:
-                line_list.append(Line(pt0, p2 = tuple(c[0])))
-                pt0 = tuple(c[0])
+            # if this is the first point do not create a line
+            if not pt0 is None:
+                line_list.append(Line(pt0, p2=tuple(c[0])))
+            
+            pt0 = tuple(c[0])
 
+        # add the last line from the last first point to the starting point
         line_list.append(Line(pt0, p2 = tuple(contour[0][0])))
 
         contour_list.append(Contour(line_list, heirarchy))
@@ -274,15 +283,115 @@ def generate_border_lines(image):
     return contour_list
 
 
-def fill_contours(contour_list, line_thickness=1, angle=math.pi/4):
+# fill contours towards other edge
+# hole contours away from other edge
+def fill_direction(contour, point, angle):
+
+    # find the direction that is "inside" the contour
+    ray = Line(point, angle = angle)
+    
+    # if there is no intersection, the direction must be the opposite
+    if not contour.intersection(ray):
+        logging.debug("\tNO INTERSECTION")
+        angle = angle - math.pi
+
+    print(contour.intersection(ray))
+
+    # if this is a "fill" contour, return the angle of intersection
+    if contour.heirarchy[3] == -1:
+        logging.debug("\tFILL CONTOUR: " + str(angle))
+        return angle
+    # if this is a "hole" contour, return the angle away from intersection
+    else:
+        logging.debug("\tHOLE CONTOUR: " + str(angle-math.pi))
+        return angle - math.pi
+
+
+# find the closest intersection from the ray - returns the contour and the point
+def find_closest_intersection(contour_list, ray):
+
+    possible_contours = []
+
+    # find all contours that intersect (fast)
+    for contour in contour_list:
+        if contour.fast_intersection(ray):
+            possible_contours.append(contour)
+
+    points = []
+    contours = []
+
+    # find all intersection points
+    for contour in possible_contours:
+        point = contour.intersection(ray)
+        if not point is None:
+            points.extend(point)
+
+            # add a contour for each point
+            for _ in range(len(point)):
+                contours.append(contour)
+
+    print(points)
+
+    # find the closest point
+    length = Line(ray.p1, p2 = points[0]).length()
+    closest_point = points[0]
+    closest_contour = contours[0]
+
+    for contour, point in zip(contours,points):
+        new_length = Line(ray.p1, p2 = point).length()
+        if length > new_length:
+            length = new_length
+            closest_point = point
+            closest_contour = contour
+
+    return closest_contour, closest_point
+
+
+
+def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
 
 
     # start at contour 0
-    contour = contour_list[0]
+    parent_contour = contour_list[1]
 
+    contour = parent_contour
     # pick a point
-    start_point = contour.line_list[0].bisect()
+    new_point = contour.line_list[0].bisect()
 
+    traverse_amount = line_thickness
+
+    for i in range(10):
+        # determine a direction
+        angle = fill_direction(contour, new_point, angle)
+        ray = Line(new_point, angle=angle)
+
+        print("\tANGLE:", angle)
+
+        plt.scatter(ray.p1[0],ray.p1[1])
+        plot_contours(contour_list,show=False,points=False)
+        plt.show()
+
+        # find new intersection
+        contour, point = find_closest_intersection(contour_list, ray)
+
+        ray.p2 = point
+
+        plt.plot(*ray.plot())
+        plot_contours(contour_list,show=False,points=False)
+        plt.show()
+
+
+        # traverse
+        
+        if(contour == parent_contour):
+            traverse_amount = -traverse_amount
+
+        new_point = contour.traverse(point, traverse_amount)
+        
+        print("COMPLETE", i)
+
+
+    '''
     # TODO ONLY USED FOR PLOTTING
     _ray = Line(start_point, angle = angle)
     _x, _y = _ray.slope()
@@ -300,7 +409,7 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/4):
     plt.plot(*Line(start_point, p2=_end_point).plot())
 
     plot_contours(contour_list, show = False, points = False)
-
+    '''
     '''
     # determine "in"
     for contour in contour_list:
@@ -322,7 +431,7 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/4):
         if points:
             plt.scatter(*zip(*points))
     '''
-
+    '''
     points = contour_list[1].intersection(_ray2)
     print("POINTS: ", len(points))
     
@@ -332,6 +441,7 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/4):
 
 
     plt.show()
+    '''
 
     # fill until you cannot
 
