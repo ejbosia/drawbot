@@ -25,23 +25,23 @@ class Family:
         self.children = children
 
     # get the starting point to process the family
-    def starting_point(self):
-        return parent_contour.find_maximum_point(angle-(np.pi/2))
+    def __starting_point(self, angle):
+        return self.parent_contour.find_maximum_point(angle-(np.pi/2))
 
     # get all of the intersections of a line on the family
-    def intersections(self, line):
+    def intersection(self, line):
 
-        intersections = self.parent_contour.intersections(line)
+        intersections = self.parent_contour.intersection(line)
 
         for child_contour in self.children:
-            intersections.extend(child_contour.intersections(line))
+            intersections.extend(child_contour.intersection(line))
 
         return intersections
 
     # generate the intersection points on each contour in the family
     def generate_intersection_points(self, line_thickness, angle):
 
-        current_point = self.starting_point()
+        current_point = self.__starting_point(angle)
 
         # generate inifinite lines starting from the starting point + line_thickness perpendicular to the angle
         # the infinite lines comprise of two rays with directions of angle and angle + pi
@@ -55,7 +55,7 @@ class Family:
         points = []
 
         # loop until there are no intersections
-        while not intersections:
+        while intersections:
             
             # generate a new line
             dx = np.cos(perpendicular_angle)
@@ -68,14 +68,16 @@ class Family:
 
 
             # check the line for intersections against the parent and all children
+            intersections = self.intersection(ray1)
+            intersections.extend(self.intersection(ray2))
 
-            intersections = self.intersections(ray1)
-            intersections.extend(self.intersections(ray2))
+            print(intersections)
+
 
             # add the points
             points.extend(intersections)    
 
-        for point in intersections:
+        for point in points:
             plt.scatter(point[0], point[1])
 
         self.plot()

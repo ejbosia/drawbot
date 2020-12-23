@@ -294,9 +294,11 @@ def main(file="test_ring.png", inverse=False, resize = 1):
     family_list = create_contour_families(contours)
 
     # plot each family
-    for family in family_list:
-        family.plot(show=True)
+    # for family in family_list:
+    #     family.plot(show=True)
     
+
+    print(family_list[1].generate_intersection_points(1, np.pi/6))
     # fill_contours(contours)
 
 if __name__ == "__main__":
