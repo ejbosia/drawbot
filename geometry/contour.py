@@ -46,6 +46,43 @@ class Contour:
 
         return tuple(min_pt), tuple(max_pt)
 
+
+    # rotate a point
+    def rotate_point(self, point, angle):
+        # calculate the relative distance in the direction
+        # --> rotate the point so the "x" value is in the direction
+        # --> we want to rotate the point "back" to 0, so we use -angle
+        s = math.sin(angle)
+        c = math.cos(angle)
+
+        x = point[0] * c - point[1] * s
+        y = point[0] * s + point[1] * c
+
+        return (x,y)
+
+
+    def find_maximum_point(self, angle):
+
+        maximum = self.rotate_point(self.line_list[0].p1, -angle)[0]
+        maximum_point = self.line_list[0].p1
+
+        # loop through each point
+        for line in self.line_list:
+            
+            new_point = self.rotate_point(line.p1, -angle)
+
+            if maximum < new_point[0]:
+                maximum = new_point[0]
+                maximum_point = line.p1
+
+        return maximum_point
+
+
+            
+            
+
+
+
     # return true if there could be an intersection with an input ray
     def fast_intersection(self, ray):
 
@@ -124,48 +161,6 @@ class Contour:
                 new_list.extend(end)
 
                 return new_list
-
-
-    # find a point that is around the contour
-    def traverse(self, point, distance):
-        
-        # find the starting point in the contour
-        start_line = self.__find_point(point)
-        print("START:", start_line)
-
-        # move across the lines by length
-        # new_list = self.__rotate_lines(start_line)
-
-        index = self.line_list.index(start_line)
-
-        if distance < 0:
-            temp = Line(point, p2 = start_line.p2)
-            forward = False   
-        else: 
-            temp = Line(point, p2 = start_line.p1)   
-            forward = True
-
-        final_traverse = False
-        print("LINE:", temp)
-
-        while True:
-
-            print('\t', temp.length(), distance, forward)
-            if temp.length() < abs(distance):
-                if forward:
-                    distance -= temp.length()
-                    index -= 1
-                else:
-                    distance += temp.length()
-                    index += 1
-                
-                # move to the next line
-                temp = self.line_list[index % len(self.line_list)]
-
-            else:
-                return temp.traverse(abs(distance)) 
-
-
 
 
     # return a string representation of the contour

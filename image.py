@@ -134,7 +134,12 @@ def find_closest_intersection(contour_list, ray):
 
 
 
-def fill_contours(contour_list, line_thickness=1, angle=math.pi/4):
+
+def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
+
+    start_point = contour_list[1].find_maximum_point(angle-(np.pi/2))
+    plt.scatter(start_point[0],start_point[1])
+    plot_contours(contour_list, points=False)
 
     # start at contour 0
     previous_contour = contour_list[1]
@@ -150,8 +155,7 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/4):
 
     perpendicular_angle = angle + (np.pi/2)
 
-    #while(True):
-    for _ in range(7):
+    while(True):
         # determine a direction
         angle = fill_direction(contour, new_point, angle)
 
