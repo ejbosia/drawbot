@@ -110,7 +110,6 @@ class Contour:
 
         for l in self.line_list:
             temp = l.intersection(line, debug=debug, plot=plot)      
-            print(l)
             if temp is None:
                 continue
             else:

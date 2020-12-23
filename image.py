@@ -12,6 +12,7 @@ logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 from geometry.line import Line
 from geometry.contour import Contour
+from geometry.contour_family import Family
 
 
 def ravel_lines(line_list):
@@ -68,6 +69,10 @@ def generate_border_lines(image):
         contour_list.append(Contour(line_list, heirarchy))
 
     return contour_list
+
+
+def create_contour_families(contour_list):
+
 
 
 # fill contours towards other edge
@@ -145,8 +150,7 @@ def create_path(contour_list, line_thickness, angle, start_contour, start_point)
 
     perpendicular_angle = angle + (np.pi/2)
     
-    #while(True):
-    for _ in range(5):
+    while(True):
     
         if contour.heirarchy[3] == -1:        
             temp_ray = Line(temp_point, angle=angle)
