@@ -319,9 +319,7 @@ def generate_path(rows):
             # move to the next row
             index[0] += 1
 
-
             # check if the next row has the index
-
             point = row[index[0]][index[1]]
 
         
@@ -350,9 +348,17 @@ def main(file="test_ring.png", inverse=False, resize = 1):
     #     family.plot(show=True)
     
 
-    rows = family_list[1].generate_intersection_points(1, np.pi/6)
 
-    path = family_list[1].generate_path(1, np.pi/6)
+    line_thickness = 0.5
+    angle = np.pi/6
+
+    rows = family_list[1].generate_intersection_points(line_thickness, angle)
+    
+    for key in family_list[1].parent_contour.intersection_points.keys():
+        print(key, family_list[1].parent_contour.intersection_points[key])
+
+
+    path = family_list[1].generate_path(line_thickness, angle)
 
     X = []
     Y = []
@@ -360,8 +366,20 @@ def main(file="test_ring.png", inverse=False, resize = 1):
     for point in path:
         X.append(point.x)
         Y.append(point.y)
-
+    
+    family_list[1].plot()
+    
     plt.plot(X,Y)
+
+    X = []
+    Y = []
+
+    for key in family_list[1].parent_contour.intersection_points.keys():
+        print(family_list[1].parent_contour.intersection_points[key])
+        for value in family_list[1].parent_contour.intersection_points[key]:
+            X.append(value.x)
+            Y.append(value.y)
+    plt.scatter(X,Y)
     plt.show()
     # fill_contours(contours)
 

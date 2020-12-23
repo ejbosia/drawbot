@@ -78,6 +78,8 @@ class Family:
             
             line_number += 1
 
+        
+
 
 
     # find available point (and row location)
@@ -123,10 +125,16 @@ class Family:
 
         # find the point in the dict
         for key in temp:
-            print("GET CLOSEST:", point, "\t", temp[key])
+            print("GET CLOSEST:", point, "\t", temp[key], "\t", key == self.parent_contour)
             # remove the point if in the parent_contour
             if point in temp[key] and key == self.parent_contour:
-                temp[key].remove(point)
+                index = temp[key].index(point)
+
+                if index%2 == 0:
+                    temp[key] = temp[key][index+1:]
+                else:
+                    temp[key] = temp[key][0:index]
+
                 break
             # remove the 
             elif point in temp[key]:
@@ -136,19 +144,29 @@ class Family:
         # find the closest point in temp
 
         # set the closest point to start at the first point
-        closest_point = temp[list(temp.keys())[0]][0]
-        minimum = point.distance(closest_point)
-        contour = list(temp.keys())[0]
+
+        first = True
+        closest_point = None
+        contour = None
+
+        print("\tTEMP:", list(temp.values()))
 
         for key in temp:
             for new_point in temp[key]:
                 
-                new_distance = point.distance(new_point)
-
-                if minimum > new_distance:
+                if first and not new_point.visited:
+                    first = False
                     closest_point = new_point
-                    minimum = new_distance
+                    minimum = point.distance(new_point)
                     contour = key
+
+                elif not new_point.visited:
+                    new_distance = point.distance(new_point)
+
+                    if minimum > new_distance:
+                        closest_point = new_point
+                        minimum = new_distance
+                        contour = key
 
         print("\tCLOSEST:", closest_point)
 
@@ -156,37 +174,39 @@ class Family:
         return closest_point, contour
 
 
-    def __next_contour_point(self, point, contour, row):
+    def __next_contour_point(self, previous_point, contour, row):
 
         print("NEXT:", row)
 
         if not row in contour.intersection_points:
             return None
         
-        temp_point = (point.x,point.y)
+        temp_point = (previous_point.x,previous_point.y)
 
         # get the line the point is on
         line = contour.find_point(temp_point)
 
+
         index = contour.line_list.index(line)
 
         lines = []
-        for i in range(-2,3,1):
-            lines.append(contour.line_list[(index+i)%len(contour.line_list)])
 
         possible_points = contour.intersection_points[row]
 
-        print(possible_points)
+        if possible_points:
+            minimum = previous_point.distance(possible_points[0])
+            closest_point = possible_points[0]
 
-        # find the point within one line
-        for line in lines:
+            for point in possible_points:
+                
+                new_distance = previous_point.distance(point)
 
-            print("\t",line)
-            for pt in possible_points:
-                temp_point = (pt.x,pt.y)
+                if minimum > new_distance:
+                    minimum = new_distance
+                    closest_point = point
 
-                if line.check_on_line(temp_point):
-                    return pt
+            if not closest_point.visited:
+                return closest_point
 
         return None
 
@@ -196,6 +216,7 @@ class Family:
     def generate_path(self, line_thickness, angle):
         
         point, row = self.__find_available_point()
+        next_point = point
 
         path = []
 
@@ -208,7 +229,7 @@ class Family:
             points_dict = self.__get_contour_rowpoints(row)
 
             # find closest point that is not part of the current contour (except parent)
-            next_point, next_contour = self.__get_closest_point(point, points_dict)
+            next_point, next_contour = self.__get_closest_point(next_point, points_dict)
             path.append(next_point)
             next_point.set_visited()
 
