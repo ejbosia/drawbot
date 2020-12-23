@@ -7,11 +7,8 @@ import gcode as GC
 import pandas as pd
 import math
 
-
 import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
-
-
 
 from geometry.line import Line
 from geometry.contour import Contour
@@ -153,16 +150,13 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
 
     perpendicular_angle = angle + (np.pi/2)
 
-    for i in range(20):
+    while(True):
         # determine a direction
         angle = fill_direction(contour, new_point, angle)
-        print("\tANGLE:",angle)
+
         ray = Line(new_point, angle=angle)
 
         contour, point = find_closest_intersection(contour_list, ray)
-        print("\tCONTOUR:",contour)
-        print("\tPOINT:",point)
-
 
         ray.p2 = point
 
@@ -191,12 +185,10 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
         if contour.heirarchy[3] == -1:        
             temp_ray = Line(temp_point, angle=angle)
             intersections = contour.intersection(temp_ray)
-            plt.plot(*temp_ray.plot())
 
             if not intersections:
                 temp_ray = Line(temp_point, angle=angle-math.pi)
                 intersections = contour.intersection(temp_ray)
-            plt.plot(*temp_ray.plot())
         
         else:
             angle = (angle+np.pi)%(2*np.pi)
@@ -207,16 +199,11 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
             if not intersections:
                 temp_ray = Line(temp_point, angle=angle-math.pi)
                 intersections = contour.intersection(temp_ray)
-            plt.plot(*temp_ray.plot())
-            
-            # if not intersections:
-            #     temp_ray = Line(temp_point, angle=angle-math.pi)
-            #     intersections = contour.intersection(temp_ray)
 
 
-            
-
-        plt.show()
+        # if there are no intersections, break the loop
+        if not intersections:
+            break
 
         min_length = Line(temp_ray.p1, p2=intersections[0]).length()
 
@@ -230,8 +217,6 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
         
         line_x.append(new_point[0])
         line_y.append(new_point[1])
-
-        print("COMPLETE", i)
 
     plt.show()
 
