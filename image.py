@@ -299,7 +299,6 @@ def fill_direction(contour, point, angle):
     # if there is an intersection, the direction must be the opposite for "hole" contours
     elif contour.intersection(ray) and not (contour.heirarchy[3] == -1):
         angle = angle - math.pi
-    print("ANGLE:", angle)
     return angle
 
 
@@ -308,6 +307,7 @@ def fill_direction(contour, point, angle):
 def find_closest_intersection(contour_list, ray):
 
     '''
+    # THIS DOES NOT SEEM TO WORK - CAN REVISIT WHEN PERFORMANCE IS AN ISSUE
     possible_contours = []
 
     # find all contours that intersect (fast)
@@ -363,12 +363,16 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
 
     perpendicular_angle = angle + (np.pi/2)
 
-    for i in range(10):
+    for i in range(20):
         # determine a direction
         angle = fill_direction(contour, new_point, angle)
+        print("\tANGLE:",angle)
         ray = Line(new_point, angle=angle)
 
         contour, point = find_closest_intersection(contour_list, ray)
+        print("\tCONTOUR:",contour)
+        print("\tPOINT:",point)
+
 
         ray.p2 = point
 
@@ -402,7 +406,7 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
             if not intersections:
                 temp_ray = Line(temp_point, angle=angle-math.pi)
                 intersections = contour.intersection(temp_ray)
-                plt.plot(*temp_ray.plot())
+            plt.plot(*temp_ray.plot())
         
         else:
             angle = (angle+np.pi)%(2*np.pi)
@@ -410,16 +414,29 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
             temp_ray = Line(temp_point, angle=angle)
             intersections = contour.intersection(temp_ray, debug=False, plot=False)
 
+            if not intersections:
+                temp_ray = Line(temp_point, angle=angle-math.pi)
+                intersections = contour.intersection(temp_ray)
+            plt.plot(*temp_ray.plot())
+            
             # if not intersections:
             #     temp_ray = Line(temp_point, angle=angle-math.pi)
             #     intersections = contour.intersection(temp_ray)
 
 
-            plt.plot(*temp_ray.plot())
+            
 
         plt.show()
 
-        new_point = intersections[0]
+        min_length = Line(temp_ray.p1, p2=intersections[0]).length()
+
+        # find the closest intersection point
+        for i in intersections:
+            new_length = Line(temp_ray.p1, p2=i).length()
+            if new_length <= min_length:
+                new_point = i
+                min_length = new_length
+
         
         line_x.append(new_point[0])
         line_y.append(new_point[1])
