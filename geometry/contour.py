@@ -133,7 +133,10 @@ class Contour:
 
         # if there are intersections, add to the list
         if intersections:
-            self.intersection_points[line_number] = intersections
+            if not line_number in self.intersection_points:
+                self.intersection_points[line_number] = []
+            
+            self.intersection_points[line_number].extend(intersections)
             return True
         else:
             return False

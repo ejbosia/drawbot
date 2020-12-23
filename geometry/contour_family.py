@@ -32,7 +32,7 @@ class Family:
     # get all of the intersections of a line on the family ~ save to the contours
     def intersection(self, line, line_number):
 
-        if self.parent_contour.save_intersection(line,line_number):
+        if not self.parent_contour.save_intersection(line,line_number):
             return False
 
         for child_contour in self.children:
@@ -54,7 +54,7 @@ class Family:
 
         perpendicular_angle = angle + (np.pi/2)
 
-        rows = []
+        line_number = 0        
 
         # loop until there are no intersections
         while intersections:
@@ -71,7 +71,13 @@ class Family:
             ray2 = Line(current_point, angle=angle-np.pi)
 
             # check the line for intersections against the parent and all children
-            intersections = self.intersection(ray1) or self.intersection(ray2)
+            direction_one = self.intersection(ray1, line_number) 
+            direction_two = self.intersection(ray2, line_number)
+
+            intersections = direction_one or direction_two
+            
+            line_number += 1
+
 
 
 
