@@ -165,7 +165,7 @@ class Contour:
 
         # create the lists of points
         X = [self.line_list[0].p1[0]]
-        Y = [self.line_list[0].p1[0]]
+        Y = [self.line_list[0].p1[1]]
 
         for line in self.line_list:
             X.append(line.p2[0])
