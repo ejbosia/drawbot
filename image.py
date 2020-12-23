@@ -73,6 +73,8 @@ def generate_border_lines(image):
 
 def create_contour_families(contour_list):
 
+    # find the first parent contour
+
 
 
 # fill contours towards other edge
@@ -250,6 +252,8 @@ def main(file="test_ring.png", inverse=False, resize = 1):
         image = 255-image
 
     contours = generate_border_lines(image)
+
+    create_contour_families(contours)
 
     fill_contours(contours)
 

@@ -47,6 +47,10 @@ class Contour:
         return tuple(min_pt), tuple(max_pt)
 
 
+    def is_parent(self):
+        return self.heirarchy[3] == -1
+
+
     # rotate a point
     def rotate_point(self, point, angle):
         # calculate the relative distance in the direction
@@ -156,6 +160,18 @@ class Contour:
 
                 return new_list
 
+    # return X and Y lists to plot
+    def plot(self):
+
+        # create the lists of points
+        X = [self.line_list[0].p1[0]]
+        Y = [self.line_list[0].p1[0]]
+
+        for line in self.line_list:
+            X.append(line.p2[0])
+            Y.append(line.p2[1])
+
+        return X,Y
 
     # return a string representation of the contour
     def __repr__(self):

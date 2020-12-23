@@ -10,7 +10,12 @@ logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
 import math
+import numpy as np
+import matplotlib.pyplot as plt
+
+
 from geometry.line import Line
+from geometry.contour import Contour
 
 
 class Family:
@@ -21,13 +26,70 @@ class Family:
 
     # get the starting point to process the family
     def starting_point(self):
-        pass
+        return parent_contour.find_maximum_point(angle-(np.pi/2))
+
+    # get all of the intersections of a line on the family
+    def intersections(self, line):
+
+        intersections = self.parent_contour.intersections(line)
+
+        for child_contour in self.children:
+            intersections.extend(child_contour.intersections(line))
+
+        return intersections
+
+    # generate the intersection points on each contour in the family
+    def generate_intersection_points(self, line_thickness, angle):
+
+        current_point = self.starting_point()
+
+        # generate inifinite lines starting from the starting point + line_thickness perpendicular to the angle
+        # the infinite lines comprise of two rays with directions of angle and angle + pi
+        # once a "no intersection" point is reached (for both rays), the process stops
+
+        # start the loop
+        intersections = True
+
+        perpendicular_angle = angle + (np.pi/2)
+
+        points = []
+
+        # loop until there are no intersections
+        while not intersections:
+            
+            # generate a new line
+            dx = np.cos(perpendicular_angle)
+            dy = np.sin(perpendicular_angle)
+
+            current_point = (dx*line_thickness+current_point[0], dy*line_thickness+current_point[1])
+
+            ray1 = Line(current_point, angle=angle)
+            ray2 = Line(current_point, angle=angle-np.pi)
 
 
-    def generate_intersection_points(self, starting_point, line_thickness, angle):
+            # check the line for intersections against the parent and all children
 
+            intersections = self.intersections(ray1)
+            intersections.extend(self.intersections(ray2))
+
+            # add the points
+            points.extend(intersections)    
+
+        for point in intersections:
+            plt.scatter(point[0], point[1])
+
+        self.plot()
+        plt.show()
+
+        return points
 
 
     # plot the family  
-    def plot(self):
-        pass
+    def plot(self, show=False):
+        plt.plot(parent_contour.plot())
+        for child_contour in children:
+            plt.plot(child_contour.plot())
+        
+        if show:
+            plt.show()
+        
