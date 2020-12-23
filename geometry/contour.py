@@ -20,6 +20,8 @@ class Contour:
         self.line_list = line_list
         self.heirarchy = heirarchy
 
+        self.covered_points = []
+
         self.min, self.max = self.__bounds()
 
     # find the outer most coordinates of the Contour
@@ -84,7 +86,7 @@ class Contour:
 
         if debug:
             print(points)
-            
+
         return points
 
 
@@ -98,6 +100,14 @@ class Contour:
 
         return None
 
+
+    def check_on_contour(self, point):
+
+        for line in self.line_list:
+            if line.check_on_line(point):
+                return True
+        
+        return False
 
     # rotate the lines so the starting line is the first in the list
     def __rotate_lines(self, start_line):

@@ -134,7 +134,7 @@ def find_closest_intersection(contour_list, ray):
 
 
 
-def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
+def fill_contours(contour_list, line_thickness=1, angle=math.pi/4):
 
     # start at contour 0
     previous_contour = contour_list[1]
@@ -150,7 +150,8 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
 
     perpendicular_angle = angle + (np.pi/2)
 
-    while(True):
+    #while(True):
+    for _ in range(7):
         # determine a direction
         angle = fill_direction(contour, new_point, angle)
 
@@ -186,7 +187,10 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
             temp_ray = Line(temp_point, angle=angle)
             intersections = contour.intersection(temp_ray)
 
-            if not intersections:
+            if contour.check_on_contour(temp_point):
+                intersections = [temp_point]
+
+            elif not intersections:
                 temp_ray = Line(temp_point, angle=angle-math.pi)
                 intersections = contour.intersection(temp_ray)
         
@@ -195,11 +199,12 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
         
             temp_ray = Line(temp_point, angle=angle)
             intersections = contour.intersection(temp_ray, debug=False, plot=False)
-
-            if not intersections:
+            
+            if contour.check_on_contour(temp_point):
+                intersections = [temp_point]
+            elif not intersections:
                 temp_ray = Line(temp_point, angle=angle-math.pi)
                 intersections = contour.intersection(temp_ray)
-
 
         # if there are no intersections, break the loop
         if not intersections:
