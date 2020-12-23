@@ -70,18 +70,21 @@ class Contour:
 
 
     # find all intersections with the line
-    def intersection(self, line):
+    def intersection(self, line, debug=False, plot=False):
         
         points = []
 
         for l in self.line_list:
-            temp = line.intersection(l)
+            temp = line.intersection(l, debug=debug, plot=plot)      
 
             if temp is None:
                 continue
             else:
                 points.append(temp)
 
+        if debug:
+            print(points)
+            
         return points
 
 

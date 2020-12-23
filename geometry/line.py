@@ -82,40 +82,53 @@ class Line:
 
 
     # check if the input point is on the line
-    def check_on_line(self, point):
+    def check_on_line(self, point, debug=False):
 
         # build a temporary line from p1 to the input point
         # TODO this might not be the most efficient method
         temp = Line(self.p1, p2=point)
-        
+        if debug:
+            print(str(round(self.angle%(2*np.pi),5)) + " - " + str(round(temp.angle%(2*np.pi),5)))
         # if the angle is not equivalent, return false
-        if not round(self.angle,5) == round(temp.angle,5):
-            logging.debug(str(self.angle) + "=/=" + str(temp.angle))
+        if not round(self.angle%(2*np.pi),5) == round(temp.angle%(2*np.pi),5):
             return False
 
         # to be on the line, the point must be between the two existing points
         if self.length() >= temp.length():
             return True
         else:
-            logging.debug(str(self.length()) + "<" + str(temp.length()))
+            if debug:
+                print(str(self.length()) + "<" + str(temp.length()))
             return False
 
     # find the intersection point with another line ~ None if there is none
-    def intersection(self, line):
+    def intersection(self, line, debug=False, plot=False):
         
         # check if the angles are the same
         if (self.angle - line.angle) % 180 == 0:
-            logging.debug("LINES ARE PARALLEL")
+            if debug: 
+                print("LINES ARE PARALLEL")
             return None
 
         # find the intersection point
         point = self.__intersection_ray(line)
 
         # check if the point is on both lines
-        if self.check_on_line(point) and line.check_on_line(point):
+        if self.check_on_line(point, debug=debug) and line.check_on_line(point, debug=debug):
+            if debug:
+                print(point)
             return point
         else:
-            logging.debug("LINE ONE: " + str(self.check_on_line(point)) + "\tLINE TWO: " + str(line.check_on_line(point))+ "\t" + str(point))
+            if debug: 
+                print("\tPOINT:", point)
+                print("\tLINE ONE: " + str(self.check_on_line(point)) + "\t" + str(self))
+                print("\tLINE TWO: " + str(line.check_on_line(point)) + "\t" + str(line))
+            if plot:
+                import matplotlib.pyplot as plt
+                plt.plot(*self.plot())
+                plt.scatter(point[0],point[1])
+                plt.show()
+                return point
             return None
 
     # find the intersection point of the two lines, treated as rays
