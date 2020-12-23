@@ -352,9 +352,17 @@ def main(file="test_ring.png", inverse=False, resize = 1):
 
     rows = family_list[1].generate_intersection_points(1, np.pi/6)
 
-    for row in rows:
-        print(row)
-    
+    path = family_list[1].generate_path(1, np.pi/6)
+
+    X = []
+    Y = []
+
+    for point in path:
+        X.append(point.x)
+        Y.append(point.y)
+
+    plt.plot(X,Y)
+    plt.show()
     # fill_contours(contours)
 
 if __name__ == "__main__":

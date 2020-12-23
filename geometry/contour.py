@@ -10,7 +10,7 @@ logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 import math
 from geometry.line import Line
-
+from geometry.point import Point
 
 
 class Contour:
@@ -63,6 +63,7 @@ class Contour:
         y = point[0] * s + point[1] * c
 
         return (x,y)
+
 
 
     def find_maximum_point(self, angle):
@@ -136,7 +137,8 @@ class Contour:
             if not line_number in self.intersection_points:
                 self.intersection_points[line_number] = []
             
-            self.intersection_points[line_number].extend(intersections)
+            for pt in intersections:
+                self.intersection_points[line_number].append(Point(pt[0],pt[1], self))
             return True
         else:
             return False
@@ -145,7 +147,7 @@ class Contour:
 
 
     # find the line that contains the point
-    def __find_point(self, point):
+    def find_point(self, point):
 
         # loop through each line, and check if the point is on the line
         for line in self.line_list:
@@ -191,6 +193,10 @@ class Contour:
             Y.append(line.p2[1])
 
         return X,Y
+
+
+    def __hash__(self):
+        return hash(str(self.heirarchy))
 
     # return a string representation of the contour
     def __repr__(self):

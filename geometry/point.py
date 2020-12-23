@@ -5,10 +5,11 @@ A point has an X and Y coordinate, and a boolean value for if it has been visite
 @author ejbosia
 '''
 
+import math
 
 class Point:
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, c):
         self.x = x
         self.y = y
         self.c = c
@@ -17,6 +18,10 @@ class Point:
 
     def set_visited(self):
         self.visited = True
+
+
+    def distance(self, other):
+        return math.sqrt((self.x-other.x)**2 + (self.y-other.y)**2)
 
 
     def __lt__(self, other):

@@ -80,7 +80,149 @@ class Family:
 
 
 
+    # find available point (and row location)
+    def __find_available_point(self):
+        
+        # will want to improve performance here
 
+        # check parent contour
+
+        contour = self.parent_contour
+
+        for key in contour.intersection_points:
+            for point in contour.intersection_points[key]:
+                if point.visited == False:
+                    return point, key
+
+        # check each child
+
+        for contour in self.children:
+            for key in contour.intersection_points:
+                for point in contour.intersection_points[key]:
+                    if point.visited == False:
+                        return point, key
+
+        return None,None
+
+    # return all of the points at the row, grouped by contour
+    def __get_contour_rowpoints(self, row):
+
+        points = {self.parent_contour:self.parent_contour.intersection_points[row]}
+        
+        for child_contour in self.children:
+            
+            if row in child_contour.intersection_points:
+                points[child_contour] = child_contour.intersection_points[row]
+
+        return points
+
+
+    def __get_closest_point(self, point, points_dict):
+
+        temp = dict(points_dict)
+
+        # find the point in the dict
+        for key in temp:
+            print("GET CLOSEST:", point, "\t", temp[key])
+            # remove the point if in the parent_contour
+            if point in temp[key] and key == self.parent_contour:
+                temp[key].remove(point)
+                break
+            # remove the 
+            elif point in temp[key]:
+                del temp[key]
+                break
+
+        # find the closest point in temp
+
+        # set the closest point to start at the first point
+        closest_point = temp[list(temp.keys())[0]][0]
+        minimum = point.distance(closest_point)
+        contour = list(temp.keys())[0]
+
+        for key in temp:
+            for new_point in temp[key]:
+                
+                new_distance = point.distance(new_point)
+
+                if minimum > new_distance:
+                    closest_point = new_point
+                    minimum = new_distance
+                    contour = key
+
+        print("\tCLOSEST:", closest_point)
+
+
+        return closest_point, contour
+
+
+    def __next_contour_point(self, point, contour, row):
+
+        print("NEXT:", row)
+
+        if not row in contour.intersection_points:
+            return None
+        
+        temp_point = (point.x,point.y)
+
+        # get the line the point is on
+        line = contour.find_point(temp_point)
+
+        index = contour.line_list.index(line)
+
+        lines = []
+        for i in range(-2,3,1):
+            lines.append(contour.line_list[(index+i)%len(contour.line_list)])
+
+        possible_points = contour.intersection_points[row]
+
+        print(possible_points)
+
+        # find the point within one line
+        for line in lines:
+
+            print("\t",line)
+            for pt in possible_points:
+                temp_point = (pt.x,pt.y)
+
+                if line.check_on_line(temp_point):
+                    return pt
+
+        return None
+
+        
+
+    # create a path to fill the contour
+    def generate_path(self, line_thickness, angle):
+        
+        point, row = self.__find_available_point()
+
+        path = []
+
+        while not point is None:
+
+            path.append(point)
+            point.set_visited()
+
+            # get all the points
+            points_dict = self.__get_contour_rowpoints(row)
+
+            # find closest point that is not part of the current contour (except parent)
+            next_point, next_contour = self.__get_closest_point(point, points_dict)
+            path.append(next_point)
+            next_point.set_visited()
+
+            # traverse contour (increase row number)
+            row += 1
+
+            # find the next point (none if none)
+            point = self.__next_contour_point(next_point, next_contour, row)
+
+        
+        print("PATH:",path)
+        return path
+
+        
     # plot the family  
     def plot(self, show=False):
 
