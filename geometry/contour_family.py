@@ -29,15 +29,16 @@ class Family:
     def __starting_point(self, angle):
         return self.parent_contour.find_maximum_point(angle-(np.pi/2))
 
-    # get all of the intersections of a line on the family
-    def intersection(self, line):
+    # get all of the intersections of a line on the family ~ save to the contours
+    def intersection(self, line, line_number):
 
-        intersections = self.parent_contour.intersection(line)
+        if self.parent_contour.save_intersection(line,line_number):
+            return False
 
         for child_contour in self.children:
-            intersections.extend(child_contour.intersection(line))
+            child_contour.save_intersection(line,line_number)
 
-        return intersections
+        return True
 
     # generate the intersection points on each contour in the family
     def generate_intersection_points(self, line_thickness, angle):
@@ -70,32 +71,8 @@ class Family:
             ray2 = Line(current_point, angle=angle-np.pi)
 
             # check the line for intersections against the parent and all children
-            intersections = self.intersection(ray1)
-            intersections.extend(self.intersection(ray2))
+            intersections = self.intersection(ray1) or self.intersection(ray2)
 
-            # add the points
-            for point in intersections:
-                points.append(Point(point[0],point[1]))
-
-            # if there are no points to add, do not create a new row
-            if points:
-                rows.append(np.sort(points))    
-
-        # plot the rows
-        for row in rows:  
-            X = []
-            Y = []
-
-            for point in row:
-                X.append(point.x)
-                Y.append(point.y)
-
-            plt.scatter(X,Y)
-
-        self.plot()
-        plt.show()
-
-        return rows
 
 
     # plot the family  

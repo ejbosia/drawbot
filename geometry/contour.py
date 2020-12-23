@@ -20,7 +20,7 @@ class Contour:
         self.line_list = line_list
         self.heirarchy = heirarchy
 
-        self.covered_points = []
+        self.intersection_points = {}
 
         self.min, self.max = self.__bounds()
 
@@ -119,10 +119,26 @@ class Contour:
             else:
                 points.append(temp)
 
+
         if debug:
             print(points)
 
         return points
+
+    # save the intersection points to a dictionary by row-number
+    def save_intersection(self, line, line_number):
+        
+        # get the intersections
+        intersections = self.intersection(line)
+
+        # if there are intersections, add to the list
+        if intersections:
+            self.intersection_points[line_number] = intersections
+            return True
+        else:
+            return False
+
+
 
 
     # find the line that contains the point
