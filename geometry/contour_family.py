@@ -71,11 +71,10 @@ class Family:
             intersections = self.intersection(ray1)
             intersections.extend(self.intersection(ray2))
 
-            print(intersections)
-
 
             # add the points
-            points.extend(intersections)    
+            for point in intersections:
+                points.append(Point(point[0],point[1]))    
 
         for point in points:
             plt.scatter(point[0], point[1])

@@ -17,4 +17,7 @@ class Point:
     def set_visited(self):
         self.visited = True
 
+    def __repr__(self):
+        return "(" + str(self.x) + "," + str(self.y) + ")\t" + self.visited
+
     
