@@ -46,7 +46,7 @@ class Contour:
 
         return tuple(min_pt), tuple(max_pt)
 
-
+    # return true if this contour is a parent contour
     def is_parent(self):
         return self.heirarchy[3] == -1
 

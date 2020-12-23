@@ -71,9 +71,45 @@ def generate_border_lines(image):
     return contour_list
 
 
+# get all of the children of the parent contour
+def get_children(contour_list, parent_contour):
+
+    child_list = []
+
+    first_child_index = parent_contour.heirarchy[2]
+    child = contour_list[first_child_index]
+    child_list.append(child)
+
+
+    # loop while there are more children
+    while not child.heirarchy[0] == -1:
+        next_child_index = child.heirarchy[0]
+        child = contour_list[next_child_index]
+        child_list.append(child)
+    
+    # return the list of children
+    return child_list
+
 def create_contour_families(contour_list):
 
+    family_list = []
+
     # find the first parent contour
+    for contour in contour_list:
+        
+        # start with a parent contour
+        if contour.is_parent():
+
+            # if there are no children, create an empty family with only the parent contour
+            if contour.heirarchy[2] == -1:
+                child_list = []
+            # otherwise, find all of the children
+            else:
+                child_list = get_children(contour_list, contour)
+
+            family_list.append(Family(contour, child_list))
+
+    return family_list
 
 
 
@@ -251,11 +287,17 @@ def main(file="test_ring.png", inverse=False, resize = 1):
     if inverse:
         image = 255-image
 
+    # create contours
     contours = generate_border_lines(image)
 
-    create_contour_families(contours)
+    # organize contours into families of contours
+    family_list = create_contour_families(contours)
 
-    fill_contours(contours)
+    # plot each family
+    for family in family_list:
+        family.plot(show=True)
+    
+    # fill_contours(contours)
 
 if __name__ == "__main__":
     main()

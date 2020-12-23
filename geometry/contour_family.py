@@ -20,7 +20,7 @@ from geometry.contour import Contour
 
 class Family:
 
-    def __init__(self, parent_contour, children=[])
+    def __init__(self, parent_contour, children=[]):
         self.parent_contour = parent_contour
         self.children = children
 
@@ -86,9 +86,15 @@ class Family:
 
     # plot the family  
     def plot(self, show=False):
-        plt.plot(parent_contour.plot())
-        for child_contour in children:
-            plt.plot(child_contour.plot())
+
+        X,Y = self.parent_contour.plot()
+
+        plt.plot(X,Y)
+        
+        for child_contour in self.children:
+            
+            X,Y = child_contour.plot()
+            plt.plot(X,Y)
         
         if show:
             plt.show()
