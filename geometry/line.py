@@ -35,7 +35,6 @@ class Line:
         return np.arctan2(dy,dx)
 
 
-
     # find the slope of the line (dy/dx)
     def slope(self):
 

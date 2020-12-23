@@ -274,7 +274,59 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/3):
     start_point = (dx*line_thickness+start_point[0], dy*line_thickness+start_point[1])
 
     create_path(contour_list, line_thickness, angle, contour_list[1], start_point)
+
+
+
+
+def find_available_point(rows):
+
+    for row in rows:
+
+        for point in rows:
+
+            if not point.visited:
+                return point
+
+    return None
+
+
+def generate_path(rows):
+
+    # pick a starting point
+    point = find_available_point(rows)
+
+    path = []
+
+    d = 1
+
+    while not point is None:
         
+        done = False
+        index = [(i, row.index(point)) for i, row in enumerate(rows) if point in row][0]
+
+        # move through the list
+        while not done:
+            
+            # add the current point
+            path.append(point)
+            row[index[0]][index[1]].set_visited()
+
+            # move to the next point
+            index[1] += d
+
+            point = row[index[0]][index[1]]
+
+            # move to the next row
+            index[0] += 1
+
+
+            # check if the next row has the index
+
+            point = row[index[0]][index[1]]
+
+        
+
+
 
 
 def main(file="test_ring.png", inverse=False, resize = 1):
