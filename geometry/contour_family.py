@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 
 from geometry.line import Line
 from geometry.contour import Contour
+from geometry.point import Point
 
 
 class Family:
@@ -52,11 +53,13 @@ class Family:
 
         perpendicular_angle = angle + (np.pi/2)
 
-        points = []
+        rows = []
 
         # loop until there are no intersections
         while intersections:
             
+            points = []
+
             # generate a new line
             dx = np.cos(perpendicular_angle)
             dy = np.sin(perpendicular_angle)
@@ -66,23 +69,33 @@ class Family:
             ray1 = Line(current_point, angle=angle)
             ray2 = Line(current_point, angle=angle-np.pi)
 
-
             # check the line for intersections against the parent and all children
             intersections = self.intersection(ray1)
             intersections.extend(self.intersection(ray2))
 
-
             # add the points
             for point in intersections:
-                points.append(Point(point[0],point[1]))    
+                points.append(Point(point[0],point[1]))
 
-        for point in points:
-            plt.scatter(point[0], point[1])
+            # if there are no points to add, do not create a new row
+            if points:
+                rows.append(np.sort(points))    
+
+        # plot the rows
+        for row in rows:  
+            X = []
+            Y = []
+
+            for point in row:
+                X.append(point.x)
+                Y.append(point.y)
+
+            plt.scatter(X,Y)
 
         self.plot()
         plt.show()
 
-        return points
+        return rows
 
 
     # plot the family  

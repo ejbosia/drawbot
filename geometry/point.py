@@ -17,7 +17,33 @@ class Point:
     def set_visited(self):
         self.visited = True
 
+
+    def __lt__(self, other):
+        dx = other.x - self.x
+        dy = other.y - self.y
+        
+        return (dy + dx) > 0
+
+    def __le__(self, other):
+        return self < other or self == other
+    
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+    
+    def __ne__(self, other):
+        return not self == other
+    
+    def __gt__(self, other):
+        dx = other.x - self.x
+        dy = other.y - self.y
+        
+        return (dy + dx) < 0
+    
+    def __ge__(self, other):
+        return self > other or self == other
+
+
     def __repr__(self):
-        return "(" + str(self.x) + "," + str(self.y) + ")\t" + self.visited
+        return "(" + str(round(self.x,2)) + "," + str(round(self.y,2)) + ")" # + ")\t" + str(self.visited)
 
     
