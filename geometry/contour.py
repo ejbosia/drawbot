@@ -78,11 +78,6 @@ class Contour:
         return maximum_point
 
 
-            
-            
-
-
-
     # return true if there could be an intersection with an input ray
     def fast_intersection(self, ray):
 
@@ -114,8 +109,8 @@ class Contour:
         points = []
 
         for l in self.line_list:
-            temp = line.intersection(l, debug=debug, plot=plot)      
-
+            temp = l.intersection(line, debug=debug, plot=plot)      
+            print(l)
             if temp is None:
                 continue
             else:

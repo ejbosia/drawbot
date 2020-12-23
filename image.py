@@ -80,11 +80,11 @@ def fill_direction(contour, point, angle):
     # find the direction that is "inside" the contour
     ray = Line(point, angle = angle)
     
-    # if there is no intersection, the direction must be the opposite for "fill" contours
-    if not contour.intersection(ray) and contour.heirarchy[3] == -1:
+    # if number of intersections is even, the direction must be the opposite for "fill" contours
+    if (len(contour.intersection(ray))%2==0) and contour.heirarchy[3] == -1:
         angle = angle - math.pi
-    # if there is an intersection, the direction must be the opposite for "hole" contours
-    elif contour.intersection(ray) and not (contour.heirarchy[3] == -1):
+    # if number of intersections is odd, the direction must be the opposite for "hole" contours
+    elif (len(contour.intersection(ray))%2==1) and not (contour.heirarchy[3] == -1):
         angle = angle - math.pi
     return angle
 
@@ -134,67 +134,28 @@ def find_closest_intersection(contour_list, ray):
 
 
 
+# create a single path
+def create_path(contour_list, line_thickness, angle, start_contour, start_point):
 
-def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
+    temp_point = start_point
+    contour = start_contour
 
-    start_point = contour_list[1].find_maximum_point(angle-(np.pi/2))
-    plt.scatter(start_point[0],start_point[1])
-    plot_contours(contour_list, points=False)
-
-    # start at contour 0
-    previous_contour = contour_list[1]
-
-    contour = previous_contour
-    # pick a point
-    new_point = contour.line_list[0].bisect()
-
-    traverse_amount = -line_thickness
-
-    line_x = [new_point[0]]
-    line_y = [new_point[1]]
+    line_x = [start_point[0]]
+    line_y = [start_point[1]]
 
     perpendicular_angle = angle + (np.pi/2)
-
-    while(True):
-        # determine a direction
-        angle = fill_direction(contour, new_point, angle)
-
-        ray = Line(new_point, angle=angle)
-
-        contour, point = find_closest_intersection(contour_list, ray)
-
-        ray.p2 = point
-
-        line_x.append(point[0])
-        line_y.append(point[1])
-
-        plot_contours(contour_list,show=False,points=False)
-        
-        plt.plot(line_x, line_y)
-
-        # traverse
-        
-        # if(contour == previous_contour):
-        #     traverse_amount = -traverse_amount
-
-        # new_point = contour.traverse(point, traverse_amount)
-
-        # build the new line
-
-        dx = np.cos(perpendicular_angle)
-        dy = np.sin(perpendicular_angle)
-
-        temp_point = (dx*line_thickness+ray.p2[0], dy*line_thickness+ray.p2[1])
-
-
+    
+    #while(True):
+    for _ in range(5):
+    
         if contour.heirarchy[3] == -1:        
             temp_ray = Line(temp_point, angle=angle)
-            intersections = contour.intersection(temp_ray)
+            intersections = contour.intersection(temp_ray, debug=False)
 
-            if contour.check_on_contour(temp_point):
-                intersections = [temp_point]
+            # if contour.check_on_contour(temp_point):
+            #     intersections = [temp_point]
 
-            elif not intersections:
+            if not intersections:
                 temp_ray = Line(temp_point, angle=angle-math.pi)
                 intersections = contour.intersection(temp_ray)
         
@@ -204,9 +165,9 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
             temp_ray = Line(temp_point, angle=angle)
             intersections = contour.intersection(temp_ray, debug=False, plot=False)
             
-            if contour.check_on_contour(temp_point):
-                intersections = [temp_point]
-            elif not intersections:
+            # if contour.check_on_contour(temp_point):
+            #     intersections = [temp_point]
+            if not intersections:
                 temp_ray = Line(temp_point, angle=angle-math.pi)
                 intersections = contour.intersection(temp_ray)
 
@@ -227,7 +188,51 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
         line_x.append(new_point[0])
         line_y.append(new_point[1])
 
+
+        # determine a direction
+        angle = fill_direction(contour, new_point, angle)
+
+        ray = Line(new_point, angle=angle)
+
+        contour, point = find_closest_intersection(contour_list, ray)
+
+        ray.p2 = point
+
+        line_x.append(point[0])
+        line_y.append(point[1])
+
+        plot_contours(contour_list,show=False,points=False)
+        
+        plt.plot(line_x, line_y)
+
+        dx = np.cos(perpendicular_angle)
+        dy = np.sin(perpendicular_angle)
+
+        temp_point = (dx*line_thickness+ray.p2[0], dy*line_thickness+ray.p2[1])
+
     plt.show()
+
+
+    print("RETURN SOMETHING??")
+
+
+
+def fill_contours(contour_list, line_thickness=1, angle=math.pi/3):
+
+    start_point = contour_list[1].find_maximum_point(angle-(np.pi/2))
+    plt.scatter(start_point[0],start_point[1])
+
+    traverse_amount = -line_thickness
+
+    perpendicular_angle = angle + (np.pi/2)
+
+    dx = np.cos(perpendicular_angle)
+    dy = np.sin(perpendicular_angle)
+
+    start_point = (dx*line_thickness+start_point[0], dy*line_thickness+start_point[1])
+
+    create_path(contour_list, line_thickness, angle, contour_list[1], start_point)
+        
 
 
 def main(file="test_ring.png", inverse=False, resize = 1):
