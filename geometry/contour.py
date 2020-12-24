@@ -157,6 +157,7 @@ class Contour:
         return None
 
 
+    # check if the point is on the contour
     def check_on_contour(self, point):
 
         for line in self.line_list:
@@ -164,6 +165,7 @@ class Contour:
                 return True
         
         return False
+
 
     # rotate the lines so the starting line is the first in the list
     def __rotate_lines(self, start_line):

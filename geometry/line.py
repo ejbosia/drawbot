@@ -43,6 +43,7 @@ class Line:
 
         return dx,dy
 
+
     # find the point at the center of the line
     def bisect(self):
         
@@ -65,6 +66,7 @@ class Line:
 
         return math.sqrt(dx**2 + dy**2)
 
+
     # traverse the line a distance from p1
     def traverse(self, distance):
 
@@ -77,7 +79,6 @@ class Line:
         py = distance * uy + self.p1[1]
 
         return (px, py)
-
 
 
     # check if the input point is on the line
@@ -157,7 +158,7 @@ class Line:
     
         else:
             dx, dy = self.slope()
-            points = [self.p1, (dx*20+self.p1[0], dy*20+self.p1[1])]
+            points = [self.p1, (dx*40+self.p1[0], dy*40+self.p1[1])]
 
         return zip(*points)
 

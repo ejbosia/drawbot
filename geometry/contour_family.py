@@ -57,7 +57,8 @@ class Family:
         line_number = 0        
 
         # loop until there are no intersections
-        while intersections:
+        # while intersections:
+        for _ in range(34):
             
             points = []
 
@@ -78,7 +79,20 @@ class Family:
             
             line_number += 1
 
-        
+        print(self.parent_contour.intersection(ray1, debug=True))
+
+
+        plt.plot(*ray1.plot())
+        plt.plot(*ray2.plot())
+
+        X,Y = self.parent_contour.plot()
+        plt.plot(X,Y)
+
+        for key in self.parent_contour.intersection_points.keys():
+            for point in self.parent_contour.intersection_points[key]:
+                plt.scatter(point.x, point.y)
+
+        plt.show()
 
 
 
