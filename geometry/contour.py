@@ -10,7 +10,7 @@ logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 import math
 from geometry.line import Line
-
+from geometry.point import Point
 
 
 class Contour:
@@ -19,6 +19,9 @@ class Contour:
 
         self.line_list = line_list
         self.heirarchy = heirarchy
+
+        self.intersection_list = []
+        self.intersection_points = {}
 
         self.min, self.max = self.__bounds()
 
@@ -43,6 +46,43 @@ class Contour:
                 max_pt[1] = line.p1[1]
 
         return tuple(min_pt), tuple(max_pt)
+
+    # return true if this contour is a parent contour
+    def is_parent(self):
+        return self.heirarchy[3] == -1
+
+
+    # rotate a point
+    def rotate_point(self, point, angle):
+        # calculate the relative distance in the direction
+        # --> rotate the point so the "x" value is in the direction
+        # --> we want to rotate the point "back" to 0, so we use -angle
+        s = math.sin(angle)
+        c = math.cos(angle)
+
+        x = point[0] * c - point[1] * s
+        y = point[0] * s + point[1] * c
+
+        return (x,y)
+
+
+
+    def find_maximum_point(self, angle):
+
+        maximum = self.rotate_point(self.line_list[0].p1, -angle)[0]
+        maximum_point = self.line_list[0].p1
+
+        # loop through each point
+        for line in self.line_list:
+            
+            new_point = self.rotate_point(line.p1, -angle)
+
+            if maximum < new_point[0]:
+                maximum = new_point[0]
+                maximum_point = line.p1
+
+        return maximum_point
+
 
     # return true if there could be an intersection with an input ray
     def fast_intersection(self, ray):
@@ -75,21 +115,61 @@ class Contour:
         points = []
 
         for l in self.line_list:
-            temp = line.intersection(l, debug=debug, plot=plot)      
-
+            temp = l.intersection(line, debug=debug, plot=plot)      
             if temp is None:
                 continue
             else:
                 points.append(temp)
 
+
         if debug:
             print(points)
-            
+
         return points
+
+    # save the intersection points to a dictionary by row-number
+    def save_intersection(self, line, line_number):
+        
+        # get the intersections
+        intersections = self.intersection(line)
+
+        # if there are intersections, add to the list
+        if intersections:
+            if not line_number in self.intersection_points:
+                self.intersection_points[line_number] = []
+            
+            for pt in intersections:
+                self.intersection_points[line_number].append(Point(pt[0],pt[1], self))
+            return True
+        else:
+            return False
+
+
+    def save_intersection_list(self):
+
+        for line in self.line_list:
+
+            temp_distance = []
+            temp_points = []
+
+            for key in self.intersection_points:
+
+                for point in self.intersection_points[key]:
+
+                    temp_point = point.tuple()
+                    
+                    if line.check_on_line(temp_point):
+                        distance = math.sqrt((line.p1[0] - point.x)**2 + (line.p1[1] - point.y)**2)
+                        temp_distance.append(distance)
+                        temp_points.append(point)
+
+            self.intersection_list.extend([x for _,x in sorted(zip(temp_distance,temp_points))])
+                    
+
 
 
     # find the line that contains the point
-    def __find_point(self, point):
+    def find_point(self, point):
 
         # loop through each line, and check if the point is on the line
         for line in self.line_list:
@@ -98,6 +178,43 @@ class Contour:
 
         return None
 
+
+    # check if the point is on the contour
+    def check_on_contour(self, point):
+
+        for line in self.line_list:
+            if line.check_on_line(point):
+                return True
+        
+        return False
+
+    def check_peak(self, point, int_line):
+
+        p1 = None
+        p2 = None
+
+        for line in self.line_list:
+            if line.p1 == point:
+                p1 = line.p2  
+            if line.p2 == point:    
+                p2 = line.p1
+
+        print("\tCHECK PEAK:", p1,p2)
+            
+        if p1 is None or p2 is None:
+            return False
+
+        # check the positions of the lines
+        line1 = Line(line.p1, p2 = p1)
+        line2 = Line(line.p1, p2 = p1)
+
+        cross_one = int_line.cross_product(line1) > 0
+        cross_two = int_line.cross_product(line2) > 0
+
+        if cross_one == cross_two:
+            return True
+        else:
+            return False
 
     # rotate the lines so the starting line is the first in the list
     def __rotate_lines(self, start_line):
@@ -115,48 +232,22 @@ class Contour:
 
                 return new_list
 
+    # return X and Y lists to plot
+    def plot(self):
 
-    # find a point that is around the contour
-    def traverse(self, point, distance):
-        
-        # find the starting point in the contour
-        start_line = self.__find_point(point)
-        print("START:", start_line)
+        # create the lists of points
+        X = [self.line_list[0].p1[0]]
+        Y = [self.line_list[0].p1[1]]
 
-        # move across the lines by length
-        # new_list = self.__rotate_lines(start_line)
+        for line in self.line_list:
+            X.append(line.p2[0])
+            Y.append(line.p2[1])
 
-        index = self.line_list.index(start_line)
-
-        if distance < 0:
-            temp = Line(point, p2 = start_line.p2)
-            forward = False   
-        else: 
-            temp = Line(point, p2 = start_line.p1)   
-            forward = True
-
-        final_traverse = False
-        print("LINE:", temp)
-
-        while True:
-
-            print('\t', temp.length(), distance, forward)
-            if temp.length() < abs(distance):
-                if forward:
-                    distance -= temp.length()
-                    index -= 1
-                else:
-                    distance += temp.length()
-                    index += 1
-                
-                # move to the next line
-                temp = self.line_list[index % len(self.line_list)]
-
-            else:
-                return temp.traverse(abs(distance)) 
+        return X,Y
 
 
-
+    def __hash__(self):
+        return hash(str(self.heirarchy))
 
     # return a string representation of the contour
     def __repr__(self):

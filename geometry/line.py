@@ -35,7 +35,6 @@ class Line:
         return np.arctan2(dy,dx)
 
 
-
     # find the slope of the line (dy/dx)
     def slope(self):
 
@@ -43,6 +42,7 @@ class Line:
         dy = math.sin(self.angle)
 
         return dx,dy
+
 
     # find the point at the center of the line
     def bisect(self):
@@ -66,6 +66,7 @@ class Line:
 
         return math.sqrt(dx**2 + dy**2)
 
+
     # traverse the line a distance from p1
     def traverse(self, distance):
 
@@ -80,10 +81,16 @@ class Line:
         return (px, py)
 
 
-
     # check if the input point is on the line
     def check_on_line(self, point, debug=False):
 
+        # check if p2 is the point ( do not check p1 to avoid rays )
+        if not self.p2 is None:
+            if round(point[0],5) == round(self.p2[0],5) and round(point[1],5) == round(self.p2[1],5):
+                print("\tCHECK:",point, self.p1)
+                print("\t",self)
+                return True
+        
         # build a temporary line from p1 to the input point
         # TODO this might not be the most efficient method
         temp = Line(self.p1, p2=point)
@@ -141,8 +148,21 @@ class Line:
 
         px = line.p1[0] + lx * V
         py = line.p1[1] + ly * V
+
         return (px, py)
 
+
+    def cross_product(self, line):
+
+        ax = self.p2[0]-self.p1[0]
+        ay = self.p2[1]-self.p1[1]
+
+        bx = line.p2[0]-line.p1[0]
+        by = line.p2[1]-line.p1[1]
+
+        result = (ax * by) - (ay*bx)
+
+        return result
     
     # return a zip of the line for plotting
     def plot(self):
@@ -152,7 +172,7 @@ class Line:
     
         else:
             dx, dy = self.slope()
-            points = [self.p1, (dx*20+self.p1[0], dy*20+self.p1[1])]
+            points = [self.p1, (dx*40+self.p1[0], dy*40+self.p1[1])]
 
         return zip(*points)
 
@@ -161,4 +181,4 @@ class Line:
         return line.p1 == self.p1 and line.p2 == self.p2
 
     def __repr__(self):
-        return str(self.p1) + " - " + str(self.p2) + " ANGLE: " + str(self.angle)
+        return str(self.p1) + " - " + str(self.p2) + " ANGLE: " + str(round(self.angle,2))

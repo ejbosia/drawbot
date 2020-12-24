@@ -7,224 +7,12 @@ import gcode as GC
 import pandas as pd
 import math
 
-
 import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
-
-
 from geometry.line import Line
 from geometry.contour import Contour
-
-
-# returns a list of "points" for each position
-# every point travels up, to the point, and then down
-def raster_image(image):
-
-    pos_list = []
-
-    for row in range(image.shape[0]):
-        for col in range(image.shape[1]):
-            if image[row, col] > 0:
-
-                pos_list.append({"Z": 10})
-                pos_list.append({
-                                    "X": col,
-                                    "Y": row
-                                    })
-                pos_list.append({"Z": 0})
-
-    return pos_list
-
-
-# get available points
-# available points are all of the points around the point
-def get_available_pts(pt, points):
-    available_pts = []
-
-    # array of the different directions around the points
-    # these values are added to the test point to create the check points
-    check = np.array([
-        [0,1],
-        [1,1],
-        [1,0],
-        [1,-1],
-        [0,-1],
-        [-1,-1],
-        [-1,0],
-        [-1,1]
-    ])
-
-    for c in check:
-        check_pt = pt + c
-
-        mask = ((check_pt == points).all(axis=1))
-
-        if(mask.any()):
-            available_pts.append(points[mask][0])
-
-
-
-    return available_pts
-
-# recursively get combine points into chains
-def get_chain(pt, points):
-
-    chain = []
-    available_pts = get_available_pts(pt, points)
-
-    # remove the available pts --> they have already been checked
-    for p in available_pts:
-        #print(points)
-        points = points[(p != points).any(axis=1)]
-    if available_pts:
-        for avp in available_pts:
-            # recursivly check the new points
-            chain.append(avp)
-            temp, points = get_chain(avp,points)
-            chain.extend(temp)
-        return chain, points
-
-    else:
-        return [], points
-
-
-# plot the points in a chain individually
-def plot_points(point_chain):
-    for chain in point_chain:
-        format = np.array(chain).transpose()
-        row = format[0]
-        col = format[1]
-        plt.scatter(x=col, y=row)
-
-    plt.legend()
-    plt.gca().invert_yaxis()
-    plt.show()
-
-
-# get the contour groups using hierarchy
-def contour_groups(image):
-
-    chain_list = []
-    contour_list = []
-
-    # find the contours and the hierarchy
-    # cv2.RETR_CCOMP returns the filled areas and holes (hierarchy is only two levels)
-    contours,hierarchy = cv2.findContours(image, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
-
-    # loop through the contours and the hierarchy
-    for c,h in zip(contours, hierarchy[0]):
-
-        # only fill in if there are no parents
-        if h[3] == -1:
-            mask = cv2.drawContours(np.zeros_like(image), [c], 0, 255, -1)
-            contour_list.append([])
-            contour_list[-1].append(get_contour_points(c))
-            print(len(contour_list[-1][0]))
-            next_contour = h[2]
-
-            while(next_contour != -1):
-                # remove this area from the contour
-                mask = cv2.drawContours(mask, contours, next_contour, 0, -1)
-
-                # fill in inner edge
-                mask = cv2.drawContours(mask, contours, next_contour, 255, 1)
-
-                contour_list[-1].append(get_contour_points(contours[next_contour]))
-                next_contour = hierarchy[0][next_contour, 0]
-                '''
-                plt.imshow(mask, 'gray')
-                plt.title(len(contour_list[-1]))
-                plt.show()
-                '''
-            points = np.array(np.where(mask == 255)).transpose()
-            chain_list.append(points)
-
-    return chain_list, contour_list
-
-
-def get_contour_points(contour):
-    pts = []
-    for c in contour:
-         pts.append(c[0][::-1])
-
-    return pts
-
-
-# add the previous and next point values to the gradient data
-def gradient_data(data):
-    data.loc[:, "Y-"] = data["Y"].shift()
-    data.loc[:, "Y+"] = data["Y"].shift(-1)
-
-    data.iloc[0, data.columns.get_loc('Y-')] = data.iloc[-1, data.columns.get_loc('Y')]
-    data.iloc[-1, data.columns.get_loc('Y+')] = data.iloc[0, data.columns.get_loc('Y')]
-    data.loc[:, "dY"] = data["Y+"] - data["Y-"]
-
-    data.loc[:, "Available"] = True
-
-    return data
-
-
-# convert a list of contours to a list of dataframes - one dataframe for each contour
-def contour_to_dataframe(contours):
-    c_list = []
-
-    data_list = []
-
-    for x, contour in enumerate(contours):
-        print(x)
-        for c in contour:
-            c_list.append({"X": c[0], "Y": c[1]})
-            c_list[-1]["FRAME"] = x
-
-        temp = gradient_data(pd.DataFrame(c_list))
-        data_list.append(temp)
-        c_list = []
-
-    return data_list
-
-
-# remove unnecessary points from a list of dataframes
-def clean_points(g_list):
-    gradient_list = []
-    for gtest in g_list:
-        gradient = gtest[(gtest["Y-"] != gtest["Y+"])]
-
-        gradient = gradient[(gradient["Y+"] == gradient["Y"]+1)|
-                            (gradient["Y-"] == gradient["Y"]+1)]
-
-        gradient_list.append(gradient)
-    return gradient_list
-
-
-def create_super_list(contours):
-    super_list = []
-
-    for c in contours:
-        data_list = contour_to_dataframe(c)
-        super_list.append(data_list)
-
-    return list(map(clean_points, super_list))
-
-'''
-Run the old method of contours
-'''
-def old_method(image):
-    chain_list, contours = contour_groups(image)
-
-    start = datetime.datetime.now()
-    super_list = create_super_list(contours)
-
-    # gcode += GC.chain_contour(contour_list)
-    gcode = GC.process_contours(super_list)
-
-    print("Total time:", datetime.datetime.now()-start)
-
-    GC.plot_gcode(gcode, debug=False, image=image, scale=False)
-
-    text_file = open("test.gcode", 'w')
-    text_file.write(gcode)
-    text_file.close()
+from geometry.contour_family import Family
 
 
 def ravel_lines(line_list):
@@ -283,6 +71,48 @@ def generate_border_lines(image):
     return contour_list
 
 
+# get all of the children of the parent contour
+def get_children(contour_list, parent_contour):
+
+    child_list = []
+
+    first_child_index = parent_contour.heirarchy[2]
+    child = contour_list[first_child_index]
+    child_list.append(child)
+
+
+    # loop while there are more children
+    while not child.heirarchy[0] == -1:
+        next_child_index = child.heirarchy[0]
+        child = contour_list[next_child_index]
+        child_list.append(child)
+    
+    # return the list of children
+    return child_list
+
+def create_contour_families(contour_list):
+
+    family_list = []
+
+    # find the first parent contour
+    for contour in contour_list:
+        
+        # start with a parent contour
+        if contour.is_parent():
+
+            # if there are no children, create an empty family with only the parent contour
+            if contour.heirarchy[2] == -1:
+                child_list = []
+            # otherwise, find all of the children
+            else:
+                child_list = get_children(contour_list, contour)
+
+            family_list.append(Family(contour, child_list))
+
+    return family_list
+
+
+
 # fill contours towards other edge
 # hole contours away from other edge
 def fill_direction(contour, point, angle):
@@ -293,11 +123,11 @@ def fill_direction(contour, point, angle):
     # find the direction that is "inside" the contour
     ray = Line(point, angle = angle)
     
-    # if there is no intersection, the direction must be the opposite for "fill" contours
-    if not contour.intersection(ray) and contour.heirarchy[3] == -1:
+    # if number of intersections is even, the direction must be the opposite for "fill" contours
+    if (len(contour.intersection(ray))%2==0) and contour.heirarchy[3] == -1:
         angle = angle - math.pi
-    # if there is an intersection, the direction must be the opposite for "hole" contours
-    elif contour.intersection(ray) and not (contour.heirarchy[3] == -1):
+    # if number of intersections is odd, the direction must be the opposite for "hole" contours
+    elif (len(contour.intersection(ray))%2==1) and not (contour.heirarchy[3] == -1):
         angle = angle - math.pi
     return angle
 
@@ -347,86 +177,45 @@ def find_closest_intersection(contour_list, ray):
 
 
 
-def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
+# create a single path
+def create_path(contour_list, line_thickness, angle, start_contour, start_point):
 
-    # start at contour 0
-    previous_contour = contour_list[1]
+    temp_point = start_point
+    contour = start_contour
 
-    contour = previous_contour
-    # pick a point
-    new_point = contour.line_list[0].bisect()
-
-    traverse_amount = -line_thickness
-
-    line_x = [new_point[0]]
-    line_y = [new_point[1]]
+    line_x = [start_point[0]]
+    line_y = [start_point[1]]
 
     perpendicular_angle = angle + (np.pi/2)
-
-    for i in range(20):
-        # determine a direction
-        angle = fill_direction(contour, new_point, angle)
-        print("\tANGLE:",angle)
-        ray = Line(new_point, angle=angle)
-
-        contour, point = find_closest_intersection(contour_list, ray)
-        print("\tCONTOUR:",contour)
-        print("\tPOINT:",point)
-
-
-        ray.p2 = point
-
-        line_x.append(point[0])
-        line_y.append(point[1])
-
-        plot_contours(contour_list,show=False,points=False)
-        
-        plt.plot(line_x, line_y)
-
-        # traverse
-        
-        # if(contour == previous_contour):
-        #     traverse_amount = -traverse_amount
-
-        # new_point = contour.traverse(point, traverse_amount)
-
-        # build the new line
-
-        dx = np.cos(perpendicular_angle)
-        dy = np.sin(perpendicular_angle)
-
-        temp_point = (dx*line_thickness+ray.p2[0], dy*line_thickness+ray.p2[1])
-
-
+    
+    while(True):
+    
         if contour.heirarchy[3] == -1:        
             temp_ray = Line(temp_point, angle=angle)
-            intersections = contour.intersection(temp_ray)
-            plt.plot(*temp_ray.plot())
+            intersections = contour.intersection(temp_ray, debug=False)
+
+            # if contour.check_on_contour(temp_point):
+            #     intersections = [temp_point]
 
             if not intersections:
                 temp_ray = Line(temp_point, angle=angle-math.pi)
                 intersections = contour.intersection(temp_ray)
-            plt.plot(*temp_ray.plot())
         
         else:
             angle = (angle+np.pi)%(2*np.pi)
         
             temp_ray = Line(temp_point, angle=angle)
             intersections = contour.intersection(temp_ray, debug=False, plot=False)
-
+            
+            # if contour.check_on_contour(temp_point):
+            #     intersections = [temp_point]
             if not intersections:
                 temp_ray = Line(temp_point, angle=angle-math.pi)
                 intersections = contour.intersection(temp_ray)
-            plt.plot(*temp_ray.plot())
-            
-            # if not intersections:
-            #     temp_ray = Line(temp_point, angle=angle-math.pi)
-            #     intersections = contour.intersection(temp_ray)
 
-
-            
-
-        plt.show()
+        # if there are no intersections, break the loop
+        if not intersections:
+            break
 
         min_length = Line(temp_ray.p1, p2=intersections[0]).length()
 
@@ -441,12 +230,104 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/6):
         line_x.append(new_point[0])
         line_y.append(new_point[1])
 
-        print("COMPLETE", i)
+
+        # determine a direction
+        angle = fill_direction(contour, new_point, angle)
+
+        ray = Line(new_point, angle=angle)
+
+        contour, point = find_closest_intersection(contour_list, ray)
+
+        ray.p2 = point
+
+        line_x.append(point[0])
+        line_y.append(point[1])
+
+        plot_contours(contour_list,show=False,points=False)
+        
+        plt.plot(line_x, line_y)
+
+        dx = np.cos(perpendicular_angle)
+        dy = np.sin(perpendicular_angle)
+
+        temp_point = (dx*line_thickness+ray.p2[0], dy*line_thickness+ray.p2[1])
 
     plt.show()
 
 
-def main(file="test_ring.png", inverse=False, resize = 1):
+    print("RETURN SOMETHING??")
+
+
+
+def fill_contours(contour_list, line_thickness=1, angle=math.pi/3):
+
+    start_point = contour_list[1].find_maximum_point(angle-(np.pi/2))
+    plt.scatter(start_point[0],start_point[1])
+
+    traverse_amount = -line_thickness
+
+    perpendicular_angle = angle + (np.pi/2)
+
+    dx = np.cos(perpendicular_angle)
+    dy = np.sin(perpendicular_angle)
+
+    start_point = (dx*line_thickness+start_point[0], dy*line_thickness+start_point[1])
+
+    create_path(contour_list, line_thickness, angle, contour_list[1], start_point)
+
+
+
+
+def find_available_point(rows):
+
+    for row in rows:
+
+        for point in rows:
+
+            if not point.visited:
+                return point
+
+    return None
+
+
+def generate_path(rows):
+
+    # pick a starting point
+    point = find_available_point(rows)
+
+    path = []
+
+    d = 1
+
+    while not point is None:
+        
+        done = False
+        index = [(i, row.index(point)) for i, row in enumerate(rows) if point in row][0]
+
+        # move through the list
+        while not done:
+            
+            # add the current point
+            path.append(point)
+            row[index[0]][index[1]].set_visited()
+
+            # move to the next point
+            index[1] += d
+
+            point = row[index[0]][index[1]]
+
+            # move to the next row
+            index[0] += 1
+
+            # check if the next row has the index
+            point = row[index[0]][index[1]]
+
+        
+
+
+
+
+def main(file="picture.png", inverse=False, resize = 8):
     print(file)
 
     image = cv2.imread(file, 0)
@@ -456,9 +337,56 @@ def main(file="test_ring.png", inverse=False, resize = 1):
     if inverse:
         image = 255-image
 
+    # create contours
     contours = generate_border_lines(image)
 
-    fill_contours(contours)
+    # organize contours into families of contours
+    family_list = create_contour_families(contours)
+
+    # plot each family
+    # for family in family_list:
+    #     family.plot(show=True)
+
+    line_thickness = 12
+    angle = np.pi/6
+
+    
+    total_path = []
+
+    total_start = datetime.datetime.now()
+
+    #
+    for index, family in enumerate(family_list):
+        start = datetime.datetime.now()
+        total_path.append(family.generate_total_path(line_thickness, angle))
+        print("FAMILY:",index,"\t",datetime.datetime.now() - start)
+    # for i in range(14):
+    # total_path.append(family_list[1].generate_total_path(line_thickness, angle))
+    # print(datetime.datetime.now() - total_start)
+
+    X = []
+    Y = []
+
+
+    for family_path in total_path:
+
+
+
+        for path in family_path:
+
+            X.append([])
+            Y.append([])
+            for point in path:
+                X[-1].append(point.x)
+                Y[-1].append(point.y)
+    
+    family_list[1].plot()
+    
+    for x,y in zip(X,Y):
+        plt.plot(x,y)
+
+    plt.show()
+    # fill_contours(contours)
 
 if __name__ == "__main__":
     main()
