@@ -346,16 +346,11 @@ def main(file="test.png", inverse=False, resize = 1):
     # plot each family
     # for family in family_list:
     #     family.plot(show=True)
-    
-
 
     line_thickness = 0.5
     angle = np.pi/6
 
-
-
     family = family_list[1]
-    
     
     total_path = family.generate_total_path(line_thickness, angle)
 

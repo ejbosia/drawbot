@@ -85,10 +85,11 @@ class Line:
     def check_on_line(self, point, debug=False):
 
         # check if p2 is the point ( do not check p1 to avoid rays )
-        if point == self.p2:
-            print("\tCHECK:",point, self.p1)
-            print("\t",self)
-            return True
+        if not self.p2 is None:
+            if round(point[0],5) == round(self.p2[0],5) and round(point[1],5) == round(self.p2[1],5):
+                print("\tCHECK:",point, self.p1)
+                print("\t",self)
+                return True
         
         # build a temporary line from p1 to the input point
         # TODO this might not be the most efficient method
@@ -147,6 +148,7 @@ class Line:
 
         px = line.p1[0] + lx * V
         py = line.p1[1] + ly * V
+
         return (px, py)
 
     

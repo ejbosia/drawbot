@@ -57,8 +57,8 @@ class Family:
         line_number = 0        
 
         # loop until there are no intersections
-        # while intersections:
-        for _ in range(34):
+        while intersections:
+        # for _ in range(34):
             
             points = []
 
@@ -79,9 +79,7 @@ class Family:
             
             line_number += 1
 
-        print(self.parent_contour.intersection(ray1, debug=True))
-
-
+        '''
         plt.plot(*ray1.plot())
         plt.plot(*ray2.plot())
 
@@ -92,9 +90,14 @@ class Family:
             for point in self.parent_contour.intersection_points[key]:
                 plt.scatter(point.x, point.y)
 
+        for contour in self.children:
+            for key in contour.intersection_points.keys():
+                for point in contour.intersection_points[key]:
+                    plt.scatter(point.x, point.y)
+
         plt.show()
 
-
+        '''
 
     # find available point (and row location)
     def __find_available_point(self):
@@ -132,35 +135,53 @@ class Family:
 
         return points
 
+    def __get_contour_rowpoints_simple(self, row):
+
+        points = self.parent_contour.intersection_points[row]
+        
+        for child_contour in self.children:
+            
+            if row in child_contour.intersection_points:
+                points.extend(child_contour.intersection_points[row])
+
+        return points
+
+
 
     def __get_closest_point(self, point, points_dict):
 
         temp = dict(points_dict)
+        list_value = list(temp.values())
 
+        values = [item for sublist in list_value for item in sublist]
+        
+        values.sort()
+        index = values.index(point)
+
+        print(point, values, index)
         # find the point in the dict
+
+        '''
         for key in temp:
-            print("GET CLOSEST:", point, "\t", temp[key], "\t", key == self.parent_contour)
-           
+
             if point in temp[key] and key == self.parent_contour:
-                index = temp[key].index(point)
 
                 if index%2 == 0:
-                    temp[key] = temp[key][index+1:]
-                else:
-                    temp[key] = temp[key][0:index]
-
-                break
+                temp[key] = temp[key][index+1:]
+            else:
+                temp[key] = temp[key][0:index]
+            break
 
             elif point in temp[key]:
-
                 index = temp[key].index(point)
 
-                if index%2 == 1:
-                    temp[key] = temp[key][index+1:]
-                else:
-                    temp[key] = temp[key][0:index]
-                break
-
+            if index%2 == 1:
+                temp[key] = temp[key][index+1:]
+            else:
+                temp[key] = temp[key][0:index]
+            break
+        '''
+        input("HAHAHA")
         # find the closest point in temp
 
         # set the closest point to start at the first point
@@ -250,6 +271,8 @@ class Family:
 
             # get all the points
             points_dict = self.__get_contour_rowpoints(row)
+            
+            points_list = self.__get_contour_rowpoints_simple(row)
 
             # find closest point that is not part of the current contour (except parent)
             next_point, next_contour = self.__get_closest_point(point, points_dict)
