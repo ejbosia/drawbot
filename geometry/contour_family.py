@@ -78,6 +78,20 @@ class Family:
             intersections = direction_one or direction_two
             
             line_number += 1
+        
+        self.parent_contour.save_intersection_list()
+        for child in self.children:
+            child.save_intersection_list()
+
+        # X = []
+        # Y = []
+
+        # for p in self.parent_contour.intersection_list:
+        #     X.append(p.x)
+        #     Y.append(p.y)
+
+        # plt.plot(X,Y)
+        # plt.show()
 
         '''
         plt.plot(*ray1.plot())
@@ -222,23 +236,24 @@ class Family:
         if not row in contour.intersection_points:
             return None
 
-        previous_row = row - 1
 
-        previous_row_points = contour.intersection_points[previous_row]
         row_points = contour.intersection_points[row]
 
-        previous_row_points.sort()
-        row_points.sort()
+        index = contour.intersection_list.index(point)
 
-        index = previous_row_points.index(point)
+        # get the next two possible points
+        test_one = contour.intersection_list[(index+1)%(len(contour.intersection_list))]
+        test_two = contour.intersection_list[index-1]
 
-        if len(previous_row_points) == len(row_points):
 
-            return row_points[index]
+        if test_one in row_points:
+            return test_one
+
+        elif test_two in row_points:
+            return test_two
 
         else:
             return None
-
 
         # divide into possible paths
         # (1,-1),(2,-2),(3,-3)...

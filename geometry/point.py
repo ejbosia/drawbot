@@ -24,6 +24,9 @@ class Point:
         return math.sqrt((self.x-other.x)**2 + (self.y-other.y)**2)
 
 
+    def tuple(self):
+        return (self.x,self.y)
+
     def __lt__(self, other):
         dx = other.x - self.x
         dy = other.y - self.y
