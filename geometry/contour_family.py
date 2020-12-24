@@ -172,20 +172,16 @@ class Family:
         row_contours = list(points_dict.values())
         row_points = list(points_dict.keys())
 
-
-        #print(row_points)
-        #print(row_contours)
-
         row_points.sort()
 
         index = row_points.index(point)
         print("\tSTART:", index, point, row_points)
 
         if index % 2 == 0:
-            row_points = row_points[index+1:]
+            row_points = row_points[index+1:index+2]
 
         elif index % 2 == 1:
-            row_points = row_points[:index]
+            row_points = row_points[index-1:index]
             
         first = True
         closest_point = None
