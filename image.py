@@ -347,7 +347,7 @@ def main(file="test.png", inverse=False, resize = 1):
     # for family in family_list:
     #     family.plot(show=True)
 
-    line_thickness = 0.5
+    line_thickness = 1
     angle = np.pi/6
 
     family = family_list[1]

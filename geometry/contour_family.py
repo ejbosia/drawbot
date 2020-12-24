@@ -58,7 +58,7 @@ class Family:
 
         # loop until there are no intersections
         while intersections:
-        # for _ in range(34):
+        #for _ in range(1):
             
             points = []
 
@@ -96,8 +96,8 @@ class Family:
                     plt.scatter(point.x, point.y)
 
         plt.show()
-
         '''
+        
 
     # find available point (and row location)
     def __find_available_point(self):
@@ -126,6 +126,9 @@ class Family:
     # return all of the points at the row, grouped by contour
     def __get_contour_rowpoints(self, row):
 
+        if not row in self.parent_contour.intersection_points:
+            return None
+
         points = {self.parent_contour:self.parent_contour.intersection_points[row]}
         
         for child_contour in self.children:
@@ -136,17 +139,115 @@ class Family:
         return points
 
     def __get_contour_rowpoints_simple(self, row):
-
+        '''
         points = self.parent_contour.intersection_points[row]
+        print(points)
         
         for child_contour in self.children:
             
             if row in child_contour.intersection_points:
                 points.extend(child_contour.intersection_points[row])
+            print(points)
+        return points
+        '''
 
+        if not row in self.parent_contour.intersection_points:
+            return None
+
+        points = {}
+
+        for point in self.parent_contour.intersection_points[row]:
+            points[point] = self.parent_contour
+        
+        for child_contour in self.children:
+            if row in child_contour.intersection_points:
+                for point in child_contour.intersection_points[row]:
+                    points[point] = child_contour
         return points
 
 
+    # get the closest point in the correct direction
+    def __get_closest_point_simple(self, point, points_dict):
+
+        row_contours = list(points_dict.values())
+        row_points = list(points_dict.keys())
+
+
+        #print(row_points)
+        #print(row_contours)
+
+        row_points.sort()
+
+        index = row_points.index(point)
+        print("\tSTART:", index, point, row_points)
+
+        if index % 2 == 0:
+            row_points = row_points[index+1:]
+
+        elif index % 2 == 1:
+            row_points = row_points[:index]
+            
+        first = True
+        closest_point = None
+        contour = None
+
+        print("\tROW:", row_points)
+
+        for new_point in row_points:
+            
+            if first and not new_point.visited:
+                first = False
+                closest_point = new_point
+                minimum = point.distance(new_point)
+                contour = points_dict[point]
+
+            elif not new_point.visited:
+                new_distance = point.distance(new_point)
+
+                if minimum > new_distance:
+                    closest_point = new_point
+                    minimum = new_distance
+                    contour = points_dict[point]
+
+
+        print("\tCLOSEST", closest_point)
+
+        return closest_point, contour
+
+
+    def __next_contour_point_simple(self, point, previous_dict, points_dict):
+        row_contours = list(points_dict.values())
+        previous_points = list(previous_dict)
+
+        row_points = list(points_dict.keys())
+
+        previous_points.sort()
+        row_points.sort()
+
+        index = previous_points.index(point)
+
+        start = index % 2
+
+        first = True
+        closest_point = None
+
+        for i in range(start, len(row_points), 2):
+
+            new_point = row_points[i]
+            
+            if first and not new_point.visited:
+                first = False
+                closest_point = new_point
+                minimum = point.distance(new_point)
+
+            elif not new_point.visited:
+                new_distance = point.distance(new_point)
+
+                if minimum > new_distance:
+                    closest_point = new_point
+                    minimum = new_distance
+        print("NEW CLOSEST:", closest_point)
+        return closest_point
 
     def __get_closest_point(self, point, points_dict):
 
@@ -222,16 +323,6 @@ class Family:
         if not row in contour.intersection_points:
             return None
         
-        temp_point = (previous_point.x,previous_point.y)
-
-        # get the line the point is on
-        line = contour.find_point(temp_point)
-
-
-        index = contour.line_list.index(line)
-
-        lines = []
-
         possible_points = contour.intersection_points[row]
 
         if possible_points:
@@ -270,13 +361,13 @@ class Family:
             point.set_visited()
 
             # get all the points
-            points_dict = self.__get_contour_rowpoints(row)
+            # points_dict = self.__get_contour_rowpoints(row)
             
-            points_list = self.__get_contour_rowpoints_simple(row)
+            points_dict = self.__get_contour_rowpoints_simple(row)
 
-            # find closest point that is not part of the current contour (except parent)
-            next_point, next_contour = self.__get_closest_point(point, points_dict)
-            
+            # next_point, next_contour = self.__get_closest_point(point, points_dict)
+            next_point, next_contour = self.__get_closest_point_simple(point, points_dict)
+
             if next_point is None:
                 break
 
@@ -286,9 +377,14 @@ class Family:
             # traverse contour (increase row number)
             row += 1
 
-            # find the next point (none if none)
-            point = self.__next_contour_point(next_point, next_contour, row)
+            next_points_dict = self.__get_contour_rowpoints_simple(row)
 
+
+            if not next_points_dict is None:
+                # find the next point (none if none)
+                point = self.__next_contour_point_simple(next_point, points_dict,next_points_dict)
+            else:
+                point = None
         
         return path
 
@@ -302,8 +398,6 @@ class Family:
         total_path = []
 
         self.generate_intersection_points(line_thickness, angle)
-
-        print(self.parent_contour.intersection_points)
 
         while not path is None:
 

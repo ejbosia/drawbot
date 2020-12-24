@@ -48,6 +48,8 @@ class Point:
     def __ge__(self, other):
         return self > other or self == other
 
+    def __hash__(self):
+        return hash(str(self.x)+str(self.y))
 
     def __repr__(self):
         return "(" + str(round(self.x,2)) + "," + str(round(self.y,2)) + ")" # + ")\t" + str(self.visited)
