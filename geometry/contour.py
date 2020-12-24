@@ -166,6 +166,33 @@ class Contour:
         
         return False
 
+    def check_peak(self, point, int_line):
+
+        p1 = None
+        p2 = None
+
+        for line in self.line_list:
+            if line.p1 == point:
+                p1 = line.p2  
+            if line.p2 == point:    
+                p2 = line.p1
+
+        print("\tCHECK PEAK:", p1,p2)
+            
+        if p1 is None or p2 is None:
+            return False
+
+        # check the positions of the lines
+        line1 = Line(line.p1, p2 = p1)
+        line2 = Line(line.p1, p2 = p1)
+
+        cross_one = int_line.cross_product(line1) > 0
+        cross_two = int_line.cross_product(line2) > 0
+
+        if cross_one == cross_two:
+            return True
+        else:
+            return False
 
     # rotate the lines so the starting line is the first in the list
     def __rotate_lines(self, start_line):

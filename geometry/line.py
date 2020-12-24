@@ -151,6 +151,18 @@ class Line:
 
         return (px, py)
 
+
+    def cross_product(self, line):
+
+        ax = self.p2[0]-self.p1[0]
+        ay = self.p2[1]-self.p1[1]
+
+        bx = line.p2[0]-line.p1[0]
+        by = line.p2[1]-line.p1[1]
+
+        result = (ax * by) - (ay*bx)
+
+        return result
     
     # return a zip of the line for plotting
     def plot(self):
@@ -169,4 +181,4 @@ class Line:
         return line.p1 == self.p1 and line.p2 == self.p2
 
     def __repr__(self):
-        return str(self.p1) + " - " + str(self.p2) + " ANGLE: " + str(self.angle)
+        return str(self.p1) + " - " + str(self.p2) + " ANGLE: " + str(round(self.angle,2))

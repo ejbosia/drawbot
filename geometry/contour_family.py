@@ -166,47 +166,46 @@ class Family:
         return points
 
 
+
+    
+
+
     # get the closest point in the correct direction
     def __get_closest_point_simple(self, point, points_dict):
 
-        row_contours = list(points_dict.values())
         row_points = list(points_dict.keys())
 
         row_points.sort()
 
         index = row_points.index(point)
-        print("\tSTART:", index, point, row_points)
+
+        # remove the peak from the intersections
+        if len(row_points)%2==1:
+
+            start = (row_points[0].x, row_points[0].y)
+            end = (row_points[-1].x, row_points[-1].y)
+            intersection_line = Line(start, p2 = end)
+
+            for p in row_points[1:-1]:
+                c = points_dict[p]
+
+                # remove the peak
+                if(c.check_peak((round(p.x,5),round(p.y,5)), intersection_line)):
+                    row_points.remove(p)
+                print(row_points)
+                
+
+
+
+
 
         if index % 2 == 0:
-            row_points = row_points[index+1:index+2]
+            closest_point = row_points[index+1]
 
         elif index % 2 == 1:
-            row_points = row_points[index-1:index]
+            closest_point = row_points[index-1]
             
-        first = True
-        closest_point = None
-        contour = None
-
-        print("\tROW:", row_points)
-
-        for new_point in row_points:
-            
-            if first and not new_point.visited:
-                first = False
-                closest_point = new_point
-                minimum = point.distance(new_point)
-                contour = points_dict[point]
-
-            elif not new_point.visited:
-                new_distance = point.distance(new_point)
-
-                if minimum > new_distance:
-                    closest_point = new_point
-                    minimum = new_distance
-                    contour = points_dict[point]
-
-
-        print("\tCLOSEST", closest_point)
+        contour = points_dict[closest_point]
 
         return closest_point, contour
 
@@ -242,7 +241,6 @@ class Family:
                 if minimum > new_distance:
                     closest_point = new_point
                     minimum = new_distance
-        print("NEW CLOSEST:", closest_point)
         return closest_point
 
     def __get_closest_point(self, point, points_dict):
