@@ -192,11 +192,13 @@ class Family:
 
         row_points.sort()
 
-        index = row_points.index(point)
-
         row_points = self.__remove_peaks(row_points, points_dict)
 
-        print(len(row_points), index)
+        print(point, row_points)
+        try:
+            index = row_points.index(point)
+        except:
+            return None, None
 
         if index % 2 == 0:
             closest_point = row_points[index+1]
@@ -216,6 +218,9 @@ class Family:
 
 
     def __next_contour_point_contour(self, point, contour, row):
+
+        if not row in contour.intersection_points:
+            return None
 
         previous_row = row - 1
 
