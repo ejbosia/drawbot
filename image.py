@@ -327,7 +327,7 @@ def generate_path(rows):
 
 
 
-def main(file="test_ring.png", inverse=False, resize = 1):
+def main(file="test.png", inverse=False, resize = 1):
     print(file)
 
     image = cv2.imread(file, 0)
@@ -352,30 +352,35 @@ def main(file="test_ring.png", inverse=False, resize = 1):
     line_thickness = 0.5
     angle = np.pi/6
 
-    rows = family_list[1].generate_intersection_points(line_thickness, angle)
+
+
+    family = family_list[1]
     
-    for key in family_list[1].parent_contour.intersection_points.keys():
-        print(key, family_list[1].parent_contour.intersection_points[key])
-
-
-    path = family_list[1].generate_path(line_thickness, angle)
+    
+    total_path = family.generate_total_path(line_thickness, angle)
 
     X = []
     Y = []
 
-    for point in path:
-        X.append(point.x)
-        Y.append(point.y)
+
+    for path in total_path:
+
+        X.append([])
+        Y.append([])
+        for point in path:
+            X[-1].append(point.x)
+            Y[-1].append(point.y)
     
     family_list[1].plot()
     
-    plt.plot(X,Y)
+    for x,y in zip(X,Y):
+        plt.plot(x,y)
 
     X = []
     Y = []
 
     for key in family_list[1].parent_contour.intersection_points.keys():
-        print(family_list[1].parent_contour.intersection_points[key])
+        # print(family_list[1].parent_contour.intersection_points[key])
         for value in family_list[1].parent_contour.intersection_points[key]:
             X.append(value.x)
             Y.append(value.y)

@@ -126,7 +126,7 @@ class Family:
         # find the point in the dict
         for key in temp:
             print("GET CLOSEST:", point, "\t", temp[key], "\t", key == self.parent_contour)
-            # remove the point if in the parent_contour
+           
             if point in temp[key] and key == self.parent_contour:
                 index = temp[key].index(point)
 
@@ -136,9 +136,15 @@ class Family:
                     temp[key] = temp[key][0:index]
 
                 break
-            # remove the 
+
             elif point in temp[key]:
-                del temp[key]
+
+                index = temp[key].index(point)
+
+                if index%2 == 1:
+                    temp[key] = temp[key][index+1:]
+                else:
+                    temp[key] = temp[key][0:index]
                 break
 
         # find the closest point in temp
@@ -218,6 +224,9 @@ class Family:
         point, row = self.__find_available_point()
         next_point = point
 
+        if point is None:
+            return None
+
         path = []
 
         while not point is None:
@@ -229,7 +238,11 @@ class Family:
             points_dict = self.__get_contour_rowpoints(row)
 
             # find closest point that is not part of the current contour (except parent)
-            next_point, next_contour = self.__get_closest_point(next_point, points_dict)
+            next_point, next_contour = self.__get_closest_point(point, points_dict)
+            
+            if next_point is None:
+                break
+
             path.append(next_point)
             next_point.set_visited()
 
@@ -240,8 +253,29 @@ class Family:
             point = self.__next_contour_point(next_point, next_contour, row)
 
         
-        print("PATH:",path)
         return path
+
+
+    def generate_total_path(self, line_thickness, angle):
+
+
+        point = []
+
+        path = []
+        total_path = []
+
+        self.generate_intersection_points(line_thickness, angle)
+
+        print(self.parent_contour.intersection_points)
+
+        while not path is None:
+
+            path = self.generate_path(line_thickness, angle)
+
+            if not path is None:
+                total_path.append(path)
+
+        return total_path
 
         
     # plot the family  
