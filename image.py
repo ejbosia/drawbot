@@ -327,7 +327,7 @@ def generate_path(rows):
 
 
 
-def main(file="test.png", inverse=False, resize = 1):
+def main(file="picture.png", inverse=False, resize = 8):
     print(file)
 
     image = cv2.imread(file, 0)
@@ -347,39 +347,44 @@ def main(file="test.png", inverse=False, resize = 1):
     # for family in family_list:
     #     family.plot(show=True)
 
-    line_thickness = 1
+    line_thickness = 12
     angle = np.pi/6
 
-    family = family_list[1]
     
-    total_path = family.generate_total_path(line_thickness, angle)
+    total_path = []
+
+    total_start = datetime.datetime.now()
+
+    #
+    for index, family in enumerate(family_list):
+        start = datetime.datetime.now()
+        total_path.append(family.generate_total_path(line_thickness, angle))
+        print("FAMILY:",index,"\t",datetime.datetime.now() - start)
+    # for i in range(14):
+    # total_path.append(family_list[1].generate_total_path(line_thickness, angle))
+    # print(datetime.datetime.now() - total_start)
 
     X = []
     Y = []
 
 
-    for path in total_path:
+    for family_path in total_path:
 
-        X.append([])
-        Y.append([])
-        for point in path:
-            X[-1].append(point.x)
-            Y[-1].append(point.y)
+
+
+        for path in family_path:
+
+            X.append([])
+            Y.append([])
+            for point in path:
+                X[-1].append(point.x)
+                Y[-1].append(point.y)
     
     family_list[1].plot()
     
     for x,y in zip(X,Y):
         plt.plot(x,y)
 
-    X = []
-    Y = []
-
-    for key in family_list[1].parent_contour.intersection_points.keys():
-        # print(family_list[1].parent_contour.intersection_points[key])
-        for value in family_list[1].parent_contour.intersection_points[key]:
-            X.append(value.x)
-            Y.append(value.y)
-    plt.scatter(X,Y)
     plt.show()
     # fill_contours(contours)
 

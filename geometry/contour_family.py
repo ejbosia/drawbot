@@ -83,15 +83,15 @@ class Family:
         for child in self.children:
             child.save_intersection_list()
 
-        # X = []
-        # Y = []
+        X = []
+        Y = []
 
-        # for p in self.parent_contour.intersection_list:
-        #     X.append(p.x)
-        #     Y.append(p.y)
+        for p in self.parent_contour.intersection_list:
+            X.append(p.x)
+            Y.append(p.y)
 
-        # plt.plot(X,Y)
-        # plt.show()
+        plt.plot(X,Y)
+        plt.show()
 
         '''
         plt.plot(*ray1.plot())
@@ -208,10 +208,13 @@ class Family:
 
         row_points = self.__remove_peaks(row_points, points_dict)
 
-        print(point, row_points)
         try:
             index = row_points.index(point)
         except:
+            return None, None
+        print(len(row_points))
+        if(len(row_points) < 2):
+            row_points[index].set_visited()
             return None, None
 
         if index % 2 == 0:
@@ -223,7 +226,6 @@ class Family:
         contour = points_dict[closest_point]
 
         if closest_point.visited:
-            print("VISITED")
             return None, None
 
         return closest_point, contour
