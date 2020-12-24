@@ -144,8 +144,6 @@ class Contour:
             return False
 
 
-
-
     # find the line that contains the point
     def find_point(self, point):
 

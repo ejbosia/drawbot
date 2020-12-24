@@ -167,18 +167,7 @@ class Family:
 
 
 
-    
-
-
-    # get the closest point in the correct direction
-    def __get_closest_point_simple(self, point, points_dict):
-
-        row_points = list(points_dict.keys())
-
-        row_points.sort()
-
-        index = row_points.index(point)
-
+    def __remove_peaks(self,row_points, points_dict):
         # remove the peak from the intersections
         if len(row_points)%2==1:
 
@@ -192,12 +181,22 @@ class Family:
                 # remove the peak
                 if(c.check_peak((round(p.x,5),round(p.y,5)), intersection_line)):
                     row_points.remove(p)
-                print(row_points)
-                
+
+        return row_points
 
 
+    # get the closest point in the correct direction
+    def __get_closest_point_simple(self, point, points_dict):
 
+        row_points = list(points_dict.keys())
 
+        row_points.sort()
+
+        index = row_points.index(point)
+
+        row_points = self.__remove_peaks(row_points, points_dict)
+
+        print(len(row_points), index)
 
         if index % 2 == 0:
             closest_point = row_points[index+1]
@@ -207,7 +206,41 @@ class Family:
             
         contour = points_dict[closest_point]
 
+        if closest_point.visited:
+            print("VISITED")
+            return None, None
+
         return closest_point, contour
+
+
+
+
+    def __next_contour_point_contour(self, point, contour, row):
+
+        previous_row = row - 1
+
+        previous_row_points = contour.intersection_points[previous_row]
+        row_points = contour.intersection_points[row]
+
+        previous_row_points.sort()
+        row_points.sort()
+
+        index = previous_row_points.index(point)
+
+        if len(previous_row_points) == len(row_points):
+
+            return row_points[index]
+
+        else:
+            return None
+
+
+        # divide into possible paths
+        # (1,-1),(2,-2),(3,-3)...
+
+
+
+
 
 
     def __next_contour_point_simple(self, point, previous_dict, points_dict):
@@ -371,14 +404,17 @@ class Family:
             # traverse contour (increase row number)
             row += 1
 
+            '''
             next_points_dict = self.__get_contour_rowpoints_simple(row)
-
 
             if not next_points_dict is None:
                 # find the next point (none if none)
                 point = self.__next_contour_point_simple(next_point, points_dict,next_points_dict)
             else:
                 point = None
+            '''
+            point = self.__next_contour_point_contour(next_point, next_contour, row)
+
         
         return path
 
@@ -392,6 +428,7 @@ class Family:
         total_path = []
 
         self.generate_intersection_points(line_thickness, angle)
+
 
         while not path is None:
 
