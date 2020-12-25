@@ -1,3 +1,11 @@
+'''
+drawbot
+This is the entry module to the program. It links the components together.
+
+
+@author ejbosia
+'''
+
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,7 +14,6 @@ import math
 
 import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
-
 
 import gcode as GC
 from geometry.line import Line
@@ -74,7 +81,7 @@ def fill_contours(contour_list, line_thickness=1, angle=math.pi/3):
 
 
 # generate the complete path from all of the contour families
-def generate_path(image, line_thickness = 12, angle = np.pi/6):
+def generate_path(image, line_thickness = 6, angle = np.pi/6):
 
     total_path = []
 
