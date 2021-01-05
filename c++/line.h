@@ -1,28 +1,27 @@
 
-#ifndef POINT_H
-#define POINT_H
+#ifndef LINE_H
+#define LINE_H
 
 #include <iostream>
 #include <string>
 
-class Point{
+#include "point.h"
+#include "angle.h"
 
+class Line{
+    
     private:
-        int x;
-        int y;
-        bool visited;
+        Point p1, p2;
+        Angle angle;
+        double calculateAngle();
 
     public:
+        Line(Point& p1_, Point& p2_);
+        // intersection(Ray& ray);
+        // intersection(Line& line);
 
-        Point(int x, int y);
+        friend std::ostream& operator<<(std::ostream &strm, const Line &l);
 
-        int getX();
-        int getY();
-
-        void setVisited(bool visited);
-        bool getVisited();
-
-        std::string toString();
 };
 
 #endif

@@ -5,6 +5,8 @@
 #include "point.h"
 #include "angle.h"
 #include "ray.h"
+#include "line.h"
+
 
 using namespace std;
 
@@ -27,6 +29,12 @@ void run(){
     Ray ray(point, angle);
 
     cout << "RAY\n\t" << ray << endl;
+
+    Point p2(200,200);
+
+    Line line(point, p2);
+
+    cout << "Line\n\t" << line << endl;
 
 }
 

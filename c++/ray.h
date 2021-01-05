@@ -18,6 +18,9 @@ class Ray{
     public:
         Ray(Point& p, Angle& a);
 
+        // Point intersection(Ray& ray);
+        // Point intersection(Line& line);
+
         friend std::ostream& operator<<(std::ostream &strm, const Ray &r);
 };
 
