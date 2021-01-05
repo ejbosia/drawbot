@@ -103,6 +103,7 @@ class Line:
         else:
             return False
 
+
     # find the intersection point with another line ~ None if there is none
     def intersection(self, line):
         
@@ -119,6 +120,7 @@ class Line:
         else:
             return None
 
+
     # find the intersection point of the two lines, treated as rays
     def __intersection_ray(self, line):
 
@@ -132,7 +134,8 @@ class Line:
 
         return (px, py)
 
-
+    
+    # return the cross product of this and another line
     def cross_product(self, line):
 
         ax = self.p2[0]-self.p1[0]

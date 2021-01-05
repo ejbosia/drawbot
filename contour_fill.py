@@ -1,7 +1,6 @@
 '''
-drawbot
-This is the entry module to the program. It links the components together.
-
+Contour Fill
+This file contains the logic for creating a contour fill of a black and white image
 
 @author ejbosia
 '''
@@ -133,16 +132,8 @@ def plot_paths(total_path, contour_list):
     plt.show()
 
 
-def main(file="test.png", inverse=False, resize = 1):
-    print(file)
-
-    image = cv2.imread(file, 0)
-
-    image = cv2.resize(image, None, fx=resize, fy=resize, interpolation=cv2.INTER_NEAREST)
-
-    if inverse:
-        image = 255-image
-
+# execute the contour fill on the image
+def execute(image):
     # create the border lines for each contour
     contour_list = generate_border_lines(image)
 
@@ -155,9 +146,6 @@ def main(file="test.png", inverse=False, resize = 1):
     # plot the paths
     plot_paths(total_path, contour_list)
 
-    # save the path to a text file
-    
-    
 
 if __name__ == "__main__":
     main()

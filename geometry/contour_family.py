@@ -90,8 +90,8 @@ class Family:
         if time:
             logging.info("GENERATE POINTS: " + str(datetime.datetime.now()-start))
 
-
         # self.plot_intersection_list()
+
 
     def plot_intersection_list(self):
         X = []
@@ -100,9 +100,6 @@ class Family:
         for p in self.parent_contour.intersection_list:
             X.append(p.x)
             Y.append(p.y)
-
-        #plt.scatter(X,Y)
-
 
         for line in self.parent_contour.line_list:
             plt.scatter(line.p1[0], line.p1[1])
@@ -138,7 +135,7 @@ class Family:
         return None,None
 
 
-
+    # get all of the intersection points in the row
     def __get_contour_rowpoints(self, row):
 
         if not row in self.parent_contour.intersection_points:
@@ -156,9 +153,9 @@ class Family:
         return points
 
 
-
+    # remove peaks as possible intersections
     def __remove_peaks(self,row_points, points_dict):
-        # remove the peak from the intersections
+
         if len(row_points)%2==1:
 
             start = (row_points[0].x, row_points[0].y)
@@ -176,7 +173,7 @@ class Family:
 
 
     # get the closest point in the correct direction
-    def __get_closest_point_simple(self, point, points_dict):
+    def __get_closest_point(self, point, points_dict):
 
         row_points = list(points_dict.keys())
 
@@ -208,12 +205,11 @@ class Family:
 
 
 
-
-    def __next_contour_point_contour(self, point, contour, row):
+    # return the next contour point
+    def __next_contour_point(self, point, contour, row):
 
         if not row in contour.intersection_points:
             return None
-
 
         row_points = contour.intersection_points[row]
 
@@ -223,7 +219,6 @@ class Family:
         test_one = contour.intersection_list[(index+1)%(len(contour.intersection_list))]
         test_two = contour.intersection_list[index-1]
 
-
         if test_one in row_points:
             return test_one
 
@@ -232,106 +227,6 @@ class Family:
 
         else:
             return None
-
-
-    def __next_contour_point_simple(self, point, previous_dict, points_dict):
-        row_contours = list(points_dict.values())
-        previous_points = list(previous_dict)
-
-        row_points = list(points_dict.keys())
-
-        previous_points.sort()
-        row_points.sort()
-
-        index = previous_points.index(point)
-
-        start = index % 2
-
-        first = True
-        closest_point = None
-
-        for i in range(start, len(row_points), 2):
-
-            new_point = row_points[i]
-            
-            if first and not new_point.visited:
-                first = False
-                closest_point = new_point
-                minimum = point.distance(new_point)
-
-            elif not new_point.visited:
-                new_distance = point.distance(new_point)
-
-                if minimum > new_distance:
-                    closest_point = new_point
-                    minimum = new_distance
-        return closest_point
-
-    def __get_closest_point(self, point, points_dict):
-
-        temp = dict(points_dict)
-        list_value = list(temp.values())
-
-        values = [item for sublist in list_value for item in sublist]
-        
-        values.sort()
-        index = values.index(point)
-
-        print(point, values, index)
-
-        # find the closest point in temp
-
-        # set the closest point to start at the first point
-
-        first = True
-        closest_point = None
-        contour = None
-
-        for key in temp:
-            for new_point in temp[key]:
-                
-                if first and not new_point.visited:
-                    first = False
-                    closest_point = new_point
-                    minimum = point.distance(new_point)
-                    contour = key
-
-                elif not new_point.visited:
-                    new_distance = point.distance(new_point)
-
-                    if minimum > new_distance:
-                        closest_point = new_point
-                        minimum = new_distance
-                        contour = key
-
-        return closest_point, contour
-
-
-    def __next_contour_point(self, previous_point, contour, row):
-
-        print("NEXT:", row)
-
-        if not row in contour.intersection_points:
-            return None
-        
-        possible_points = contour.intersection_points[row]
-
-        if possible_points:
-            minimum = previous_point.distance(possible_points[0])
-            closest_point = possible_points[0]
-
-            for point in possible_points:
-                
-                new_distance = previous_point.distance(point)
-
-                if minimum > new_distance:
-                    minimum = new_distance
-                    closest_point = point
-
-            if not closest_point.visited:
-                return closest_point
-
-        return None
   
 
     # create a path to fill the contour
@@ -353,7 +248,7 @@ class Family:
             points_dict = self.__get_contour_rowpoints(row)
 
             # next_point, next_contour = self.__get_closest_point(point, points_dict)
-            next_point, next_contour = self.__get_closest_point_simple(point, points_dict)
+            next_point, next_contour = self.__get_closest_point(point, points_dict)
 
             if next_point is None:
                 break
@@ -364,7 +259,7 @@ class Family:
             # traverse contour (increase row number)
             row += 1
 
-            point = self.__next_contour_point_contour(next_point, next_contour, row)
+            point = self.__next_contour_point(next_point, next_contour, row)
 
         return path
 
