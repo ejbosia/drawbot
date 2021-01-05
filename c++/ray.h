@@ -12,11 +12,14 @@
 class Ray{
 
     private:
-        Point point;
+        Point p1;
         Angle angle;
 
     public:
         Ray(Point& p, Angle& a);
+
+        virtual Point getPoint();
+        virtual Angle getAngle();
 
         // Point intersection(Ray& ray);
         // Point intersection(Line& line);

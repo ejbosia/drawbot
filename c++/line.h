@@ -7,6 +7,7 @@
 
 #include "point.h"
 #include "angle.h"
+#include "ray.h"
 
 class Line{
     
