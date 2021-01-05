@@ -147,5 +147,6 @@ def execute(image):
     plot_paths(total_path, contour_list)
 
 
+
 if __name__ == "__main__":
     main()
