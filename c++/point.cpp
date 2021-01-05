@@ -1,25 +1,19 @@
 #include "point.h"
 
-Point::Point(int x, int y){
+Point::Point(double x, double y){
     this->x = x;
     this->y = y;
-    setVisited(false);
 }
 
-int Point::getX(){
-    return x;
-}
+/*
+Return the distance to another point
+*/
+double distance(const Point &other){
+    double dx = x - other.getX();
+    double dx = y - other.getY();
+    
+    return 0.0 // TODO CALCULATE DISTANCE
 
-int Point::getY(){
-    return y;
-}
-
-void Point::setVisited(bool v){
-    visited = v;
-}
-
-bool Point::getVisited(){
-    return visited;
 }
 
 std::ostream& operator<<(std::ostream &strm, const Point &p){

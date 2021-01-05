@@ -10,7 +10,6 @@ class Point{
     private:
         int x;
         int y;
-        bool visited;
 
     public:
 
@@ -18,9 +17,6 @@ class Point{
 
         int getX();
         int getY();
-
-        void setVisited(bool visited);
-        bool getVisited();
 
         friend std::ostream& operator<<(std::ostream &strm, const Point &p);
 };

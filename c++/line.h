@@ -18,8 +18,8 @@ class Line{
 
     public:
         Line(Point& p1_, Point& p2_);
-        // intersection(Ray& ray);
-        // intersection(Line& line);
+        // vector<Point> intersection(Ray& ray);
+        // vector<Point> intersection(Line& line);
 
         friend std::ostream& operator<<(std::ostream &strm, const Line &l);
 
