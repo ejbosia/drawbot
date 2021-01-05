@@ -40,6 +40,33 @@ def get_children(contour_list, parent_contour):
     # return the list of children
     return child_list
 
+
+# return a list of lists of lines
+def generate_border_lines(image):
+
+    contours,heirarchy = cv2.findContours(image, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)  
+
+    contour_list = []
+
+    for contour,heirarchy in zip(contours, heirarchy[0]):
+        line_list = []
+        pt0 = None
+        for c in contour:
+            # if this is the first point do not create a line
+            if not pt0 is None:
+                line_list.append(Line(pt0, p2=tuple(c[0])))
+            
+            pt0 = tuple(c[0])
+
+        # add the last line from the last first point to the starting point
+        line_list.append(Line(pt0, p2 = tuple(contour[0][0])))
+
+        contour_list.append(Contour(line_list, heirarchy))
+
+    return contour_list
+
+
+# combine contours into single level parent-children relationships
 def create_contour_families(contour_list):
 
     family_list = []
@@ -62,26 +89,8 @@ def create_contour_families(contour_list):
     return family_list
 
 
-def fill_contours(contour_list, line_thickness=1, angle=math.pi/3):
-
-    start_point = contour_list[1].find_maximum_point(angle-(np.pi/2))
-    plt.scatter(start_point[0],start_point[1])
-
-    traverse_amount = -line_thickness
-
-    perpendicular_angle = angle + (np.pi/2)
-
-    dx = np.cos(perpendicular_angle)
-    dy = np.sin(perpendicular_angle)
-
-    start_point = (dx*line_thickness+start_point[0], dy*line_thickness+start_point[1])
-
-    create_path(contour_list, line_thickness, angle, contour_list[1], start_point)
-
-
-
 # generate the complete path from all of the contour families
-def generate_path(image, line_thickness = 6, angle = np.pi/6):
+def generate_path(family_list, line_thickness = 1, angle = np.pi/7):
 
     total_path = []
 
@@ -90,15 +99,21 @@ def generate_path(image, line_thickness = 6, angle = np.pi/6):
     for index, family in enumerate(family_list):
         start = datetime.datetime.now()
         total_path.append(family.generate_total_path(line_thickness, angle))
-        plogging.info("FAMILY: "+str(index) + "\t" + str(datetime.datetime.now() - start))
+        logging.info("FAMILY: "+str(index) + "\t" + str(datetime.datetime.now() - start))
 
-    plogging.info("TOTAL TIME: " + str(datetime.datetime.now() - total_start))
+    logging.info("TOTAL TIME: " + str(datetime.datetime.now() - total_start))
 
     return total_path 
 
 
 # plot all of the paths in total path
-def plot_paths(total_path):
+def plot_paths(total_path, contour_list):
+
+    for contour in contour_list:
+        X,Y = contour.plot()
+        plt.plot(X,Y)
+
+
     X = []
     Y = []
 
@@ -111,16 +126,14 @@ def plot_paths(total_path):
             for point in path:
                 X[-1].append(point.x)
                 Y[-1].append(point.y)
-    
-    family_list[1].plot()
-    
+        
     for x,y in zip(X,Y):
         plt.plot(x,y)
 
     plt.show()
 
 
-def main(file="picture.png", inverse=False, resize = 8):
+def main(file="test.png", inverse=False, resize = 1):
     print(file)
 
     image = cv2.imread(file, 0)
@@ -130,14 +143,20 @@ def main(file="picture.png", inverse=False, resize = 8):
     if inverse:
         image = 255-image
 
+    # create the border lines for each contour
+    contour_list = generate_border_lines(image)
+
     # organize contours into families of contours
-    family_list = create_contour_families(contours)
+    family_list = create_contour_families(contour_list)
     
     # generate the paths
     total_path = generate_path(family_list)
 
     # plot the paths
-    plot_paths(total_path)
+    plot_paths(total_path, contour_list)
+
+    # save the path to a text file
+    
     
 
 if __name__ == "__main__":

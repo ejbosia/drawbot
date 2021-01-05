@@ -66,7 +66,7 @@ class Contour:
         return (x,y)
 
 
-
+    # find the maximum corner point of the contour
     def find_maximum_point(self, angle):
 
         maximum = self.rotate_point(self.line_list[0].p1, -angle)[0]
@@ -84,46 +84,17 @@ class Contour:
         return maximum_point
 
 
-    # return true if there could be an intersection with an input ray
-    def fast_intersection(self, ray):
-
-        # create lines to the four corners of the bounding rectangle
-        l1 = Line(ray.p1, p2 = (self.min[0], self.min[1]))
-        l2 = Line(ray.p1, p2 = (self.max[0], self.min[1]))
-        l3 = Line(ray.p1, p2 = (self.min[0], self.max[1]))
-        l4 = Line(ray.p1, p2 = (self.max[0], self.max[1]))
-
-        lines = [l2,l3,l4]
-
-        # check if the angles are above or below the ray
-        # if all are above or below, there is no intersection
-
-        start = l1.angle > ray.angle
-
-        for l in lines:
-            
-            # if the start and current angle are on opposite sides of the ray, return true
-            if start == (l.angle < ray.angle):
-                return True
-        
-        return False
-
-
     # find all intersections with the line
-    def intersection(self, line, debug=False, plot=False):
+    def intersection(self, line):
         
         points = []
 
         for l in self.line_list:
-            temp = l.intersection(line, debug=debug, plot=plot)      
+            temp = l.intersection(line)      
             if temp is None:
                 continue
             else:
                 points.append(temp)
-
-
-        if debug:
-            print(points)
 
         return points
 
@@ -145,6 +116,7 @@ class Contour:
             return False
 
 
+    # save the ordered list of intersection points
     def save_intersection_list(self):
 
         for line in self.line_list:
@@ -164,8 +136,6 @@ class Contour:
                         temp_points.append(point)
 
             self.intersection_list.extend([x for _,x in sorted(zip(temp_distance,temp_points))])
-                    
-
 
 
     # find the line that contains the point
@@ -188,6 +158,8 @@ class Contour:
         
         return False
 
+
+    # check if the point is on the corner of the line
     def check_peak(self, point, int_line):
 
         p1 = None
@@ -198,8 +170,6 @@ class Contour:
                 p1 = line.p2  
             if line.p2 == point:    
                 p2 = line.p1
-
-        print("\tCHECK PEAK:", p1,p2)
             
         if p1 is None or p2 is None:
             return False
@@ -216,21 +186,6 @@ class Contour:
         else:
             return False
 
-    # rotate the lines so the starting line is the first in the list
-    def __rotate_lines(self, start_line):
-
-        # loop to the input line
-        for index, line in enumerate(self.line_list):
-            if start_line == line:
-                
-                # move the end of the list to the start
-                new_list = self.line_list[index:]
-
-                # extend the start of the list (before found line) to the end
-                end = self.line_list[0:index]
-                new_list.extend(end)
-
-                return new_list
 
     # return X and Y lists to plot
     def plot(self):
@@ -246,8 +201,10 @@ class Contour:
         return X,Y
 
 
+    # return a hash of the contour to all dictionary
     def __hash__(self):
         return hash(str(self.heirarchy))
+
 
     # return a string representation of the contour
     def __repr__(self):

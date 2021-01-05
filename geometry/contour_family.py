@@ -12,7 +12,7 @@ logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-
+import datetime
 
 from geometry.line import Line
 from geometry.contour import Contour
@@ -41,7 +41,11 @@ class Family:
         return True
 
     # generate the intersection points on each contour in the family
-    def generate_intersection_points(self, line_thickness, angle):
+    def generate_intersection_points(self, line_thickness, angle, time=True):
+
+        if time:
+            start = datetime.datetime.now()
+
 
         current_point = self.__starting_point(angle)
 
@@ -58,7 +62,6 @@ class Family:
 
         # loop until there are no intersections
         while intersections:
-        #for _ in range(1):
             
             points = []
 
@@ -78,11 +81,19 @@ class Family:
             intersections = direction_one or direction_two
             
             line_number += 1
-        
+
         self.parent_contour.save_intersection_list()
+        
         for child in self.children:
             child.save_intersection_list()
+        
+        if time:
+            logging.info("GENERATE POINTS: " + str(datetime.datetime.now()-start))
 
+
+        # self.plot_intersection_list()
+
+    def plot_intersection_list(self):
         X = []
         Y = []
 
@@ -90,27 +101,16 @@ class Family:
             X.append(p.x)
             Y.append(p.y)
 
-        plt.plot(X,Y)
-        plt.show()
+        #plt.scatter(X,Y)
 
-        '''
-        plt.plot(*ray1.plot())
-        plt.plot(*ray2.plot())
+
+        for line in self.parent_contour.line_list:
+            plt.scatter(line.p1[0], line.p1[1])
 
         X,Y = self.parent_contour.plot()
         plt.plot(X,Y)
 
-        for key in self.parent_contour.intersection_points.keys():
-            for point in self.parent_contour.intersection_points[key]:
-                plt.scatter(point.x, point.y)
-
-        for contour in self.children:
-            for key in contour.intersection_points.keys():
-                for point in contour.intersection_points[key]:
-                    plt.scatter(point.x, point.y)
-
         plt.show()
-        '''
         
 
     # find available point (and row location)
@@ -137,33 +137,9 @@ class Family:
 
         return None,None
 
-    # return all of the points at the row, grouped by contour
+
+
     def __get_contour_rowpoints(self, row):
-
-        if not row in self.parent_contour.intersection_points:
-            return None
-
-        points = {self.parent_contour:self.parent_contour.intersection_points[row]}
-        
-        for child_contour in self.children:
-            
-            if row in child_contour.intersection_points:
-                points[child_contour] = child_contour.intersection_points[row]
-
-        return points
-
-    def __get_contour_rowpoints_simple(self, row):
-        '''
-        points = self.parent_contour.intersection_points[row]
-        print(points)
-        
-        for child_contour in self.children:
-            
-            if row in child_contour.intersection_points:
-                points.extend(child_contour.intersection_points[row])
-            print(points)
-        return points
-        '''
 
         if not row in self.parent_contour.intersection_points:
             return None
@@ -189,7 +165,7 @@ class Family:
             end = (row_points[-1].x, row_points[-1].y)
             intersection_line = Line(start, p2 = end)
 
-            for p in row_points[1:-1]:
+            for p in row_points:
                 c = points_dict[p]
 
                 # remove the peak
@@ -212,13 +188,13 @@ class Family:
             index = row_points.index(point)
         except:
             return None, None
-        print(len(row_points))
+
         if(len(row_points) < 2):
             row_points[index].set_visited()
             return None, None
 
         if index % 2 == 0:
-            closest_point = row_points[index+1]
+            closest_point = row_points[(index+1)%len(row_points)]
 
         elif index % 2 == 1:
             closest_point = row_points[index-1]
@@ -256,13 +232,6 @@ class Family:
 
         else:
             return None
-
-        # divide into possible paths
-        # (1,-1),(2,-2),(3,-3)...
-
-
-
-
 
 
     def __next_contour_point_simple(self, point, previous_dict, points_dict):
@@ -309,29 +278,7 @@ class Family:
         index = values.index(point)
 
         print(point, values, index)
-        # find the point in the dict
 
-        '''
-        for key in temp:
-
-            if point in temp[key] and key == self.parent_contour:
-
-                if index%2 == 0:
-                temp[key] = temp[key][index+1:]
-            else:
-                temp[key] = temp[key][0:index]
-            break
-
-            elif point in temp[key]:
-                index = temp[key].index(point)
-
-            if index%2 == 1:
-                temp[key] = temp[key][index+1:]
-            else:
-                temp[key] = temp[key][0:index]
-            break
-        '''
-        input("HAHAHA")
         # find the closest point in temp
 
         # set the closest point to start at the first point
@@ -339,8 +286,6 @@ class Family:
         first = True
         closest_point = None
         contour = None
-
-        print("\tTEMP:", list(temp.values()))
 
         for key in temp:
             for new_point in temp[key]:
@@ -358,9 +303,6 @@ class Family:
                         closest_point = new_point
                         minimum = new_distance
                         contour = key
-
-        print("\tCLOSEST:", closest_point)
-
 
         return closest_point, contour
 
@@ -390,8 +332,7 @@ class Family:
                 return closest_point
 
         return None
-
-        
+  
 
     # create a path to fill the contour
     def generate_path(self, line_thickness, angle):
@@ -409,10 +350,7 @@ class Family:
             path.append(point)
             point.set_visited()
 
-            # get all the points
-            # points_dict = self.__get_contour_rowpoints(row)
-            
-            points_dict = self.__get_contour_rowpoints_simple(row)
+            points_dict = self.__get_contour_rowpoints(row)
 
             # next_point, next_contour = self.__get_closest_point(point, points_dict)
             next_point, next_contour = self.__get_closest_point_simple(point, points_dict)
@@ -426,23 +364,12 @@ class Family:
             # traverse contour (increase row number)
             row += 1
 
-            '''
-            next_points_dict = self.__get_contour_rowpoints_simple(row)
-
-            if not next_points_dict is None:
-                # find the next point (none if none)
-                point = self.__next_contour_point_simple(next_point, points_dict,next_points_dict)
-            else:
-                point = None
-            '''
             point = self.__next_contour_point_contour(next_point, next_contour, row)
 
-        
         return path
 
 
     def generate_total_path(self, line_thickness, angle):
-
 
         point = []
 
@@ -450,7 +377,6 @@ class Family:
         total_path = []
 
         self.generate_intersection_points(line_thickness, angle)
-
 
         while not path is None:
 
