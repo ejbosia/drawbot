@@ -22,6 +22,6 @@ bool Point::getVisited(){
     return visited;
 }
 
-std::string Point::toString(){
-    return "(" + std::to_string(x) + "," + std::to_string(y) + ")";
+std::ostream& operator<<(std::ostream &strm, const Point &p){
+    return strm << "(" << p.x << "," << p.y << ")";
 }

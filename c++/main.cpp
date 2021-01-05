@@ -3,6 +3,8 @@
 #include <chrono>
 
 #include "point.h"
+#include "angle.h"
+#include "ray.h"
 
 using namespace std;
 
@@ -15,12 +17,16 @@ void run(){
     // create a point
     Point point(100, 100);
 
-    cout << point.getX() << endl;
-    cout << point.getY() << endl;
+    cout << "POINT: " << point << endl;
 
-    string x = point.toString();
 
-    cout << x;
+    Angle angle(10);
+
+    cout << "ANGLE: " << angle << endl;
+
+    Ray ray(point, angle);
+
+    cout << "RAY\n\t" << ray << endl;
 
 }
 

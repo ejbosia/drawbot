@@ -22,7 +22,7 @@ class Point{
         void setVisited(bool visited);
         bool getVisited();
 
-        friend std::ostream& operator<<(std::ostream &strm, const Point &p);
+        std::string toString();
 };
 
 #endif
