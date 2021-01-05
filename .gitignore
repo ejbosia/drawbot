@@ -4,3 +4,5 @@
 *.odt
 *.odt#
 *.ipynb
+
+*.out
