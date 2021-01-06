@@ -13,6 +13,6 @@ if(CMAKE_VERSION VERSION_LESS "2.8.11")
     include_directories(${OpenCV_INCLUDE_DIRS})
 endif()
 
-add_executable( drawbot main.cpp point.cpp angle.cpp ray.cpp line.cpp contour.cpp )
+add_executable( drawbot main.cpp point.cpp angle.cpp ray.cpp line.cpp contour.cpp family.cpp)
 
 target_link_libraries( drawbot ${OpenCV_LIBS} )

@@ -9,6 +9,7 @@
 #include "ray.h"
 #include "line.h"
 #include "contour.h"
+#include "family.h"
 
 
 #include <stdio.h>
@@ -111,13 +112,36 @@ void _test_intersection(){
 
 }
 
+Contour convertContour(vector<cv::Point> pointList){
+
+    vector<Line> lineList;
+
+    cv::Point start = pointList.back();
+
+    for(int i = 0; i < pointList.size(); i++){
+        
+        cv::Point end = pointList[i];
+        
+        Point p1(start.x, start.y);
+        Point p2(end.x, end.y);
+
+        Line l(p1, p2);
+ 
+        lineList.push_back(l);
+
+        start = pointList[i];
+    }
+
+    return Contour(lineList);
+}
+
 
 int main(int argc, char** argv){
 
     auto start = chrono::high_resolution_clock::now();
 
 
-    string image_path = "test_ring.png";
+    string image_path = "picture.png";
 
     cv::Mat image = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
 
@@ -131,11 +155,47 @@ int main(int argc, char** argv){
     // get the contours
     vector<vector<cv::Point> > contours;
     vector<cv::Vec4i> hierarchy;
-    cv::findContours( image, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE );
+    cv::findContours( image, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE );
 
 
-    for(int i = 0; i < hierarchy.size(); i++){
-        cout << hierarchy[i][0] << endl;
+    // create contour families
+    vector<Family> familyList;
+
+    for(int i = 0; i < contours.size(); i++){
+
+        // check if the contour is a parent contour
+        if(hierarchy[i][3]==-1){
+
+            // create a contour of the parent
+            cout << "PARENT " << hierarchy[i] << endl; 
+
+            // create a family with the starting contour
+            Contour parentContour = convertContour(contours[i]);
+            
+            // add the children to the family
+            
+            vector<Contour> childContourList;
+
+            int index = hierarchy[i][2];
+
+            while(index != -1){
+                cout << "CHILD " << index << hierarchy[index] << endl; 
+
+                childContourList.push_back(convertContour(contours[index]));
+
+                index = hierarchy[index][0];
+
+            }
+
+            // add the family to the family list
+            
+            Family temp(parentContour, childContourList);
+
+            cout << temp << endl;
+            
+            familyList.push_back(temp);
+
+        }
     }
 
     //cv::imshow("Display window", image);
