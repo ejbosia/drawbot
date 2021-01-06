@@ -12,10 +12,12 @@
 
 
 #include <stdio.h>
+// #include <opencv2/core.hpp>
+// #include <opencv2/imgcodecs.hpp>
+// #include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
 
 using namespace std;
-
 
 vector<Line> getTestLines(){
 
@@ -113,6 +115,25 @@ void _test_intersection(){
 int main(int argc, char** argv){
 
     auto start = chrono::high_resolution_clock::now();
+
+
+    string image_path = "test.png";
+
+    cv::Mat image = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
+
+    if(image.empty())
+    {
+        cout << "Could not read the image: " << image_path << endl;
+        return 1;
+    }
+
+
+    // get the contours
+
+
+
+    //cv::imshow("Display window", image);
+    //int k = cv::waitKey(0); // Wait for a keystroke in the window
 
     /*
     _test_contour();
