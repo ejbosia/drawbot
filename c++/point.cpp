@@ -5,15 +5,22 @@ Point::Point(double x, double y){
     this->y = y;
 }
 
+double Point::getX(){
+    return x;
+}
+
+double Point::getY(){
+    return y;
+}
+
 /*
 Return the distance to another point
 */
-double distance(const Point &other){
+double Point::distance(Point &other){
     double dx = x - other.getX();
-    double dx = y - other.getY();
+    double dy = y - other.getY();
     
-    return 0.0 // TODO CALCULATE DISTANCE
-
+    return sqrt(pow(dx,2.0) + pow(dy,2.0));
 }
 
 std::ostream& operator<<(std::ostream &strm, const Point &p){

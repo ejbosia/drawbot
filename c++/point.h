@@ -4,19 +4,22 @@
 
 #include <iostream>
 #include <string>
+#include <math.h>
 
 class Point{
 
     private:
-        int x;
-        int y;
+        double x;
+        double y;
 
     public:
 
-        Point(int x, int y);
+        Point(double x, double y);
 
-        int getX();
-        int getY();
+        double getX();
+        double getY();
+
+        double distance(Point& other);
 
         friend std::ostream& operator<<(std::ostream &strm, const Point &p);
 };

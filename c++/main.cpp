@@ -52,30 +52,10 @@ vector<Line> getTestLines(){
 }
 
 
-void run(){
+void _test_contour(){
 
-    cout << "Process Start" << endl;
-    /*
-    // create a point
-    Point point(100, 100);
+    cout << "\nTEST CONTOUR" << endl;
 
-    cout << "POINT: " << point << endl;
-
-
-    Angle angle(10);
-
-    cout << "ANGLE: " << angle << endl;
-
-    Ray ray(point, angle);
-
-    cout << "RAY\n\t" << ray << endl;
-
-    Point p2(200,200);
-
-    Line line(point, p2);
-
-    cout << "Line\n\t" << line << endl;
-    */
     vector<Line> temp = getTestLines();
 
     Contour contour(temp);
@@ -85,11 +65,59 @@ void run(){
 }
 
 
+void _test_distance(){
+
+    cout << "\nTEST DISTANCE" << endl;
+
+    Point p1(0,0);
+
+    Point p2(3,4);
+
+    cout << p2.distance(p1) << " == " << p1.distance(p2) << endl;
+
+}
+
+void _test_intersection(){
+    cout << "\nTEST INTERSECTION" << endl;
+
+    Point p1(0,0);
+    Point p2(5,5);
+    Point p3(5,0);
+    Point p4(0,5);
+
+    Line l1(p1,p2);
+    Line l2(p3,p4);
+
+    cout << *l1.intersection(l2) << endl;
+
+    Point p5(0,3);
+    Point p6(5,3);
+    
+    Line l3(p5,p6);
+
+    cout << *l1.intersection(l3) << endl;
+    cout << *l3.intersection(l1) << endl;
+
+    Point p7(2,0);
+    Point p8(2,5);
+    
+    Line l4(p7,p8);
+
+    cout << *l3.intersection(l4) << endl;
+    cout << *l4.intersection(l3) << endl;
+
+}
+
+
 int main(int argc, char** argv){
 
     auto start = chrono::high_resolution_clock::now();
 
-    run();
+    _test_contour();
+
+    _test_distance();
+
+    _test_intersection();
 
     auto stop = chrono::high_resolution_clock::now(); 
 
