@@ -117,7 +117,7 @@ int main(int argc, char** argv){
     auto start = chrono::high_resolution_clock::now();
 
 
-    string image_path = "test.png";
+    string image_path = "test_ring.png";
 
     cv::Mat image = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
 
@@ -129,8 +129,14 @@ int main(int argc, char** argv){
 
 
     // get the contours
+    vector<vector<cv::Point> > contours;
+    vector<cv::Vec4i> hierarchy;
+    cv::findContours( image, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE );
 
 
+    for(int i = 0; i < hierarchy.size(); i++){
+        cout << hierarchy[i][0] << endl;
+    }
 
     //cv::imshow("Display window", image);
     //int k = cv::waitKey(0); // Wait for a keystroke in the window
