@@ -11,6 +11,9 @@
 #include "contour.h"
 
 
+#include <stdio.h>
+#include <opencv2/opencv.hpp>
+
 using namespace std;
 
 
@@ -51,7 +54,6 @@ vector<Line> getTestLines(){
     return lineList;
 }
 
-
 void _test_contour(){
 
     cout << "\nTEST CONTOUR" << endl;
@@ -63,7 +65,6 @@ void _test_contour(){
     cout << contour << endl;
 
 }
-
 
 void _test_distance(){
 
@@ -113,11 +114,15 @@ int main(int argc, char** argv){
 
     auto start = chrono::high_resolution_clock::now();
 
+    /*
     _test_contour();
 
     _test_distance();
 
     _test_intersection();
+    */
+
+    
 
     auto stop = chrono::high_resolution_clock::now(); 
 

@@ -1,0 +1,3 @@
+/home/ejbosia/Programs/drawbot/CMakeFiles/rebuild_cache.dir
+/home/ejbosia/Programs/drawbot/CMakeFiles/edit_cache.dir
+/home/ejbosia/Programs/drawbot/CMakeFiles/drawbot.dir

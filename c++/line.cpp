@@ -33,9 +33,7 @@ Point* Line::intersection(Line& line){
     Point l1 = line.getP1();
 
     double s2 = line.getAngle().tangent();
-    double V;
-
-    V = (p1.getY() - l1.getY() + s1 * (l1.getX() - p1.getX())) / (s2 - s1);
+    double V = (p1.getY() - l1.getY() + s1 * (l1.getX() - p1.getX())) / (s2 - s1);
 
     double px = l1.getX() + V;
     double py = l1.getY() + s2 * V;
