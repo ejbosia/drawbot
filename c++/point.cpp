@@ -24,6 +24,15 @@ double Point::xRotation(Angle& angle){
     return x * c - y * s;
 }
 
+double Point::yRotation(Angle& angle){
+
+    Angle a(-angle.getAngle());
+
+    double c = a.cosine();
+    double s = a.sine();
+
+    return x * s + y * c;
+}
 
 
 /*

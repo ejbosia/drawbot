@@ -34,6 +34,10 @@ void Family::generateIntersectionPoints(double lineThickness, Angle& angle){
     std::cout << "\n\t\tSTARTING POINT: " << startingPoint <<  std::endl;
 
 
+    std::vector<Point> posIntersections;
+    std::vector<Point> negIntersections;
+    
+
     while(startingPoint.xRotation(a) < endingXProj){
 
         // move the starting point one lineThickness perpendicular to the angle
@@ -41,9 +45,9 @@ void Family::generateIntersectionPoints(double lineThickness, Angle& angle){
 
         std::cout << "\t\t TRANSLATION: " << startingPoint << "\t" << angle <<  std::endl;
 
-
         // check one direction
         angle.rotateAngle(M_PI);
+
 
         // check the other direction
         angle.rotateAngle(M_PI);

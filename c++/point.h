@@ -18,6 +18,8 @@ class Point{
 
         double distance(Point& other);
         double xRotation(Angle& angle);
+        double yRotation(Angle& angle);
+
 
         // point translation
         void translate(double distance, Angle& angle);
