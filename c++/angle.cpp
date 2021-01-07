@@ -67,7 +67,7 @@ bool Angle::operator==(const Angle& other){
     // std::cout << " ?< " << std::numeric_limits<double>::epsilon() << std::endl;
     
 
-    return fabs(angle - other.angle) < std::numeric_limits<double>::epsilon();
+    return fabs(angle - other.angle) < 2*std::numeric_limits<double>::epsilon();
 }
 
 /*
@@ -83,7 +83,7 @@ bool Angle::operator==(const double value){
     // std::cout << "\t\t" << fabs(angle - value);
     // std::cout << " ?< " << std::numeric_limits<double>::epsilon() << std::endl;
 
-    return fabs(angle - value) < std::numeric_limits<double>::epsilon();
+    return fabs(angle - value) < 2*std::numeric_limits<double>::epsilon();
 }
 
 

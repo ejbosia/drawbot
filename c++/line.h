@@ -25,9 +25,15 @@ class Line{
         Point getP2();
         Angle getAngle();
 
+        Point* midPoint();
+
         // vector<Point> intersection(Ray& ray);
 
         bool checkOnLine(Point& p);
+
+        bool checkPossibleIntersection(Point& p, Angle& a);
+        bool checkPossibleIntersection(Line& line);
+
         
         Point* intersection(Point& p, Angle& a);
         Point* intersection(Line& line);

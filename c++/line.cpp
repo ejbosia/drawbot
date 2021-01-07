@@ -23,6 +23,14 @@ Angle Line::getAngle(){
     return angle;
 }
 
+
+Point* Line::midPoint(){
+    double px = (p2.x+p1.x)/2;
+    double py = (p2.y+p1.y)/2;
+
+    return new Point(px,py);
+}
+
 bool Line::checkOnLine(Point& p){
 
     double dx = p.x - p1.x;
@@ -30,7 +38,7 @@ bool Line::checkOnLine(Point& p){
 
     double temp = atan2(dy,dx);
 
-    // std::cout << "\tCHECK ON LINE: ANGLE: " << angle << "\tTEST ANGLE: " << temp << std::endl;
+    std::cout << "\t\t\tCHECK ON LINE: ANGLE: " << angle << "\tTEST ANGLE: " << temp <<  "\tBOOL: " << (angle == atan2(dy,dx)) <<std::endl;
 
     // check if the angle of p1 and p is equal
     if(angle == atan2(dy,dx)){
@@ -56,7 +64,7 @@ bool Line::checkOnLine(Point& p){
         double distance = p.distance(p1);
         double lineLength = p2.distance(p1);
 
-        // std::cout << "\tDISTANCE: " << distance << "\tLINE LENGTH: " << lineLength << std::endl;
+        std::cout << "\t\t\tDISTANCE: " << distance << "\tLINE LENGTH: " << lineLength << "\t" << p << std::endl;
 
         return (distance <= lineLength);
         
@@ -64,6 +72,35 @@ bool Line::checkOnLine(Point& p){
 
     return false;
 }
+
+
+bool Line::checkPossibleIntersection(Point& p, Angle& a){
+
+    // check if the line endpoints are on each side of the ray
+
+    double y1 = p1.yRotation(a);
+    double y2 = p2.yRotation(a);
+
+    // check if the line midpoint is positive xRotation past the ray endpoint ~ for an intersection, this must be true
+    Point temp = *midPoint();
+    double x_mp = temp.xRotation(a);
+    double xp = p.xRotation(a);
+
+    // check if the signs are different (if points are on opposite sides of the line)
+    return (y1*y2 < 0.0f) && (x_mp > xp);
+
+}
+
+
+bool Line::checkPossibleIntersection(Line& line){
+
+    Point temp = line.getP1();
+    Angle angle = line.getAngle();
+
+    // check if the ray condition holds for each line
+    return checkPossibleIntersection(temp,angle) && line.checkPossibleIntersection(p1, angle);
+}
+
 
 // check if an input ray intersects with the line
 Point* Line::intersection(Point& p, Angle& a){

@@ -15,7 +15,7 @@ Point Contour::getMaximumPoint(Angle& angle){
     for(int i = 0; i < lineList.size(); i++){
         
         tempValue = lineList[i].getP1().xRotation(angle);
-        std::cout << "\tTEMP: " << tempValue << "\t" << lineList[i].getP1() << endl;
+        // std::cout << "\tTEMP: " << tempValue << "\t" << lineList[i].getP1() << endl;
         if(tempValue > maxValue){
             maxValue = tempValue;
             maxPoint = lineList[i].getP1();
@@ -23,7 +23,7 @@ Point Contour::getMaximumPoint(Angle& angle){
 
     }
 
-    std::cout << "\tANGLE: " << angle.degrees() << "\tCOS: " << angle.cosine() << "\tSIN: " << angle.sine() << std::endl;
+    // std::cout << "\tANGLE: " << angle.degrees() << "\tCOS: " << angle.cosine() << "\tSIN: " << angle.sine() << std::endl;
     return maxPoint;
 
 }
@@ -34,14 +34,23 @@ vector<Point> Contour::intersection(Point& p, Angle& a){
         
     vector<Point> intersections;
 
+    std::cout << "\tintersections: " << p << "\t" << a << std::endl;
     // check each line for an intersection with the ray
     for(int i = 0; i < lineList.size(); i++){
+        std::cout << "\t CHECK >> " << p << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a) << endl;
         
-        Point* temp = lineList[i].intersection(p, a);
-        
-        if(temp){
-            intersections.push_back(*temp);
-        }
+        // if the intersection exists, add the point to the list
+        // if(lineList[i].checkPossibleIntersection(p,a)){
+            // std::cout << "\t\t OUTPUT >> " << p << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a) << endl;
+ 
+            Point* temp = lineList[i].intersection(p, a);
+
+            if(temp){
+                std::cout << "\t\t OUTPUT >> " << *temp << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a) << endl;
+
+                intersections.push_back(*temp);
+            }
+        // }
     }
 
     return intersections;

@@ -43,14 +43,39 @@ void Family::generateIntersectionPoints(double lineThickness, Angle& angle){
         // move the starting point one lineThickness perpendicular to the angle
         startingPoint.translate(lineThickness, a);
 
-        std::cout << "\t\t TRANSLATION: " << startingPoint << "\t" << angle <<  std::endl;
+        std::cout << "\tTRANSLATION: " << startingPoint << "\t" << angle <<  std::endl;
 
         // check one direction
-        angle.rotateAngle(M_PI);
+        // angle.rotateAngle(M_PI);
 
+        // std::cout << "\tANGLE " << angle << std::endl;
 
-        // check the other direction
-        angle.rotateAngle(M_PI);
+        posIntersections = parentContour.intersection(startingPoint, angle);
+
+        // // check the other direction
+        // angle.rotateAngle(M_PI);
+
+        // std::cout << "\tANGLE " << angle << std::endl;
+
+        // negIntersections = parentContour.intersection(startingPoint, angle);
+
+        std::cout << posIntersections.size() << std::endl;
+        // std::cout << negIntersections.size() << std::endl;
+
+        std::cout << "\t\t";
+        
+        for(int i = 0; i < posIntersections.size(); i++)
+            std::cout << posIntersections[i] << ", ";
+
+        // std::cout << "\t";
+
+        // for(int i = 0; i < negIntersections.size(); i++)
+        //     std::cout << negIntersections[i] << ", ";
+        
+        std::cout << std::endl;
+
+        // posIntersections.clear();
+        // negIntersections.clear();
 
     }
 
