@@ -5,20 +5,12 @@ Point::Point(double x, double y){
     this->y = y;
 }
 
-double Point::getX(){
-    return x;
-}
-
-double Point::getY(){
-    return y;
-}
-
 /*
 Return the distance to another point
 */
 double Point::distance(Point &other){
-    double dx = x - other.getX();
-    double dy = y - other.getY();
+    double dx = x - other.x;
+    double dy = y - other.y;
     
     return sqrt(pow(dx,2.0) + pow(dy,2.0));
 }

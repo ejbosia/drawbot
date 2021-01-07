@@ -81,6 +81,23 @@ void _test_distance(){
 
 }
 
+
+void _test_single_intersection(Line l1, Line l2){
+    Point* t1 =  l1.intersection(l2);
+    Point* t2 =  l2.intersection(l1);
+
+    if(t1)
+        cout << "INTERSECTION TEST 1:\t" << *t1 << endl;
+    else
+        cout << "INTERSECTION TEST 1:\t NULL" << endl;
+    if(t2)
+        cout << "INTERSECTION TEST 2:\t" << *t2 << endl;
+    else
+        cout << "INTERSECTION TEST 2:\t NULL" << endl;
+
+}
+
+
 void _test_intersection(){
     cout << "\nTEST INTERSECTION" << endl;
 
@@ -92,23 +109,29 @@ void _test_intersection(){
     Line l1(p1,p2);
     Line l2(p3,p4);
 
-    cout << *l1.intersection(l2) << endl;
+    _test_single_intersection(l1, l2);
 
     Point p5(0,3);
     Point p6(5,3);
     
     Line l3(p5,p6);
 
-    cout << *l1.intersection(l3) << endl;
-    cout << *l3.intersection(l1) << endl;
+    _test_single_intersection(l1, l3);
+
 
     Point p7(2,0);
     Point p8(2,5);
     
     Line l4(p7,p8);
+    _test_single_intersection(l3, l4);
 
-    cout << *l3.intersection(l4) << endl;
-    cout << *l4.intersection(l3) << endl;
+    Point p9(6,0);
+    Point p10(6,10);
+    
+    Line l5(p9,p10);
+
+    _test_single_intersection(l3, l5);
+
 
 }
 
@@ -138,9 +161,11 @@ Contour convertContour(vector<cv::Point> pointList){
 
 int main(int argc, char** argv){
 
+    std::cout.precision(std::numeric_limits<double>::digits10 + 2);
+
     auto start = chrono::high_resolution_clock::now();
 
-
+    /*
     string image_path = "picture.png";
 
     cv::Mat image = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
@@ -197,7 +222,7 @@ int main(int argc, char** argv){
 
         }
     }
-
+    */
     //cv::imshow("Display window", image);
     //int k = cv::waitKey(0); // Wait for a keystroke in the window
 
@@ -205,9 +230,9 @@ int main(int argc, char** argv){
     _test_contour();
 
     _test_distance();
-
-    _test_intersection();
     */
+    _test_intersection();
+    
 
     
 

@@ -4,6 +4,10 @@
 
 #include <iostream>
 #include <string>
+#include <math.h>
+#include <cmath>
+#include <limits>
+
 
 class Angle{
 
@@ -19,6 +23,8 @@ class Angle{
         void rotateAngle(double angle);
         void setAngle(double angle);
 
+        bool parallel(double angle);
+
 
         // trig functions
         double sine();
@@ -27,6 +33,8 @@ class Angle{
 
         // operator overloads
         bool operator==(const Angle& other);
+        bool operator==(const double value);
+
         friend std::ostream& operator<<(std::ostream &strm, const Angle &a);
 
 };

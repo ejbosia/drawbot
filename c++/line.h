@@ -5,6 +5,8 @@
 #include <iostream>
 #include <string>
 #include <math.h>
+#include <cmath>
+#include <limits>
 
 #include "point.h"
 #include "angle.h"
@@ -25,6 +27,8 @@ class Line{
         Angle getAngle();
 
         // vector<Point> intersection(Ray& ray);
+
+        bool checkOnLine(Point& p);
         Point* intersection(Line& line);
 
         friend std::ostream& operator<<(std::ostream &strm, const Line &l);
