@@ -9,7 +9,21 @@ vector<Point> Contour::intersection(Ray r){
 }
 
 vector<Point> Contour::intersection(Line l){
-    return {};
+    
+    vector<Point> intersections;
+
+
+    // check each line for an intersection
+    for(int i = 0; i < lineList.size(); i++){
+        
+        Point* temp = l.intersection(lineList[i]);
+        
+        if(temp){
+            intersections.push_back(*temp);
+        }
+    }
+
+    return intersections;
 }
 
 ostream& operator<<(ostream &strm, const Contour &c){

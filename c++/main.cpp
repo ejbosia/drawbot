@@ -165,7 +165,7 @@ int main(int argc, char** argv){
 
     auto start = chrono::high_resolution_clock::now();
 
-    /*
+    
     string image_path = "picture.png";
 
     cv::Mat image = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
@@ -222,7 +222,7 @@ int main(int argc, char** argv){
 
         }
     }
-    */
+    
     //cv::imshow("Display window", image);
     //int k = cv::waitKey(0); // Wait for a keystroke in the window
 
@@ -230,12 +230,11 @@ int main(int argc, char** argv){
     _test_contour();
 
     _test_distance();
-    */
+    
     _test_intersection();
-    
+    */
 
     
-
     auto stop = chrono::high_resolution_clock::now(); 
 
     auto duration = chrono::duration_cast<chrono::microseconds>(stop - start); 

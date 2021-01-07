@@ -23,7 +23,7 @@ class Family{
         // Point getNextPoint();
 
         // vector<Point> intersection(Ray& ray);
-        std::vector<Point> generatePath();
+        std::vector<std::vector<Point>> generatePath();
 
         friend std::ostream& operator<<(std::ostream &strm, const Family &f);
 };
