@@ -14,6 +14,11 @@ double Angle::getAngle(){
     return angle;
 }
 
+double Angle::degrees(){
+    return angle * 180 / M_PI;
+}
+
+
 /*
 Rotate the angle, maintain 0-2PI
 */

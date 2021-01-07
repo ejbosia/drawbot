@@ -15,12 +15,42 @@ Family::Family(Contour& parent, std::vector<Contour>& children): parentContour(p
 // generate the intersection points, starting from the local minima perpendicular to the angle and moving one lineThickness
 void Family::generateIntersectionPoints(double lineThickness, Angle& angle){
 
+    // create a deep copy of the angle and rotate perpendicular
+    Angle a(angle.getAngle());
+    a.rotateAngle(-M_PI/2);
 
-    angle.rotate(-M_PI/2);
+    std::cout << "\t\tTEST ANGLE: " << angle.degrees() << " new: " << a.degrees() << std::endl;
 
     // get the maximum point in the perpendicular angle
-    Point startingPoint = parentContour.getMaximumPoint(angle);
+    Point startingPoint = parentContour.getMaximumPoint(a);
 
+    // get the maximum point in the opposite
+    a.rotateAngle(M_PI);
+    Point endingPoint = parentContour.getMaximumPoint(a);
+    double endingXProj = endingPoint.xRotation(a);
+
+    std::cout << "\t\tTRAVEL ANGLE" << a.degrees() << std::endl;
+
+    std::cout << "\n\t\tSTARTING POINT: " << startingPoint <<  std::endl;
+
+
+    while(startingPoint.xRotation(a) < endingXProj){
+
+        // move the starting point one lineThickness perpendicular to the angle
+        startingPoint.translate(lineThickness, a);
+
+        std::cout << "\t\t TRANSLATION: " << startingPoint << "\t" << angle <<  std::endl;
+
+
+        // check one direction
+        angle.rotateAngle(M_PI);
+
+        // check the other direction
+        angle.rotateAngle(M_PI);
+
+    }
+
+    std::cout << "\n\t\tENDING POINT: " << endingPoint <<  std::endl;
 
 
 
@@ -28,14 +58,17 @@ void Family::generateIntersectionPoints(double lineThickness, Angle& angle){
 }
 
 
-std::vector<std::vector<Point>> Family::generatePath(){
-    std::cout << "PATH GENERATION START" << endl;
+std::vector<std::vector<Point>> Family::generatePath(double lineThickness, Angle& angle){
+    std::cout << "PATH GENERATION START" << std::endl;
+    std::cout << "\tLINE THICKNESS " << lineThickness << std::endl;
+    std::cout << "\tLINE ANGLE     " << angle << std::endl;
+
 
     std::vector<std::vector<Point>> path;
 
 
     // create the intersection points
-    // self.generate_intersection_points(line_thickness, angle)
+    generateIntersectionPoints(lineThickness, angle);
 
     // loop until some stop iteration (no paths remaining)
     //while not path is None:

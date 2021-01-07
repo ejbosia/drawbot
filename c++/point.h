@@ -6,6 +6,8 @@
 #include <string>
 #include <math.h>
 
+#include "angle.h"
+
 class Point{
 
     public:
@@ -14,10 +16,12 @@ class Point{
         
         Point(double x, double y);
 
-        double getX();
-        double getY();
-
         double distance(Point& other);
+        double xRotation(Angle& angle);
+
+        // point translation
+        void translate(double distance, Angle& angle);
+        void translate(double dx, double dy);
 
         friend std::ostream& operator<<(std::ostream &strm, const Point &p);
 };

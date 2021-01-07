@@ -20,6 +20,7 @@ class Angle{
 
         // mutators and accessors
         double getAngle();
+        double degrees();
         void rotateAngle(double angle);
         void setAngle(double angle);
 

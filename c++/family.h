@@ -15,7 +15,7 @@ class Family{
         Contour parentContour;
         std::vector<Contour> childContours;
 
-        void generateIntersectionPoints();
+        void generateIntersectionPoints(double lineThickness, Angle& angle);
 
     public:
         Family(Contour& parent, std::vector<Contour>& children);
@@ -26,7 +26,7 @@ class Family{
         // Point getNextPoint();
 
         // vector<Point> intersection(Ray& ray);
-        std::vector<std::vector<Point>> generatePath();
+        std::vector<std::vector<Point>> generatePath(double lineThickness, Angle& angle);
 
         friend std::ostream& operator<<(std::ostream &strm, const Family &f);
 };

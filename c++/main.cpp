@@ -185,7 +185,7 @@ int main(int argc, char** argv){
     auto start = chrono::high_resolution_clock::now();
 
     
-    string image_path = "picture.png";
+    string image_path = "Square.png";
 
     cv::Mat image = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
 
@@ -241,6 +241,12 @@ int main(int argc, char** argv){
 
         }
     }
+
+    Angle a(M_PI/6);
+
+    for(int i = 0; i < familyList.size(); i++){
+        familyList[i].generatePath(1.0, a);
+    }
     
     //cv::imshow("Display window", image);
     //int k = cv::waitKey(0); // Wait for a keystroke in the window
@@ -253,7 +259,7 @@ int main(int argc, char** argv){
     _test_intersection();
     */
 
-    _test_intersection();
+    // _test_intersection();
     
     auto stop = chrono::high_resolution_clock::now(); 
 
