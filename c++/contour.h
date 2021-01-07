@@ -26,8 +26,8 @@ class Contour{
     public:
         Contour(vector<Line>& lineRef);
 
-        vector<Point> intersection(Ray r);
-        vector<Point> intersection(Line l);
+        vector<Point> intersection(Point& p, Angle& a);
+        vector<Point> intersection(Line& l);
 
         friend std::ostream& operator<<(std::ostream &strm, const Contour &c);
 

@@ -6,7 +6,6 @@
 
 #include "point.h"
 #include "angle.h"
-#include "ray.h"
 #include "line.h"
 #include "contour.h"
 #include "family.h"
@@ -133,6 +132,26 @@ void _test_intersection(){
     _test_single_intersection(l3, l5);
 
 
+    Point pl3 = l3.getP1();
+    Angle al3 = l3.getAngle();
+
+    Point pl5 = l5.getP1();
+    Angle al5 = l5.getAngle();
+
+    // test RAY intersections
+    Point* t1 =  l3.intersection(pl5, al5);
+    Point* t2 =  l5.intersection(pl3,al3);
+
+    if(t1)
+        cout << "INTERSECTION TEST 1:\t" << *t1 << endl;
+    else
+        cout << "INTERSECTION TEST 1:\t NULL" << endl;
+
+    if(t2)
+        cout << "INTERSECTION TEST 2:\t" << *t2 << endl;
+    else
+        cout << "INTERSECTION TEST 2:\t NULL" << endl;
+
 }
 
 Contour convertContour(vector<cv::Point> pointList){
@@ -234,6 +253,7 @@ int main(int argc, char** argv){
     _test_intersection();
     */
 
+    _test_intersection();
     
     auto stop = chrono::high_resolution_clock::now(); 
 

@@ -10,7 +10,6 @@
 
 #include "point.h"
 #include "angle.h"
-#include "ray.h"
 
 class Line{
     
@@ -29,6 +28,8 @@ class Line{
         // vector<Point> intersection(Ray& ray);
 
         bool checkOnLine(Point& p);
+        
+        Point* intersection(Point& p, Angle& a);
         Point* intersection(Line& line);
 
         friend std::ostream& operator<<(std::ostream &strm, const Line &l);

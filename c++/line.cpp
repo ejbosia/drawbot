@@ -30,10 +30,13 @@ bool Line::checkOnLine(Point& p){
 
     double temp = atan2(dy,dx);
 
+    std::cout << "\tCHECK ON LINE: ANGLE: " << angle << "\tTEST ANGLE: " << temp << std::endl;
+
     // check if the angle of p1 and p is equal
     if(angle == atan2(dy,dx)){
         
         /*
+        // OLD METHOD WITH BUGS
         // check if the point is between the two line points
         double lx = p2.x - p1.x; 
         double ly = p2.y - p1.y; 
@@ -53,12 +56,40 @@ bool Line::checkOnLine(Point& p){
         double distance = p.distance(p1);
         double lineLength = p2.distance(p1);
 
+        std::cout << "\tDISTANCE: " << distance << "\tLINE LENGTH: " << lineLength << std::endl;
+
         return (distance <= lineLength);
         
     }
 
     return false;
 }
+
+// check if an input ray intersects with the line
+Point* Line::intersection(Point& p, Angle& a){
+        
+    if(angle == a){
+        return NULL;
+    }
+    
+    double s1 = angle.tangent();
+    double s2 = a.tangent();
+
+    double V = (p1.y - p.y + s1 * (p.x - p1.x)) / (s2 - s1);
+
+    double px = p.x + V;
+    double py = p.y + s2 * V;
+
+    Point temp(px,py);
+
+    if(checkOnLine(temp)){
+        return new Point(px,py);
+    }
+    else{
+        return NULL;
+    }
+}
+
 
 Point* Line::intersection(Line& line){
     if(angle == line.angle){
@@ -76,16 +107,6 @@ Point* Line::intersection(Line& line){
     double py = l1.y + s2 * V;
 
     Point temp(px,py);
-
-    // std::cout << "\t" << temp << std::endl;
-    // std::cout << "\tSELF: " << *this << std::endl;
-    // bool result = checkOnLine(temp);
-    // std::cout << "\t\tONLINE: " << result << std::endl;
-
-    // std::cout << "\tLINE: " << line << std::endl;
-    // result = line.checkOnLine(temp);
-    // std::cout << "\t\tONLINE: " << result << std::endl;
-
 
     if(checkOnLine(temp) && line.checkOnLine(temp)){
         return new Point(px,py);
