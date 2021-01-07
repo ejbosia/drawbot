@@ -4,6 +4,35 @@ Contour::Contour(vector<Line>& lineRef):lineList(lineRef){
 
 }
 
+// get the maximum point in the contour in the direction of the angle
+Point Contour::getMaximumPoint(Angle& angle){
+
+    // pick an arbitrary point
+
+
+    double s = angle.sine();
+    double c = angle.cosine();
+
+    Point maxPoint = lineList.front().getP1();
+    double maxValue = maxPoint.x * c - maxPoint.y * s;
+
+    double tempValue;
+
+    for(int i = 0; i < lineList.size(); i++){
+        
+        tempValue = lineList[i].getP1().x * c - lineList[i].getP1().y * s;
+
+        if(tempValue > maxValue){
+            maxValue = tempValue;
+            maxPoint = lineList[i].getP1();
+        }
+
+    }
+
+    return maxPoint;
+
+}
+
 
 // get the intersection points of a ray and the contour by checking each line
 vector<Point> Contour::intersection(Point& p, Angle& a){

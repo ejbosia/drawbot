@@ -143,14 +143,14 @@ void _test_intersection(){
     Point* t2 =  l5.intersection(pl3,al3);
 
     if(t1)
-        cout << "INTERSECTION TEST 1:\t" << *t1 << endl;
+        cout << "RAY INTERSECTION TEST 1:\t" << *t1 << endl;
     else
-        cout << "INTERSECTION TEST 1:\t NULL" << endl;
+        cout << "RAY INTERSECTION TEST 1:\t NULL" << endl;
 
     if(t2)
-        cout << "INTERSECTION TEST 2:\t" << *t2 << endl;
+        cout << "RAY INTERSECTION TEST 2:\t" << *t2 << endl;
     else
-        cout << "INTERSECTION TEST 2:\t NULL" << endl;
+        cout << "RAY INTERSECTION TEST 2:\t NULL" << endl;
 
 }
 

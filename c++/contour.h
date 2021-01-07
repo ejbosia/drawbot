@@ -22,9 +22,13 @@ class Contour{
 
     private:
         vector<Line> lineList;
+        vector<Point> intersectionPoints;
+        map<int,vector<int>> rowIntersectionPointMap;
 
     public:
         Contour(vector<Line>& lineRef);
+
+        Point getMaximumPoint(Angle& angle);
 
         vector<Point> intersection(Point& p, Angle& a);
         vector<Point> intersection(Line& l);

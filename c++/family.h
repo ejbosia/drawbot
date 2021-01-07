@@ -15,8 +15,11 @@ class Family{
         Contour parentContour;
         std::vector<Contour> childContours;
 
+        void generateIntersectionPoints();
+
     public:
         Family(Contour& parent, std::vector<Contour>& children);
+
 
         // Point getClosestPoint();
 

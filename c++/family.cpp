@@ -12,6 +12,21 @@ Family::Family(Contour& parent, std::vector<Contour>& children): parentContour(p
 // }
 
 
+// generate the intersection points, starting from the local minima perpendicular to the angle and moving one lineThickness
+void Family::generateIntersectionPoints(double lineThickness, Angle& angle){
+
+
+    angle.rotate(-M_PI/2);
+
+    // get the maximum point in the perpendicular angle
+    Point startingPoint = parentContour.getMaximumPoint(angle);
+
+
+
+
+
+}
+
 
 std::vector<std::vector<Point>> Family::generatePath(){
     std::cout << "PATH GENERATION START" << endl;
