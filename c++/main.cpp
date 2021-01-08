@@ -280,8 +280,6 @@ int main(int argc, char** argv){
 
     auto duration = chrono::duration_cast<chrono::microseconds>(stop - start); 
     
-    for( auto a : )
-
     cout << "TIME: " << duration.count() << " MICROSECONDS" << endl;    
     
     return 0;
