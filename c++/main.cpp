@@ -197,9 +197,11 @@ int main(int argc, char** argv){
 
 
     // get the contours
-    vector<vector<cv::Point> > contours;
+    vector<vector<cv::Point>> contours;
     vector<cv::Vec4i> hierarchy;
     cv::findContours( image, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE );
+
+    delete image;
 
 
     // create contour families
@@ -242,6 +244,19 @@ int main(int argc, char** argv){
         }
     }
 
+    // cleanup contours
+    for(auto a : contours){
+        for(auto b : a){
+            delete b;
+        }
+        delete a;
+    }
+
+    // cleanup hierarchy
+    for(auto a : hierarchy){
+        delete a;
+    }
+
     Angle a(M_PI/6);
 
     for(int i = 0; i < familyList.size(); i++){
@@ -265,6 +280,8 @@ int main(int argc, char** argv){
 
     auto duration = chrono::duration_cast<chrono::microseconds>(stop - start); 
     
+    for( auto a : )
+
     cout << "TIME: " << duration.count() << " MICROSECONDS" << endl;    
     
     return 0;
