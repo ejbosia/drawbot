@@ -24,6 +24,7 @@ double Point::xRotation(Angle& angle){
     return x * c - y * s;
 }
 
+
 double Point::yRotation(Angle& angle){
 
     Angle a(-angle.getAngle());
@@ -34,6 +35,33 @@ double Point::yRotation(Angle& angle){
     return x * s + y * c;
 }
 
+/*
+Rotate the point about the origin
+*/
+void Point::rotate(Angle& angle){
+    
+    // get the coordinates of this point
+    double c = angle.cosine();
+    double s = angle.sine();
+
+    x = x * c - y * s;
+    y = x * s + y * c;
+
+}
+
+
+void Point::rotate(Point& point, Angle& angle){
+
+    // translate this point so the input point is (0,0)
+    x -= point.x;
+    y -= point.y;
+
+    rotate(angle);
+    // translate this point back so the input point is itself
+    x += point.x;
+    y += point.y;
+
+}
 
 /*
 Translate the point a dx and dy amount

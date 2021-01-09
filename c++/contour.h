@@ -8,10 +8,10 @@ author: ejbosia
 #ifndef CONTOUR_H
 #define CONTOUR_H
 
-#ifdef DEBUG
-#define DEBUG_MSG(str) do { std::cout << "DEBUG CONTOUR\t" << str << std::endl; } while( false )
+#if defined(DEBUG) || defined(DEBUG_CONTOUR)
+#define DEBUG_MSG_C(str) do { std::cout << "DEBUG CONTOUR\t" << str << std::endl; } while( false )
 #else
-#define DEBUG_MSG(str) do { } while ( false )
+#define DEBUG_MSG_C(str) do { } while ( false )
 #endif
 
 #include <iostream>

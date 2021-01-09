@@ -15,7 +15,7 @@ Point Contour::getMaximumPoint(Angle& angle){
     for(int i = 0; i < lineList.size(); i++){
         
         tempValue = lineList[i].getP1().xRotation(angle);
-        DEBUG_MSG("TEMP: " << tempValue << "\t" << lineList[i].getP1());;
+        DEBUG_MSG_C("TEMP: " << tempValue << "\t" << lineList[i].getP1());;
         if(tempValue > maxValue){
             maxValue = tempValue;
             maxPoint = lineList[i].getP1();
@@ -23,7 +23,7 @@ Point Contour::getMaximumPoint(Angle& angle){
 
     }
 
-    DEBUG_MSG("ANGLE: " << angle.degrees() << "\tCOS: " << angle.cosine() << "\tSIN: " << angle.sine());
+    DEBUG_MSG_C("ANGLE: " << angle.degrees() << "\tCOS: " << angle.cosine() << "\tSIN: " << angle.sine());
     return maxPoint;
 
 }
@@ -34,21 +34,21 @@ vector<Point> Contour::intersection(Point& p, Angle& a){
         
     vector<Point> intersections;
 
-    DEBUG_MSG("intersections: " << p << "\t" << a);
+    DEBUG_MSG_C("intersections: " << p << "\t" << a);
     // check each line for an intersection with the ray
     for(int i = 0; i < lineList.size(); i++){
         
-        DEBUG_MSG("CHECK >> " << p << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a));
+        DEBUG_MSG_C("CHECK >> " << p << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a));
         
         // if the intersection exists, add the point to the list
          if(lineList[i].checkPossibleIntersection(p,a)){
             
-            DEBUG_MSG("OUTPUT >> " << p << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a));
+            DEBUG_MSG_C("OUTPUT >> " << p << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a));
  
             Point* temp = lineList[i].intersection(p, a);
 
             if(temp){
-                DEBUG_MSG("\t\t OUTPUT >> " << *temp << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a));
+                DEBUG_MSG_C("\t\t OUTPUT >> " << *temp << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a));
 
                 intersections.push_back(*temp);
             }

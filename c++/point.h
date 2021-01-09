@@ -21,9 +21,14 @@ class Point{
         double yRotation(Angle& angle);
 
 
+
         // point translation
         void translate(double distance, Angle& angle);
         void translate(double dx, double dy);
+
+        void rotate(Angle& angle);
+        void rotate(Point& point, Angle& angle);
+
 
         friend std::ostream& operator<<(std::ostream &strm, const Point &p);
 };

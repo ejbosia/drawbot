@@ -60,18 +60,39 @@ bool Line::checkOnLine(Point& p){
 
 bool Line::checkPossibleIntersection(Point& p, Angle& a){
 
-    // check if the line endpoints are on each side of the ray
+    // create two temporary points for the line endpoints
+    Point temp1(p1.x,p1.y);
+    Point temp2(p2.x,p2.y);
 
-    double y1 = p1.yRotation(a);
-    double y2 = p2.yRotation(a);
+    temp1.translate(-p.x,-p.y);
+    temp2.translate(-p.x,-p.y);
+    
+    // rotate the temp points to match the ray
+    Angle reverse(-a.getAngle());
+    temp1.rotate(reverse);
+    temp2.rotate(reverse);
 
-    // check if the line midpoint is positive xRotation past the ray endpoint ~ for an intersection, this must be true
-    Point temp = *midPoint();
-    double x_mp = temp.xRotation(a);
-    double xp = p.xRotation(a);
 
-    // check if the signs are different (if points are on opposite sides of the line)
-    return (y1*y2 < 0.0f) && (x_mp > xp);
+    DEBUG_MSG_L("TEMP1: " <<  temp1 << " TEMP2:" << temp2);
+    // if the sign of each y component are the same, intersection is impossible
+    if(temp1.y * temp2.y > 0.0f){
+        return false;
+    }
+
+    /*
+    X check
+     - check the x normalized to y sum is greater than 0
+     - the ray is currently at angle 0, so lines that have negative weight have an intersection point in -x
+    */
+
+
+    double normal1 = temp1.x/fabs(temp1.y);
+    double normal2 = temp2.x/fabs(temp2.y);
+
+    DEBUG_MSG_L("NORMAL1: " <<  normal1 << " NORMAL2:" << normal2);
+
+
+    return (normal1 + normal2 > 0);
 
 }
 

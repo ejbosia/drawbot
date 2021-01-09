@@ -11,6 +11,12 @@
 #include "point.h"
 #include "angle.h"
 
+#if defined(DEBUG) || defined(DEBUG_LINE)
+#define DEBUG_MSG_L(str) do { std::cout << "DEBUG LINE\t" << str << std::endl; } while( false )
+#else
+#define DEBUG_MSG_L(str) do { } while ( false )
+#endif
+
 class Line{
     
     private:

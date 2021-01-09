@@ -2,7 +2,7 @@
 #ifndef FAMILY_H
 #define FAMILY_H
 
-#ifdef DEBUG
+#if defined(DEBUG) || defined(DEBUG_FAMILY)
 #define DEBUG_MSG(str) do { std::cout << "DEBUG FAMILY\t" << str << std::endl; } while( false )
 #else
 #define DEBUG_MSG(str) do { } while ( false )
