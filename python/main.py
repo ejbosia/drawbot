@@ -1,6 +1,7 @@
 import contour_fill as CF
 import gradient_fill as GF
-
+import cv2
+import numpy as np
 import argparse
 
 
@@ -22,7 +23,7 @@ def main(file="picture.png", inverse=False, resize = 1):
     if inverse:
         image = 255-image
 
-    execute(image)
+    CF.execute(image)
 
 
 if __name__ == "__main__":
