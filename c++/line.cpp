@@ -42,22 +42,6 @@ bool Line::checkOnLine(Point& p){
 
     // check if the angle of p1 and p is equal
     if(angle == atan2(dy,dx)){
-        
-        /*
-        // OLD METHOD WITH BUGS
-        // check if the point is between the two line points
-        double lx = p2.x - p1.x; 
-        double ly = p2.y - p1.y; 
-
-        std::cout << "\t\tdx:" << dx << "\t\tdy:" << dy << std::endl;
-        std::cout << "\t\tlx:" << lx << "\t\tly:" << ly << std::endl;
-        std::cout << "\t\tlimit:" << -std::numeric_limits<double>::epsilon() << std::endl;
-
-        bool bx = (fabs(lx)-fabs(dx)) > -2*std::numeric_limits<double>::epsilon();
-        bool by = (fabs(ly)-fabs(dy)) > -2*std::numeric_limits<double>::epsilon();
-        
-        return (bx && by);
-        */
 
         // CHECK DISTANCES
 
