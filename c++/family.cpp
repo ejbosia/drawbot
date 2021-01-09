@@ -19,7 +19,7 @@ void Family::generateIntersectionPoints(double lineThickness, Angle& angle){
     Angle a(angle.getAngle());
     a.rotateAngle(-M_PI/2);
 
-    std::cout << "\t\tTEST ANGLE: " << angle.degrees() << " new: " << a.degrees() << std::endl;
+    DEBUG_MSG("TEST ANGLE: " << angle.degrees() << " new: " << a.degrees());
 
     // get the maximum point in the perpendicular angle
     Point startingPoint = parentContour.getMaximumPoint(a);
@@ -29,28 +29,26 @@ void Family::generateIntersectionPoints(double lineThickness, Angle& angle){
     Point endingPoint = parentContour.getMaximumPoint(a);
     double endingXProj = endingPoint.xRotation(a);
 
-    std::cout << "\t\tTRAVEL ANGLE" << a.degrees() << std::endl;
+    DEBUG_MSG("TRAVEL ANGLE: " << a.degrees());
 
-    std::cout << "\n\t\tSTARTING POINT: " << startingPoint <<  std::endl;
+    DEBUG_MSG("STARTING POINT: " << startingPoint);
 
 
-    std::vector<Point> posIntersections;
-    std::vector<Point> negIntersections;
-    
+    std::vector<Point> intersections;    
 
     while(startingPoint.xRotation(a) < endingXProj){
 
         // move the starting point one lineThickness perpendicular to the angle
         startingPoint.translate(lineThickness, a);
 
-        std::cout << "\tTRANSLATION: " << startingPoint << "\t" << angle <<  std::endl;
+        DEBUG_MSG("TRANSLATION: " << startingPoint << "\t" << angle);
 
         // check one direction
         // angle.rotateAngle(M_PI);
 
         // std::cout << "\tANGLE " << angle << std::endl;
 
-        posIntersections = parentContour.intersection(startingPoint, angle);
+        intersections = parentContour.intersection(startingPoint, angle);
 
         // // check the other direction
         // angle.rotateAngle(M_PI);
@@ -59,27 +57,23 @@ void Family::generateIntersectionPoints(double lineThickness, Angle& angle){
 
         // negIntersections = parentContour.intersection(startingPoint, angle);
 
-        std::cout << posIntersections.size() << std::endl;
+        DEBUG_MSG("INTERSECTIONS SIZE: " << intersections.size());
         // std::cout << negIntersections.size() << std::endl;
-
-        std::cout << "\t\t";
         
-        for(int i = 0; i < posIntersections.size(); i++)
-            std::cout << posIntersections[i] << ", ";
+        for(int i = 0; i < intersections.size(); i++)
+            DEBUG_MSG("\tPOINT" << intersections[i]);
 
         // std::cout << "\t";
 
         // for(int i = 0; i < negIntersections.size(); i++)
         //     std::cout << negIntersections[i] << ", ";
         
-        std::cout << std::endl;
-
         // posIntersections.clear();
         // negIntersections.clear();
 
     }
 
-    std::cout << "\n\t\tENDING POINT: " << endingPoint <<  std::endl;
+    DEBUG_MSG("ENDING POINT: " << endingPoint);
 
 
 

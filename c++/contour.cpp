@@ -34,23 +34,23 @@ vector<Point> Contour::intersection(Point& p, Angle& a){
         
     vector<Point> intersections;
 
-    std::cout << "\tintersections: " << p << "\t" << a << std::endl;
+    // std::cout << "\tintersections: " << p << "\t" << a << std::endl;
     // check each line for an intersection with the ray
     for(int i = 0; i < lineList.size(); i++){
-        std::cout << "\t CHECK >> " << p << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a) << endl;
+        // std::cout << "\t CHECK >> " << p << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a) << endl;
         
         // if the intersection exists, add the point to the list
-        // if(lineList[i].checkPossibleIntersection(p,a)){
+         if(lineList[i].checkPossibleIntersection(p,a)){
             // std::cout << "\t\t OUTPUT >> " << p << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a) << endl;
  
             Point* temp = lineList[i].intersection(p, a);
 
             if(temp){
-                std::cout << "\t\t OUTPUT >> " << *temp << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a) << endl;
+                // std::cout << "\t\t OUTPUT >> " << *temp << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a) << endl;
 
                 intersections.push_back(*temp);
             }
-        // }
+        }
     }
 
     return intersections;

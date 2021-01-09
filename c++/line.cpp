@@ -38,7 +38,7 @@ bool Line::checkOnLine(Point& p){
 
     double temp = atan2(dy,dx);
 
-    std::cout << "\t\t\tCHECK ON LINE: ANGLE: " << angle << "\tTEST ANGLE: " << temp <<  "\tBOOL: " << (angle == atan2(dy,dx)) <<std::endl;
+    // std::cout << "\t\t\tCHECK ON LINE: ANGLE: " << angle << "\tTEST ANGLE: " << temp <<  "\tBOOL: " << (angle == atan2(dy,dx)) <<std::endl;
 
     // check if the angle of p1 and p is equal
     if(angle == atan2(dy,dx)){
@@ -64,7 +64,7 @@ bool Line::checkOnLine(Point& p){
         double distance = p.distance(p1);
         double lineLength = p2.distance(p1);
 
-        std::cout << "\t\t\tDISTANCE: " << distance << "\tLINE LENGTH: " << lineLength << "\t" << p << std::endl;
+        // std::cout << "\t\t\tDISTANCE: " << distance << "\tLINE LENGTH: " << lineLength << "\t" << p << std::endl;
 
         return (distance <= lineLength);
         

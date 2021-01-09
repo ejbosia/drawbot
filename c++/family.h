@@ -2,6 +2,13 @@
 #ifndef FAMILY_H
 #define FAMILY_H
 
+#ifdef DEBUG
+#define DEBUG_MSG(str) do { std::cout << "DEBUG FAMILY\t" << str << std::endl; } while( false )
+#else
+#define DEBUG_MSG(str) do { } while ( false )
+#endif
+
+
 #include <iostream>
 #include <string>
 #include <math.h>

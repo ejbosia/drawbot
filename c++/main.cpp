@@ -17,6 +17,7 @@
 // #include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
 
+
 using namespace std;
 
 vector<Line> getTestLines(){
@@ -201,9 +202,6 @@ int main(int argc, char** argv){
     vector<cv::Vec4i> hierarchy;
     cv::findContours( image, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE );
 
-    delete image;
-
-
     // create contour families
     vector<Family> familyList;
 
@@ -242,19 +240,6 @@ int main(int argc, char** argv){
             familyList.push_back(temp);
 
         }
-    }
-
-    // cleanup contours
-    for(auto a : contours){
-        for(auto b : a){
-            delete b;
-        }
-        delete a;
-    }
-
-    // cleanup hierarchy
-    for(auto a : hierarchy){
-        delete a;
     }
 
     Angle a(M_PI/6);
