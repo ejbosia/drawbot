@@ -41,7 +41,7 @@ bool Line::checkOnLine(Point& p){
     //DEBUG_MSG_L("ANGLE: " << temp << "\t" << angle);
 
     // check if the angle of p1 and p is equal
-    //if(angle == atan2(dy,dx)){
+    if(angle == atan2(dy,dx)){
 
         // CHECK DISTANCES
 
@@ -50,7 +50,7 @@ bool Line::checkOnLine(Point& p){
 
         return (distance <= lineLength);
         
-    //}
+    }
 
     return false;
 }
@@ -152,12 +152,15 @@ Point* Line::intersection(Point& p, Angle& a){
 
     DEBUG_MSG_L(temp << checkOnLine(temp));
 
+    return new Point(px,py);
+    /*
     if(checkOnLine(temp)){
         return new Point(px,py);
     }
     else{
         return NULL;
     }
+    */
 }
 
 // find the intersection point between this line and another line ~ return NULL if the intersection point is not on the lines
