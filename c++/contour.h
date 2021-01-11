@@ -40,6 +40,9 @@ class Contour{
         vector<Point> intersection(Point& p, Angle& a);
         vector<Point> intersection(Line& l);
 
+        Point* traverse(Point& p, double distance);
+        Line* getLine(Point& p);
+
         friend std::ostream& operator<<(std::ostream &strm, const Contour &c);
 
 };

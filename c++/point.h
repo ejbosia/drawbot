@@ -13,6 +13,7 @@ class Point{
     public:
         double x;
         double y;
+        bool available;
         
         Point(double x, double y);
 

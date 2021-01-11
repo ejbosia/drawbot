@@ -182,11 +182,11 @@ Contour convertContour(vector<cv::Point> pointList){
 int main(int argc, char** argv){
 
 
-    std::cout.precision(std::numeric_limits<double>::digits10 + 2);
+    //std::cout.precision(std::numeric_limits<double>::digits10 + 2);
 
     auto start = chrono::high_resolution_clock::now();
 
-    string image_path = "Square.png";
+    string image_path = "test2.png";
 
     cv::Mat image = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
 
@@ -242,7 +242,7 @@ int main(int argc, char** argv){
     // Angle a(0);
 
     for(int i = 0; i < familyList.size(); i++){
-        familyList[i].generatePath(1.0, a);
+        familyList[i].generatePath(1, a);
     }
     
     //cv::imshow("Display window", image);

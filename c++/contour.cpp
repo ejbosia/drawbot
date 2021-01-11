@@ -4,6 +4,43 @@ Contour::Contour(vector<Line>& lineRef):lineList(lineRef){
 
 }
 
+Line* Contour::getLine(Point& p){
+    // find the line with the point
+    for( Line line : lineList){
+        if(line.checkOnLine(p)){
+            return &line;
+        }
+    }
+    return NULL;
+}
+
+
+Point* Contour::traverse(Point& p, double distance){
+
+    int index;
+
+    if(!getLine(p)){
+        return NULL;
+    }
+
+
+    for( int i = 0; i < lineList.size(); i++ ){
+        if(lineList[i].checkOnLine(p)){
+            index = i;
+            break;
+        }
+    }
+
+    int direction = (int)(distance/fabs(distance));
+
+    Line currentLine = lineList[index];
+
+    
+
+}
+
+
+
 // get the maximum point in the contour in the direction of the angle
 Point Contour::getMaximumPoint(Angle& angle){
 
