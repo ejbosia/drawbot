@@ -29,34 +29,63 @@ Point Contour::getMaximumPoint(Angle& angle){
 }
 
 
+// get the intersection point for an infinite line
+vector<Point> Contour::fastIntersection(Point& p, Angle& a){
+        
+    vector<Point> intersections;
+    
+    // check each line for an intersection with the ray
+    for(int i = 0; i < lineList.size(); i++){
+
+        // if the intersection exists, add the point to the list
+        if(lineList[i].checkEndPointIntersection(p,a)){
+            DEBUG_MSG_C("LINE: " << lineList[i]);
+
+            Point* temp = lineList[i].intersection(p, a);
+
+            if(temp){
+                intersections.push_back(*temp);
+            }
+            
+            delete temp;
+        }
+    }
+
+    return intersections;
+}
+
+
+
 // get the intersection points of a ray and the contour by checking each line
 vector<Point> Contour::intersection(Point& p, Angle& a){
         
     vector<Point> intersections;
 
     DEBUG_MSG_C("intersections: " << p << "\t" << a);
+    
     // check each line for an intersection with the ray
     for(int i = 0; i < lineList.size(); i++){
         
-        DEBUG_MSG_C("CHECK >> " << p << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a));
+        // DEBUG_MSG_C("CHECK >> " << p << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a));
         
         // if the intersection exists, add the point to the list
          if(lineList[i].checkPossibleIntersection(p,a)){
             
-            DEBUG_MSG_C("OUTPUT >> " << p << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a));
+            // DEBUG_MSG_C("OUTPUT >> " << p << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a));
  
             Point* temp = lineList[i].intersection(p, a);
 
             if(temp){
-                DEBUG_MSG_C("\t\t OUTPUT >> " << *temp << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a));
+                // DEBUG_MSG_C("\t\t OUTPUT >> " << *temp << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a));
 
                 intersections.push_back(*temp);
             }
+            
+            delete temp;
         }
     }
 
     return intersections;
-
 }
 
 

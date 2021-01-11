@@ -37,10 +37,10 @@ class Line{
 
         bool checkOnLine(Point& p);
 
+        bool checkEndPointIntersection(Point& p, Angle& a);
         bool checkPossibleIntersection(Point& p, Angle& a);
         bool checkPossibleIntersection(Line& line);
 
-        
         Point* intersection(Point& p, Angle& a);
         Point* intersection(Line& line);
 

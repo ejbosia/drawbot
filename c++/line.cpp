@@ -38,8 +38,6 @@ bool Line::checkOnLine(Point& p){
 
     double temp = atan2(dy,dx);
 
-    // std::cout << "\t\t\tCHECK ON LINE: ANGLE: " << angle << "\tTEST ANGLE: " << temp <<  "\tBOOL: " << (angle == atan2(dy,dx)) <<std::endl;
-
     // check if the angle of p1 and p is equal
     if(angle == atan2(dy,dx)){
 
@@ -47,8 +45,6 @@ bool Line::checkOnLine(Point& p){
 
         double distance = p.distance(p1);
         double lineLength = p2.distance(p1);
-
-        // std::cout << "\t\t\tDISTANCE: " << distance << "\tLINE LENGTH: " << lineLength << "\t" << p << std::endl;
 
         return (distance <= lineLength);
         
@@ -58,6 +54,36 @@ bool Line::checkOnLine(Point& p){
 }
 
 
+/*
+Check if line lies on each side of the input ray
+*/
+bool Line::checkEndPointIntersection(Point& p, Angle& a){
+    
+    // create two temporary points for the line endpoints
+    Point temp1(p1.x,p1.y);
+    Point temp2(p2.x,p2.y);
+
+    temp1.translate(-p.x,-p.y);
+    temp2.translate(-p.x,-p.y);
+
+    DEBUG_MSG_L(temp1 << "\t" << temp2);
+
+
+    // rotate the temp points to match the ray
+    Angle reverse(-a.getAngle());
+    temp1.rotate(reverse);
+    temp2.rotate(reverse);
+    
+    DEBUG_MSG_L(temp1 << "\t" << temp2  << "\t" << reverse.degrees());
+    
+    // if the sign of each y component are the same, intersection is impossible
+    return temp1.y * temp2.y <= 0.0f;
+}
+
+
+/*
+Check if an input ray (point and angle) could intersect the line
+*/
 bool Line::checkPossibleIntersection(Point& p, Angle& a){
 
     // create two temporary points for the line endpoints
@@ -66,12 +92,12 @@ bool Line::checkPossibleIntersection(Point& p, Angle& a){
 
     temp1.translate(-p.x,-p.y);
     temp2.translate(-p.x,-p.y);
-    
+    DEBUG_MSG_L("TEMP1: " <<  temp1 << " TEMP2:" << temp2);
+
     // rotate the temp points to match the ray
     Angle reverse(-a.getAngle());
     temp1.rotate(reverse);
     temp2.rotate(reverse);
-
 
     DEBUG_MSG_L("TEMP1: " <<  temp1 << " TEMP2:" << temp2);
     // if the sign of each y component are the same, intersection is impossible
@@ -85,12 +111,10 @@ bool Line::checkPossibleIntersection(Point& p, Angle& a){
      - the ray is currently at angle 0, so lines that have negative weight have an intersection point in -x
     */
 
-
     double normal1 = temp1.x/fabs(temp1.y);
     double normal2 = temp2.x/fabs(temp2.y);
 
     DEBUG_MSG_L("NORMAL1: " <<  normal1 << " NORMAL2:" << normal2);
-
 
     return (normal1 + normal2 > 0);
 
@@ -124,6 +148,8 @@ Point* Line::intersection(Point& p, Angle& a){
 
     Point temp(px,py);
 
+    DEBUG_MSG_L(temp);
+
     if(checkOnLine(temp)){
         return new Point(px,py);
     }
@@ -143,7 +169,7 @@ Point* Line::intersection(Line& line){
     Point* result = intersection(p,a);
 
     if(result){
-
+        
         // if there is a point, and that point is not on the input line, then return NULL (no intersecting points)
         if(!line.checkOnLine(*result))
             result = NULL;

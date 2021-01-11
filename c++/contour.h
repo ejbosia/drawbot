@@ -36,6 +36,7 @@ class Contour{
 
         Point getMaximumPoint(Angle& angle);
 
+        vector<Point> fastIntersection(Point& p, Angle& a);
         vector<Point> intersection(Point& p, Angle& a);
         vector<Point> intersection(Line& l);
 

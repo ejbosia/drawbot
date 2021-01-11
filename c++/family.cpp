@@ -37,25 +37,32 @@ void Family::generateIntersectionPoints(double lineThickness, Angle& angle){
     std::vector<Point> negIntersections;    
     std::vector<Point> posIntersections;    
 
+    int counter = 0;
 
-    while(startingPoint.xRotation(a) < endingXProj){
+    //while(startingPoint.xRotation(a) < endingXProj){
+    for(int i  = 0; i < 1; i++){
 
+        std::cout << counter << std::endl;
+        
+        counter++;
+        
         // move the starting point one lineThickness perpendicular to the angle
-        startingPoint.translate(lineThickness, a);
+        startingPoint.translate(11, a);
 
         DEBUG_MSG("TRANSLATION: " << startingPoint << "\t" << angle);
 
         // check one direction
-        angle.rotateAngle(M_PI);
+        // angle.rotateAngle(M_PI);
 
         // std::cout << "\tANGLE " << angle << std::endl;
 
-        posIntersections = parentContour.intersection(startingPoint, angle);
+        // posIntersections = parentContour.intersection(startingPoint, angle);
+        posIntersections = parentContour.fastIntersection(startingPoint, angle);
 
         // check the other direction
-        angle.rotateAngle(M_PI);
+        // angle.rotateAngle(M_PI);
 
-        negIntersections = parentContour.intersection(startingPoint, angle);
+        // negIntersections = parentContour.intersection(startingPoint, angle);
 
         DEBUG_MSG("INTERSECTIONS SIZE: " << (negIntersections.size()+posIntersections.size()));
         // std::cout << negIntersections.size() << std::endl;
@@ -63,15 +70,11 @@ void Family::generateIntersectionPoints(double lineThickness, Angle& angle){
         for(int i = 0; i < posIntersections.size(); i++)
             DEBUG_MSG("\tPOS POINT" << posIntersections[i]);
 
-        for(int i = 0; i < negIntersections.size(); i++)
-            DEBUG_MSG("\tNEG POINT" << negIntersections[i]);
+        // for(int i = 0; i < negIntersections.size(); i++)
+        //     DEBUG_MSG("\tNEG POINT" << negIntersections[i]);
 
-        // std::cout << "\t";
-
-
-        
         posIntersections.clear();
-        negIntersections.clear();
+        // negIntersections.clear();
 
     }
 

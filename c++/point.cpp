@@ -44,9 +44,10 @@ void Point::rotate(Angle& angle){
     double c = angle.cosine();
     double s = angle.sine();
 
-    x = x * c - y * s;
-    y = x * s + y * c;
 
+    double x_temp = x * c - y * s;
+    y = x * s + y * c;
+    x = x_temp;
 }
 
 

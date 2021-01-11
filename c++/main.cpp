@@ -181,11 +181,11 @@ Contour convertContour(vector<cv::Point> pointList){
 
 int main(int argc, char** argv){
 
-    std::cout.precision(std::numeric_limits<double>::digits10 + 2);
+
+    // std::cout.precision(std::numeric_limits<double>::digits10 + 2);
 
     auto start = chrono::high_resolution_clock::now();
 
-    
     string image_path = "Square.png";
 
     cv::Mat image = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
@@ -195,7 +195,6 @@ int main(int argc, char** argv){
         cout << "Could not read the image: " << image_path << endl;
         return 1;
     }
-
 
     // get the contours
     vector<vector<cv::Point>> contours;
@@ -223,6 +222,7 @@ int main(int argc, char** argv){
             int index = hierarchy[i][2];
 
             while(index != -1){
+                
                 cout << "CHILD " << index << hierarchy[index] << endl; 
 
                 childContourList.push_back(convertContour(contours[index]));
@@ -232,17 +232,14 @@ int main(int argc, char** argv){
             }
 
             // add the family to the family list
-            
             Family temp(parentContour, childContourList);
 
-            cout << temp << endl;
-            
             familyList.push_back(temp);
-
         }
     }
 
     Angle a(M_PI/6);
+    // Angle a(0);
 
     for(int i = 0; i < familyList.size(); i++){
         familyList[i].generatePath(1.0, a);
@@ -258,8 +255,6 @@ int main(int argc, char** argv){
     
     _test_intersection();
     */
-
-    // _test_intersection();
     
     auto stop = chrono::high_resolution_clock::now(); 
 
