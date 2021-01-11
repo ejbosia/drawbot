@@ -16,6 +16,14 @@ double Point::distance(Point &other){
     return sqrt(pow(dx,2.0) + pow(dy,2.0));
 }
 
+Angle Point::angle(Point& other){
+    double dx = other.x - x;
+    double dy = other.y - y;
+
+    return Angle(atan2(dy, dx));
+}
+
+
 double Point::xRotation(Angle& angle){
 
     Angle a(-angle.getAngle());
@@ -84,6 +92,11 @@ void Point::translate(double distance, Angle& angle){
 }
 
 
+Point Point::operator-(const Point &p){
+
+    Point temp(x-p.x, y-p.y);
+    return temp;
+}
 
 std::ostream& operator<<(std::ostream &strm, const Point &p){
     return strm << "(" << p.x << "," << p.y << ")";

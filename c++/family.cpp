@@ -2,7 +2,7 @@
 
 Family::Family(Contour& parent, std::vector<Contour>& children): parentContour(parent), childContours(children){}
 
-
+/*
 Point getClosestPoint(std::vector<Point> intersectionPoints){
 
 }
@@ -10,7 +10,7 @@ Point getClosestPoint(std::vector<Point> intersectionPoints){
 Point getNextPoint(std::vector<Point> intersectionPoints){
 
 }
-
+*/
 
 // generate the intersection points, starting from the local minima perpendicular to the angle and moving one lineThickness
 void Family::generateIntersectionPoints(vector<Point>& intersectionPoints, double lineThickness, Angle& angle){
@@ -69,9 +69,9 @@ Find the available intersection point - return NULL if no points are available
 */
 Point* Family::getAvailablePoint(vector<Point>& intersectionPoints){
 
-    for( Point point : intersectionPoints){
-        if(point.available)
-            return &point;
+    for(int i = 0; i < intersectionPoints.size(); i++){
+        if(intersectionPoints[i].available)
+            return &(intersectionPoints[i]);
     }
     return NULL;
 }
@@ -82,17 +82,15 @@ Return one path of the family
 std::vector<Point> Family::generatePath(std::vector<Point>& intersectionPoints, double lineThickness, Angle& angle){
 
     std::vector<Point> path;
+    bool next_point = false;
 
     // loop until there are no valid next points
     do{
 
 
-    }while();
+    }while(next_point);
 
     return path;
-
-
-
 }
 
 std::vector<std::vector<Point>> Family::generateTotalPath(double lineThickness, Angle& angle){
@@ -107,18 +105,16 @@ std::vector<std::vector<Point>> Family::generateTotalPath(double lineThickness, 
     // create the intersection points
     generateIntersectionPoints(intersectionPoints, lineThickness, angle);
 
-
     // get the starting point
     Point* startingPointer = getAvailablePoint(intersectionPoints);
     
     // loop until there are no starting points available
     while(startingPointer){
 
-        total_path.push_back()
-
-
+        DEBUG_MSG(*startingPointer);
         // get a new starting point (that has not been visited)
         startingPointer = getAvailablePoint(intersectionPoints);
+
     
     }
     // return total_path

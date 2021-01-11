@@ -20,164 +20,25 @@
 
 using namespace std;
 
-vector<Line> getTestLines(){
 
-    double x,y;
-
-    vector<Line> lineList;
-    vector<Point> pointList;
-
-
-    for(int i = 0; i < 4; i++){
-
-        x = (double)(((i+1)/2)%2);
-        y = (double)((i/2)%2);
-
-        Point p(x,y);
-
-        cout << "\t" << p << endl;
-        
-        pointList.push_back(p);
-        
-    }
-
-    Point start = pointList.back();
-
-    for(int i = 0; i < pointList.size(); i++){
-        
-        Point end = pointList[i];
-
-        Line l(start, end);
-
-        lineList.push_back(l);
-
-        start = pointList[i];
-    }
-
-    return lineList;
-}
-
-void _test_contour(){
-
-    cout << "\nTEST CONTOUR" << endl;
-
-    vector<Line> temp = getTestLines();
-
-    Contour contour(temp);
-
-    cout << contour << endl;
-
-}
-
-void _test_distance(){
-
-    cout << "\nTEST DISTANCE" << endl;
-
-    Point p1(0,0);
-
-    Point p2(3,4);
-
-    cout << p2.distance(p1) << " == " << p1.distance(p2) << endl;
-
-}
-
-
-void _test_single_intersection(Line l1, Line l2){
-    Point* t1 =  l1.intersection(l2);
-    Point* t2 =  l2.intersection(l1);
-
-    if(t1)
-        cout << "INTERSECTION TEST 1:\t" << *t1 << endl;
-    else
-        cout << "INTERSECTION TEST 1:\t NULL" << endl;
-    if(t2)
-        cout << "INTERSECTION TEST 2:\t" << *t2 << endl;
-    else
-        cout << "INTERSECTION TEST 2:\t NULL" << endl;
-
-}
-
-
-void _test_intersection(){
-    cout << "\nTEST INTERSECTION" << endl;
-
-    Point p1(0,0);
-    Point p2(5,5);
-    Point p3(5,0);
-    Point p4(0,5);
-
-    Line l1(p1,p2);
-    Line l2(p3,p4);
-
-    _test_single_intersection(l1, l2);
-
-    Point p5(0,3);
-    Point p6(5,3);
-    
-    Line l3(p5,p6);
-
-    _test_single_intersection(l1, l3);
-
-
-    Point p7(2,0);
-    Point p8(2,5);
-    
-    Line l4(p7,p8);
-    _test_single_intersection(l3, l4);
-
-    Point p9(6,0);
-    Point p10(6,10);
-    
-    Line l5(p9,p10);
-
-    _test_single_intersection(l3, l5);
-
-
-    Point pl3 = l3.getP1();
-    Angle al3 = l3.getAngle();
-
-    Point pl5 = l5.getP1();
-    Angle al5 = l5.getAngle();
-
-    // test RAY intersections
-    Point* t1 =  l3.intersection(pl5, al5);
-    Point* t2 =  l5.intersection(pl3,al3);
-
-    if(t1)
-        cout << "RAY INTERSECTION TEST 1:\t" << *t1 << endl;
-    else
-        cout << "RAY INTERSECTION TEST 1:\t NULL" << endl;
-
-    if(t2)
-        cout << "RAY INTERSECTION TEST 2:\t" << *t2 << endl;
-    else
-        cout << "RAY INTERSECTION TEST 2:\t NULL" << endl;
-
-}
-
+/*
+Convert a contour into the Contour class
+*/
 Contour convertContour(vector<cv::Point> pointList){
 
-    vector<Line> lineList;
-
-    cv::Point start = pointList.back();
+    vector<Point> vertexList;
 
     for(int i = 0; i < pointList.size(); i++){
         
-        cv::Point end = pointList[i];
+        cv::Point cv_pt = pointList[i];
         
-        Point p1(start.x, start.y);
-        Point p2(end.x, end.y);
-
-        Line l(p1, p2);
+        Point p(cv_pt.x, cv_pt.y);
  
-        lineList.push_back(l);
-
-        start = pointList[i];
+        vertexList.push_back(p);
     }
 
-    return Contour(lineList);
+    return Contour(vertexList);
 }
-
 
 int main(int argc, char** argv){
 
@@ -242,7 +103,7 @@ int main(int argc, char** argv){
     // Angle a(0);
 
     for(int i = 0; i < familyList.size(); i++){
-        familyList[i].generatePath(1, a);
+        familyList[i].generateTotalPath(1, a);
     }
     
     //cv::imshow("Display window", image);

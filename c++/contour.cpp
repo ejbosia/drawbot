@@ -1,42 +1,100 @@
 #include "contour.h"
         
-Contour::Contour(vector<Line>& lineRef):lineList(lineRef){
+Contour::Contour(vector<Point>& vertexRef):vertexList(vertexRef){
 
 }
 
-Line* Contour::getLine(Point& p){
-    // find the line with the point
-    for( Line line : lineList){
-        if(line.checkOnLine(p)){
-            return &line;
+/*
+Find the index of the point before the input point - return -1 if not found
+*/
+int Contour::getStartingIndex(Point& p){
+
+    int endIndex;
+
+    for(int i = 0; i < vertexList.size(); i++){
+        
+        if(i+1 >= vertexList.size()){
+            endIndex = 0;
         }
+        else{
+            endIndex = i+1;
+        }
+
+        // bring the next point to 0 ( to compare )
+        Point next = vertexList[endIndex] - vertexList[i];
+        
+        // bring the test point to 0
+        Point current = p - vertexList[i];
+
+
+        DEBUG_MSG_C(((current.y/current.x) << " == " << (next.y/next.x)));
+
+        // compare the ratio of y/x
+        if((current.y/current.x) == (next.y/next.x)){
+            return i;
+        }
+
+    }
+
+
+    return -1;
+
+}
+
+
+/*
+Find a point a distance around the perimeter of the contour
+*/
+Point* Contour::traverse(Point& start, double distance, bool clockwise){
+
+    double length;
+
+    int index = getStartingIndex(start);
+
+    // set the direction
+    int direction;
+    if(clockwise){
+        direction = 1;
+        index += 1;
+    }else{
+        direction = -1;
+    }
+
+    double edgeDistance;
+
+    while(distance > 0){
+
+        edgeDistance = start.distance(vertexList[index]);
+
+        std::cout << "\tSTART: " << start << " DISTANCE: " << distance << std::endl;
+        
+        // if the distance remaining is longer than the edge distance, move to the next edge
+        if(distance > edgeDistance){
+
+            // remove the edge distance from the distance remaining
+            distance -= edgeDistance;
+
+            // move the start point to the end of the current edge
+            start = vertexList[index];
+
+            // move to the next edge
+            index = (index + direction) % vertexList.size();
+        }
+
+        // move the distance away from the current start point
+        else{
+            Angle a = start.angle(vertexList[index]);
+
+            // translate the point in the direction of the end point the remaining distance
+            Point* temp = new Point(start.x, start.y);
+            
+            (*temp).translate(distance, a);
+            // return the point
+            return temp;
+        }
+
     }
     return NULL;
-}
-
-
-Point* Contour::traverse(Point& p, double distance){
-
-    int index;
-
-    if(!getLine(p)){
-        return NULL;
-    }
-
-
-    for( int i = 0; i < lineList.size(); i++ ){
-        if(lineList[i].checkOnLine(p)){
-            index = i;
-            break;
-        }
-    }
-
-    int direction = (int)(distance/fabs(distance));
-
-    Line currentLine = lineList[index];
-
-    
-
 }
 
 
@@ -44,18 +102,18 @@ Point* Contour::traverse(Point& p, double distance){
 // get the maximum point in the contour in the direction of the angle
 Point Contour::getMaximumPoint(Angle& angle){
 
-    Point maxPoint = lineList.front().getP1();
+    Point maxPoint = vertexList.front();
     double maxValue = maxPoint.xRotation(angle);
 
     double tempValue;
 
-    for(int i = 0; i < lineList.size(); i++){
+    for(int i = 0; i < vertexList.size(); i++){
         
-        tempValue = lineList[i].getP1().xRotation(angle);
-        DEBUG_MSG_C("TEMP: " << tempValue << "\t" << lineList[i].getP1());;
+        tempValue = vertexList[i].xRotation(angle);
+        DEBUG_MSG_C("TEMP: " << tempValue << "\t" << vertexList[i]);
         if(tempValue > maxValue){
             maxValue = tempValue;
-            maxPoint = lineList[i].getP1();
+            maxPoint = vertexList[i];
         }
 
     }
@@ -72,71 +130,22 @@ vector<Point> Contour::fastIntersection(Point& p, Angle& a){
     vector<Point> intersections;
     
     // check each line for an intersection with the ray
-    for(int i = 0; i < lineList.size(); i++){
+    for(int i = 0; i < vertexList.size(); i++){
+
+        // create a temporary line
+        Line temp(vertexList[i], vertexList[(i+1)%vertexList.size()]);
 
         // if the intersection exists, add the point to the list
-        if(lineList[i].checkEndPointIntersection(p,a)){
+        if(temp.checkEndPointIntersection(p,a)){
             DEBUG_MSG_C("LINE: " << lineList[i]);
 
-            Point* temp = lineList[i].intersection(p, a);
+            Point* result = temp.intersection(p, a);
 
-            if(temp){
-                intersections.push_back(*temp);
+            if(result){
+                intersections.push_back(*result);
             }
             
-            delete temp;
-        }
-    }
-
-    return intersections;
-}
-
-
-
-// get the intersection points of a ray and the contour by checking each line
-vector<Point> Contour::intersection(Point& p, Angle& a){
-        
-    vector<Point> intersections;
-
-    DEBUG_MSG_C("intersections: " << p << "\t" << a);
-    
-    // check each line for an intersection with the ray
-    for(int i = 0; i < lineList.size(); i++){
-        
-        // DEBUG_MSG_C("CHECK >> " << p << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a));
-        
-        // if the intersection exists, add the point to the list
-         if(lineList[i].checkPossibleIntersection(p,a)){
-            
-            // DEBUG_MSG_C("OUTPUT >> " << p << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a));
- 
-            Point* temp = lineList[i].intersection(p, a);
-
-            if(temp){
-                // DEBUG_MSG_C("\t\t OUTPUT >> " << *temp << "\t" << lineList[i] << "\t" << lineList[i].checkPossibleIntersection(p,a));
-
-                intersections.push_back(*temp);
-            }
-            
-            delete temp;
-        }
-    }
-
-    return intersections;
-}
-
-
-vector<Point> Contour::intersection(Line& l){
-    
-    vector<Point> intersections;
-
-    // check each line for an intersection
-    for(int i = 0; i < lineList.size(); i++){
-        
-        Point* temp = lineList[i].intersection(l);
-        
-        if(temp){
-            intersections.push_back(*temp);
+            delete result;
         }
     }
 
@@ -147,8 +156,8 @@ ostream& operator<<(ostream &strm, const Contour &c){
     
     strm << "\nCONTOUR" << endl;
 
-    for(int i = 0; i < c.lineList.size(); i++){
-        strm << "\t" << c.lineList[i] << endl;
+    for(int i = 0; i < c.vertexList.size(); i++){
+        strm << "\t" << c.vertexList[i] << endl;
     }
 
     return strm;

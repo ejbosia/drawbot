@@ -25,21 +25,14 @@ class Family{
         void generateIntersectionPoints(vector<Point>& intersectionPoints, double lineThickness, Angle& angle);
         Point* getAvailablePoint(vector<Point>& intersectionPoints);
 
-
-        std::vector<Point> Family::generatePath(std::vector<Point>& intersectionPoints, double lineThickness, Angle& angle);
-
+        std::vector<Point> generatePath(std::vector<Point>& intersectionPoints, double lineThickness, Angle& angle);
 
     public:
         Family(Contour& parent, std::vector<Contour>& children);
 
-
         // Point getClosestPoint();
-
         // Point getNextPoint();
 
-
-
-        // vector<Point> intersection(Ray& ray);
         std::vector<std::vector<Point>> generateTotalPath(double lineThickness, Angle& angle);
 
         friend std::ostream& operator<<(std::ostream &strm, const Family &f);

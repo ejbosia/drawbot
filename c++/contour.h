@@ -27,21 +27,21 @@ using namespace std;
 class Contour{
 
     private:
-        vector<Line> lineList;
+        vector<Point> vertexList;
         vector<Point> intersectionPoints;
-        map<int,vector<int>> rowIntersectionPointMap;
+
 
     public:
-        Contour(vector<Line>& lineRef);
+
+        int getStartingIndex(Point& p);
+
+        Contour(vector<Point>& vertexList);
 
         Point getMaximumPoint(Angle& angle);
 
         vector<Point> fastIntersection(Point& p, Angle& a);
-        vector<Point> intersection(Point& p, Angle& a);
-        vector<Point> intersection(Line& l);
 
-        Point* traverse(Point& p, double distance);
-        Line* getLine(Point& p);
+        Point* traverse(Point& p, double distance, bool clockwise=true);
 
         friend std::ostream& operator<<(std::ostream &strm, const Contour &c);
 

@@ -18,9 +18,10 @@ class Point{
         Point(double x, double y);
 
         double distance(Point& other);
+        Angle angle(Point& other);
+
         double xRotation(Angle& angle);
         double yRotation(Angle& angle);
-
 
 
         // point translation
@@ -30,6 +31,9 @@ class Point{
         void rotate(Angle& angle);
         void rotate(Point& point, Angle& angle);
 
+
+
+        Point operator-(const Point &p);
 
         friend std::ostream& operator<<(std::ostream &strm, const Point &p);
 };
