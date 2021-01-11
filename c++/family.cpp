@@ -39,15 +39,15 @@ void Family::generateIntersectionPoints(double lineThickness, Angle& angle){
 
     int counter = 0;
 
-    //while(startingPoint.xRotation(a) < endingXProj){
-    for(int i  = 0; i < 1; i++){
+    while(startingPoint.xRotation(a) < endingXProj){
+    //for(int i  = 0; i < 7; i++){
+        counter++;
 
         std::cout << counter << std::endl;
         
-        counter++;
         
         // move the starting point one lineThickness perpendicular to the angle
-        startingPoint.translate(11, a);
+        startingPoint.translate(1, a);
 
         DEBUG_MSG("TRANSLATION: " << startingPoint << "\t" << angle);
 

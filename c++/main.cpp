@@ -182,7 +182,7 @@ Contour convertContour(vector<cv::Point> pointList){
 int main(int argc, char** argv){
 
 
-    // std::cout.precision(std::numeric_limits<double>::digits10 + 2);
+    std::cout.precision(std::numeric_limits<double>::digits10 + 2);
 
     auto start = chrono::high_resolution_clock::now();
 
