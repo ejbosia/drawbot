@@ -5,6 +5,16 @@ Contour::Contour(vector<Point>& vertexRef):vertexList(vertexRef){
 }
 
 /*
+Rotate all of the points in the contour about pt 0,0
+*/
+void Contour::rotate(Angle& angle){
+    for(int i = 0; i < vertexList.size(); i++){
+        vertexList[i].rotate(angle);
+    }
+}
+
+
+/*
 Find the index of the point before the input point - return -1 if not found
 */
 int Contour::getStartingIndex(Point& p){
@@ -96,6 +106,53 @@ Point* Contour::traverse(Point& start, double distance, bool clockwise){
     }
     return NULL;
 }
+
+
+/*
+Find a point a distance around the perimeter of the contour
+*/
+std::vector<Point> Contour::getIntersectionPointsTraverse(Point& start, Angle& angle, double interval, bool clockwise){
+
+    int index = getStartingIndex(start);
+
+    double edgeDistance;
+    double currentPosition; // position in angle reference
+
+    Angle reverse(-angle.getAngle());
+
+    Point temp(start.x, start.y);
+
+    int possibleIntersections;
+
+    vector<Point> intersectionPoints;
+
+    double startYPos, endYPos;
+    
+    for(int i = 0; i < vertexList.size(); i++){
+
+        temp = vertexList[index];
+
+        index = (index+1)%vertexList.size();
+
+        // get the y distance of the line.
+        edgeDistance = fabs(vertexList[index].yRotation(reverse) - temp.yRotation(reverse));
+
+        possibleIntersections = (int)(edgeDistance/interval);
+
+        // if there are no intersections move to the next line
+        if(possibleIntersections == 0){
+            continue;
+        }
+
+        // add the intersections in order
+        else{
+            
+        }
+
+    }
+
+}
+
 
 
 

@@ -43,6 +43,10 @@ class Contour{
 
         Point* traverse(Point& p, double distance, bool clockwise=true);
 
+        vector<Point> getIntersectionPointsTraverse(Point& start, Point& referencePoint, Angle& angle, double interval, bool clockwise){
+
+        void rotate(Angle& angle);
+
         friend std::ostream& operator<<(std::ostream &strm, const Contour &c);
 
 };

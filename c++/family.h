@@ -28,6 +28,9 @@ class Family{
         std::vector<Point> generatePath(std::vector<Point>& intersectionPoints, double lineThickness, Angle& angle);
 
     public:
+        void rotate(Angle& angle);
+
+
         Family(Contour& parent, std::vector<Contour>& children);
 
         // Point getClosestPoint();

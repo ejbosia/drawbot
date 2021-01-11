@@ -92,6 +92,15 @@ void Point::translate(double distance, Angle& angle){
 }
 
 
+
+bool Point::operator==(const Point &p){
+
+    bool x_equiv = fabs(x-p.x) < 2*std::numeric_limits<double>::epsilon();
+    bool y_equiv = fabs(y-p.y) < 2*std::numeric_limits<double>::epsilon();
+
+    return x_equiv && y_equiv;
+}
+
 Point Point::operator-(const Point &p){
 
     Point temp(x-p.x, y-p.y);
