@@ -42,9 +42,7 @@ int Contour::getStartingIndex(Point& p){
         if((current.y/current.x) == (next.y/next.x)){
             return i;
         }
-
     }
-
 
     return -1;
 
@@ -114,8 +112,6 @@ This assumes the contour is rotated so that the intersection line is flat
 */
 std::vector<Point> Contour::getIntersectionPointsTraverse(double interval){
 
-    vector<Point> intersections;
-
     // loop through the vertices
     for(int i = 0; i < vertexList.size(); i++){
 
@@ -140,7 +136,6 @@ std::vector<Point> Contour::getIntersectionPointsTraverse(double interval){
             //index = interval-fmod(start.y, interval);
             index = interval*ceil(start.y/interval)-start.y;
             
-            std::cout << "\nOUTPUT " << index << "\t" << start <<  "\tINT: " << interval << std::endl << std::endl;
             while(index <= distance){
                 
                 x = dxdy * index + start.x;
@@ -148,7 +143,7 @@ std::vector<Point> Contour::getIntersectionPointsTraverse(double interval){
 
                 index += interval;
 
-                intersections.push_back(Point(x,y));
+                intersectionPoints.push_back(Point(x,y));
 
             }
         }  
@@ -156,8 +151,6 @@ std::vector<Point> Contour::getIntersectionPointsTraverse(double interval){
 
             index = interval*floor(start.y/interval)- start.y;
             
-            std::cout << "\nOUTPUT " << index << "\t" << start <<  "\tINT: " << interval << std::endl << std::endl;
-
             while(index >= distance){
 
                 x = dxdy * index + start.x;
@@ -165,15 +158,45 @@ std::vector<Point> Contour::getIntersectionPointsTraverse(double interval){
                 
                 index -= interval;
 
-                intersections.push_back(Point(x,y));
+                intersectionPoints.push_back(Point(x,y));
 
             }
         }    
     }
-
-    return intersections;
+    return intersectionPoints;
 }
 
+int Contour::findIntersectionPointIndex(Point& p){
+
+    auto it = std::find(intersectionPoints.begin(), intersectionPoints.end(), p);;
+
+    if(it != intersectionPoints.end()){
+        return it - intersectionPoints.begin();
+    }
+    else{
+        return -1;
+    }
+
+}
+
+Point* Contour::getIntersectionPoint(int index){
+
+    // loop index if necessary because contour is a loop
+    index = index % intersectionPoints.size();
+
+    return &intersectionPoints[index];
+}
+
+int Contour::getFirstAvailable(){
+
+    for(int i = 0; i < intersectionPoints.size(); i++){
+        if(intersectionPoints[i].available){
+            return i;
+        }
+    }
+
+    return -1;
+}
 
 
 

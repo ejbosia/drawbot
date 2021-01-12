@@ -12,6 +12,8 @@
 #include <iostream>
 #include <string>
 #include <math.h>
+#include <algorithm>
+#include <vector>
 
 #include "point.h"
 #include "contour.h"
@@ -19,23 +21,23 @@
 class Family{
     
     private:
-        Contour parentContour;
-        std::vector<Contour> childContours;
+        std::vector<Contour> contours;  // parent contour is the first contour
 
         std::map<int, std::vector<Point>> rowIntersectionMap;
 
-        void generateIntersectionPoints(vector<Point>& intersectionPoints, double lineThickness, Angle& angle);
-        Point* getAvailablePoint(vector<Point>& intersectionPoints);
-        
-        std::vector<Point> generatePath(std::vector<Point>& intersectionPoints, double lineThickness, Angle& angle);
+        void generateIntersectionPoints(double lineThickness, Angle& angle);
+
+        Point* getAvailablePoint();
+
+        std::vector<Point> generatePath(Point startPoint);
 
     public:
+        Family(std::vector<Contour>& children);
+
         void rotate(Angle& angle);
 
-        Family(Contour& parent, std::vector<Contour>& children);
-
-        // Point getClosestPoint();
-        // Point getNextPoint();
+        bool getAcrossPoint(Point& point);
+        bool getNextPoint(Point& point);
 
         std::vector<std::vector<Point>> generateTotalPath(double lineThickness, Angle& angle);
 

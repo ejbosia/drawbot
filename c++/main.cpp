@@ -70,30 +70,26 @@ int main(int argc, char** argv){
         // check if the contour is a parent contour
         if(hierarchy[i][3]==-1){
 
-            // create a contour of the parent
-            cout << "PARENT " << hierarchy[i] << endl; 
+            vector<Contour> contourList;
+
 
             // create a family with the starting contour
-            Contour parentContour = convertContour(contours[i]);
+            contourList.push_back(convertContour(contours[i]));
             
             // add the children to the family
-            
-            vector<Contour> childContourList;
 
             int index = hierarchy[i][2];
 
             while(index != -1){
                 
-                cout << "CHILD " << index << hierarchy[index] << endl; 
-
-                childContourList.push_back(convertContour(contours[index]));
+                contourList.push_back(convertContour(contours[index]));
 
                 index = hierarchy[index][0];
 
             }
 
             // add the family to the family list
-            Family temp(parentContour, childContourList);
+            Family temp(contourList);
 
             familyList.push_back(temp);
         }
@@ -101,9 +97,27 @@ int main(int argc, char** argv){
 
     Angle a(M_PI/6);
     // Angle a(0);
+    vector<vector<Point>> total_path;
 
     for(int i = 0; i < familyList.size(); i++){
-        familyList[i].generateTotalPath(1, a);
+        for(vector<Point> family_path : familyList[i].generateTotalPath(1, a)){
+            total_path.push_back(family_path);
+        }
+    }
+
+    for(vector<Point> path : total_path){
+
+        cout << "x = [";
+        for(Point p : path){
+            cout << p.x << ", ";
+        }
+        cout << "]" << endl;
+
+        cout << "y = [";
+        for(Point p : path){
+            cout << p.y << ", ";
+        }
+        cout << "]" << endl;
     }
     
     //cv::imshow("Display window", image);

@@ -18,6 +18,7 @@ author: ejbosia
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
 
 #include "line.h"
 
@@ -28,11 +29,14 @@ class Contour{
 
     private:
         vector<Point> vertexList;
-        vector<Point> intersectionPoints;
 
     public:
+        vector<Point> intersectionPoints;
+
 
         int getStartingIndex(Point& p);
+
+        int getFirstAvailable();
 
         Contour(vector<Point>& vertexList);
 
@@ -41,6 +45,10 @@ class Contour{
         Point* traverse(Point& p, double distance, bool clockwise=true);
 
         vector<Point> getIntersectionPointsTraverse(double interval);
+
+        int findIntersectionPointIndex(Point& p);
+
+        Point* getIntersectionPoint(int index);
 
         void rotate(Angle& angle);
 
