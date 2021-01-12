@@ -137,9 +137,11 @@ std::vector<Point> Contour::getIntersectionPointsTraverse(double interval){
 
         if(distance > 0){
             
-            index = interval-fmod(start.y, interval);
-
-            while(index < distance){
+            //index = interval-fmod(start.y, interval);
+            index = interval*ceil(start.y/interval)-start.y;
+            
+            std::cout << "\nOUTPUT " << index << "\t" << start <<  "\tINT: " << interval << std::endl << std::endl;
+            while(index <= distance){
                 
                 x = dxdy * index + start.x;
                 y = index + start.y;
@@ -152,8 +154,11 @@ std::vector<Point> Contour::getIntersectionPointsTraverse(double interval){
         }  
         else{
 
-            index = -fmod(start.y, interval);
-            while(index > distance){
+            index = interval*floor(start.y/interval)- start.y;
+            
+            std::cout << "\nOUTPUT " << index << "\t" << start <<  "\tINT: " << interval << std::endl << std::endl;
+
+            while(index >= distance){
 
                 x = dxdy * index + start.x;
                 y = index + start.y;
