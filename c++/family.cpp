@@ -129,19 +129,19 @@ Point* Family::getNextPoint(Point* point, Point* start){
             break;
         }
     }
-    std::cout << "GNP: " << point << "\t" << point->available << std::endl;
-    std::cout << "GNPS: " << start << "\t" << start->available << std::endl;
+    // std::cout << "GNP: " << point << "\t" << point->available << std::endl;
+    // std::cout << "GNPS: " << start << "\t" << start->available << std::endl;
 
-    std::cout << "GNPS: " << start << "\t" << start->available << std::endl;
+    // std::cout << "GNPS: " << start << "\t" << start->available << std::endl;
 
     Point* prev = contours[contour_index].getIntersectionPoint(index-1);
-    std::cout << "GNPS: " << start << "\t" << start->available << std::endl;
+    // std::cout << "GNPS: " << start << "\t" << start->available << std::endl;
 
     Point* next = contours[contour_index].getIntersectionPoint(index+1);
-    std::cout << "GNPS: " << start << "\t" << start->available << std::endl;
+    // std::cout << "GNPS: " << start << "\t" << start->available << std::endl;
 
-    std::cout << "GNP: " << prev << "\t" << next << std::endl;
-    std::cout << "GNPS: " << start << "\t" << start->available << std::endl;
+    // std::cout << "GNP: " << prev << "\t" << next << std::endl;
+    // std::cout << "GNPS: " << start << "\t" << start->available << std::endl;
 
     Point temp(-1,-1);
     if((prev->y > point->y) && (next->y > point->y)){
@@ -157,15 +157,15 @@ Point* Family::getNextPoint(Point* point, Point* start){
     else{
         return NULL;
     }
-    std::cout << "GNP: " << point << "\t" << point->available << std::endl;
-    std::cout << "GNPS: " << start << "\t" << start->available << std::endl;
+    // std::cout << "GNP: " << point << "\t" << point->available << std::endl;
+    // std::cout << "GNPS: " << start << "\t" << start->available << std::endl;
 
 
     // find temp in the map 
     for(int i = 0; i < rowIntersectionMap[(int)temp.y].size(); i++){
         if(temp == rowIntersectionMap[(int)temp.y][i]){
-            std::cout << "GNP: " << point << "\t" << point->available << std::endl;
-            std::cout << "GNPS: " << start << "\t" << start->available << std::endl;
+            // std::cout << "GNP: " << point << "\t" << point->available << std::endl;
+            // std::cout << "GNPS: " << start << "\t" << start->available << std::endl;
 
             return &(rowIntersectionMap[(int)temp.y][i]);
         }
@@ -185,7 +185,7 @@ std::vector<Point> Family::generatePath(Point* point){
     bool next_point = false;
 
     Point* start = point;
-    std::cout << start->available << std::endl;
+    std::cout << *start << " " << start->available << std::endl;
 
     // loop until there are no valid next points
     do{
@@ -193,24 +193,25 @@ std::vector<Point> Family::generatePath(Point* point){
         
         path.push_back(*point);
         (*point).available = false;
-        std::cout << "\t" << *point << " " << point << " " << point->available << std::endl;
-        std::cout << start << "\t" << start->available << std::endl;
+        // std::cout << "\t" << *point << " " << point << " " << point->available << std::endl;
+        // std::cout << start << "\t" << start->available << std::endl;
 
         // update the pointer
         point = getAcrossPoint(point);
+        std::cout << "ACROSS " << *point << " " << start << "\t" << start->available << std::endl;
 
         // std::cout << *point << std::endl;
 
         path.push_back(*point);
         (*point).available = false;
-        std::cout << "\t" << *point << " " << point << " " << point->available << std::endl;
-        std::cout << start << "\t" << start->available << std::endl;
+        // std::cout << "\t" << *point << " " << point << " " << point->available << std::endl;
+        // std::cout << start << "\t" << start->available << std::endl;
         point = getNextPoint(point, start);
        
-        std::cout << start << "\t" << start->available << std::endl;
+        std::cout << "NEXT "<< *point << " " << start << "\t" << start->available << std::endl;
 
-    }while(false);
-    // }while(point);
+    // }while(false);
+    }while(point);
 
     std::cout << start << "\t" << start->available << std::endl;
 
@@ -242,17 +243,10 @@ std::vector<std::vector<Point>> Family::generateTotalPath(double lineThickness, 
         // get a new starting point (that has not been visited)
         startingPointer = getAvailablePoint();
 
+
         for(Point p : rowIntersectionMap[0]){
             std::cout << p.available << " ";
         }
-
-        std::cout << std::endl;
-        for(Point p : contours[0].intersectionPoints){
-            if(p.y == 0){
-                std::cout << p.available << " ";
-            }
-        }
-        std::cout << std::endl;
 
         std::cout << "HOHOHO" << std::endl;
 
