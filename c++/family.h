@@ -29,15 +29,15 @@ class Family{
 
         Point* getAvailablePoint();
 
-        std::vector<Point> generatePath(Point startPoint);
+        std::vector<Point> generatePath(Point* point);
 
     public:
         Family(std::vector<Contour>& children);
 
         void rotate(Angle& angle);
 
-        bool getAcrossPoint(Point& point);
-        bool getNextPoint(Point& point);
+        Point* getAcrossPoint(Point* point);
+        Point* getNextPoint(Point* point, Point* start);
 
         std::vector<std::vector<Point>> generateTotalPath(double lineThickness, Angle& angle);
 
