@@ -30,7 +30,6 @@ class Family{
     public:
         void rotate(Angle& angle);
 
-
         Family(Contour& parent, std::vector<Contour>& children);
 
         // Point getClosestPoint();

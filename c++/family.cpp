@@ -12,53 +12,59 @@ Point getNextPoint(std::vector<Point> intersectionPoints){
 }
 */
 
+
+/*
+Rotate all of the contours about (0,0)
+*/
+void Family::rotate(Angle& angle){
+
+    parentContour.rotate(angle);
+
+    for(int i = 0; i < childContours.size(); i++){
+        childContours[i].rotate(angle);
+    }
+
+}
+
+
 // generate the intersection points, starting from the local minima perpendicular to the angle and moving one lineThickness
 void Family::generateIntersectionPoints(vector<Point>& intersectionPoints, double lineThickness, Angle& angle){
 
     // create a deep copy of the angle and rotate perpendicular
-    Angle a(angle.getAngle());
-    a.rotateAngle(-M_PI/2);
+    Angle reverse(-angle.getAngle());
 
-    DEBUG_MSG("TEST ANGLE: " << angle.degrees());
+    // rotate the to make the line perpendicular
+    rotate(reverse);
 
-    // get the maximum point in the perpendicular angle
-    Point startingPoint = parentContour.getMaximumPoint(a);
+    intersectionPoints = parentContour.getIntersectionPointsTraverse(lineThickness);
 
-    // get the maximum point in the opposite
-    a.rotateAngle(M_PI);
-    Point endingPoint = parentContour.getMaximumPoint(a);
-    double endingXProj = endingPoint.xRotation(a);
+    std::cout << "x=[";
+    for(int i = 0; i < intersectionPoints.size(); i++){
+        cout << intersectionPoints[i].x << ", ";
+    }
+    std::cout << "]" << std::endl << "y=[";
+    for(int i = 0; i < intersectionPoints.size(); i++){
+        cout << intersectionPoints[i].y << ", ";
+    }
+    std::cout << "]" << std::endl;
 
-    DEBUG_MSG("TRAVEL ANGLE: " << a.degrees());
-    DEBUG_MSG("LINE THICKNESS " << lineThickness);
-
-    DEBUG_MSG("STARTING POINT: " << startingPoint);
-
-    std::vector<Point> intersections;    
-
-    int counter = 0;
-
-    while(startingPoint.xRotation(a) < endingXProj){
-
-        // move the starting point one lineThickness perpendicular to the angle
-        startingPoint.translate(lineThickness, a);
-        counter++;
-
-        // get the intersections (infinite line at the point and angle)
-        intersections = parentContour.fastIntersection(startingPoint, angle);
-        
-        if(intersections.size() % 2 == 1){
-            DEBUG_MSG("ITERATION: " << counter << " POINT " << startingPoint << "NUMBER OF INTERSECTIONS: " << intersections.size());
-        }
-        
-        // copy the points to the intersectionPoints vector
-        for( Point p : intersections)
-            intersectionPoints.push_back(p);
-
-        intersections.clear();
+    for(int i = 0; i < intersectionPoints.size(); i++){
+        intersectionPoints[i].rotate(angle);
+        DEBUG_MSG("RESULT: " << intersectionPoints[i]);
     }
 
-    DEBUG_MSG("ENDING POINT: " << endingPoint);
+    std::cout << "x=[";
+    for(int i = 0; i < intersectionPoints.size(); i++){
+        cout << intersectionPoints[i].x << ", ";
+    }
+    std::cout << "]" << std::endl << "y=[";
+    for(int i = 0; i < intersectionPoints.size(); i++){
+        cout << intersectionPoints[i].y << ", ";
+    }
+    std::cout << "]" << std::endl;
+
+
+    rotate(angle);
     DEBUG_MSG("ENDING SIZE: " << intersectionPoints.size());
 
 }
@@ -109,6 +115,8 @@ std::vector<std::vector<Point>> Family::generateTotalPath(double lineThickness, 
     Point* startingPointer = getAvailablePoint(intersectionPoints);
     
     // loop until there are no starting points available
+    
+    /*
     while(startingPointer){
 
         DEBUG_MSG(*startingPointer);
@@ -117,6 +125,7 @@ std::vector<std::vector<Point>> Family::generateTotalPath(double lineThickness, 
 
     
     }
+    */
     // return total_path
 
     return total_path;

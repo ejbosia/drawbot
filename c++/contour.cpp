@@ -36,8 +36,7 @@ int Contour::getStartingIndex(Point& p){
         // bring the test point to 0
         Point current = p - vertexList[i];
 
-
-        DEBUG_MSG_C(((current.y/current.x) << " == " << (next.y/next.x)));
+        DEBUG_MSG_C((current.y/current.x) << " == " << (next.y/next.x));
 
         // compare the ratio of y/x
         if((current.y/current.x) == (next.y/next.x)){
@@ -110,47 +109,132 @@ Point* Contour::traverse(Point& start, double distance, bool clockwise){
 
 /*
 Find a point a distance around the perimeter of the contour
+
+This assumes the contour is rotated so that the intersection line is flat
 */
-std::vector<Point> Contour::getIntersectionPointsTraverse(Point& start, Angle& angle, double interval, bool clockwise){
+std::vector<Point> Contour::getIntersectionPointsTraverse(double interval){
 
-    int index = getStartingIndex(start);
+    vector<Point> intersections;
 
-    double edgeDistance;
-    double currentPosition; // position in angle reference
-
-    Angle reverse(-angle.getAngle());
-
-    Point temp(start.x, start.y);
-
-    int possibleIntersections;
-
-    vector<Point> intersectionPoints;
-
-    double startYPos, endYPos;
-    
+    // loop through the vertices
     for(int i = 0; i < vertexList.size(); i++){
 
-        temp = vertexList[index];
+        // get the start and end points
+        Point start = vertexList[i];
+        Point end = vertexList[(i+1)%vertexList.size()];
 
-        index = (index+1)%vertexList.size();
+        DEBUG_MSG_C(start << " " << end << "\t" << i);
+        // get the start and end y locations for looping
+        // these locations are capped inwards on the line (end point capped by loop)
 
-        // get the y distance of the line.
-        edgeDistance = fabs(vertexList[index].yRotation(reverse) - temp.yRotation(reverse));
+        // offset for the iteration process (moving the line to (0,0) does not make the intersection points on the integers)
 
-        possibleIntersections = (int)(edgeDistance/interval);
 
-        // if there are no intersections move to the next line
-        if(possibleIntersections == 0){
-            continue;
-        }
+        double dxdy = 1/start.angle(end).tangent(); // dx/dy slope of the line (inverse of usual)
+        double x,y;
 
-        // add the intersections in order
-        else{
+        double offset = interval - fmod(start.y, interval);
+
+        double index;
+        double distance = end.y - start.y;
+
+
+        if(distance > 0){
             
+            index = interval;
+
+            while(index < distance){
+                
+                x = dxdy * index + start.x;
+                y = index + start.y;
+
+                index += interval;
+
+                intersections.push_back(Point(x,y));
+
+            }
+        }  
+        else{
+
+            index = -interval;
+            while(index > distance){
+
+                x = dxdy * index + start.x;
+                y = index + start.y;
+                
+                index -= interval;
+
+                intersections.push_back(Point(x,y));
+
+            }
         }
 
+        /*
+        if(direction > 0){
+            
+            cout << "U0\t" << U0 << endl;
+
+            double index = ceil(start.y/interval);
+
+                // loop from U0 to U1 inclusive
+            while(index < end.y){
+
+                // find the intersection point at the position
+                // use f(y) = mx+b
+
+                // get the dx/dy slope of the line from start point to end point
+                dxdy = 1/start.angle(end).tangent();
+                
+                // get the x location of the intersection point with Y given
+                x = dxdy*(index) + start.x;
+                y = index + start.y;
+
+                DEBUG_MSG_C("\tINTERSECTION: " << Point(x,y));
+
+                // add the point to the intersections
+                intersections.push_back(Point(x,y));
+
+                index += interval;
+
+            }
+        }
+        else{
+            double index = floor(start.y/interval);
+
+            // loop from U0 to U1 inclusive
+            while(index > end.y){
+
+                // find the intersection point at the position
+                // use f(y) = mx+b
+
+                // get the dx/dy slope of the line from start point to end point
+                dxdy = 1/start.angle(end).tangent();
+                
+                // get the x location of the intersection point with Y given
+                x = dxdy*(index) + start.x;
+                y = index + start.y;
+
+                DEBUG_MSG_C("\tINTERSECTION: " << Point(x,y));
+
+                // add the point to the intersections
+                intersections.push_back(Point(x,y));
+
+                index -= interval;
+
+            }
+        }
+        */
+
+
+
+        
+    
     }
 
+    DEBUG_MSG_C("DONE?");
+
+
+    return intersections;
 }
 
 
@@ -180,34 +264,6 @@ Point Contour::getMaximumPoint(Angle& angle){
 
 }
 
-
-// get the intersection point for an infinite line
-vector<Point> Contour::fastIntersection(Point& p, Angle& a){
-        
-    vector<Point> intersections;
-    
-    // check each line for an intersection with the ray
-    for(int i = 0; i < vertexList.size(); i++){
-
-        // create a temporary line
-        Line temp(vertexList[i], vertexList[(i+1)%vertexList.size()]);
-
-        // if the intersection exists, add the point to the list
-        if(temp.checkEndPointIntersection(p,a)){
-            DEBUG_MSG_C("LINE: " << lineList[i]);
-
-            Point* result = temp.intersection(p, a);
-
-            if(result){
-                intersections.push_back(*result);
-            }
-            
-            delete result;
-        }
-    }
-
-    return intersections;
-}
 
 ostream& operator<<(ostream &strm, const Contour &c){
     

@@ -39,11 +39,9 @@ class Contour{
 
         Point getMaximumPoint(Angle& angle);
 
-        vector<Point> fastIntersection(Point& p, Angle& a);
-
         Point* traverse(Point& p, double distance, bool clockwise=true);
 
-        vector<Point> getIntersectionPointsTraverse(Point& start, Point& referencePoint, Angle& angle, double interval, bool clockwise){
+        vector<Point> getIntersectionPointsTraverse(double interval);
 
         void rotate(Angle& angle);
 

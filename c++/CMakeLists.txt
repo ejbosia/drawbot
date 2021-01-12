@@ -16,7 +16,7 @@ endif()
 # add_executable( drawbot main.cpp point.cpp angle.cpp line.cpp contour.cpp family.cpp)
 add_executable( drawbot test.cpp point.cpp angle.cpp line.cpp contour.cpp family.cpp)
 
-#add_compile_definitions(DEBUG_CONTOUR DEBUG_FAMILY DEBUG_LINE)
-add_compile_definitions(DEBUG_FAMILY)
+add_compile_definitions(DEBUG_CONTOUR DEBUG_FAMILY DEBUG_LINE)
+#add_compile_definitions(DEBUG_CONTOUR)
 
 target_link_libraries( drawbot ${OpenCV_LIBS} )
