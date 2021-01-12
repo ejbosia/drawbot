@@ -22,9 +22,11 @@ class Family{
         Contour parentContour;
         std::vector<Contour> childContours;
 
+        std::map<int, std::vector<Point>> rowIntersectionMap;
+
         void generateIntersectionPoints(vector<Point>& intersectionPoints, double lineThickness, Angle& angle);
         Point* getAvailablePoint(vector<Point>& intersectionPoints);
-
+        
         std::vector<Point> generatePath(std::vector<Point>& intersectionPoints, double lineThickness, Angle& angle);
 
     public:

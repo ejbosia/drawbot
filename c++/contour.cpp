@@ -129,19 +129,15 @@ std::vector<Point> Contour::getIntersectionPointsTraverse(double interval){
 
         // offset for the iteration process (moving the line to (0,0) does not make the intersection points on the integers)
 
-
         double dxdy = 1/start.angle(end).tangent(); // dx/dy slope of the line (inverse of usual)
         double x,y;
-
-        double offset = interval - fmod(start.y, interval);
 
         double index;
         double distance = end.y - start.y;
 
-
         if(distance > 0){
             
-            index = interval;
+            index = interval-fmod(start.y, interval);
 
             while(index < distance){
                 
@@ -156,7 +152,7 @@ std::vector<Point> Contour::getIntersectionPointsTraverse(double interval){
         }  
         else{
 
-            index = -interval;
+            index = -fmod(start.y, interval);
             while(index > distance){
 
                 x = dxdy * index + start.x;
@@ -167,72 +163,8 @@ std::vector<Point> Contour::getIntersectionPointsTraverse(double interval){
                 intersections.push_back(Point(x,y));
 
             }
-        }
-
-        /*
-        if(direction > 0){
-            
-            cout << "U0\t" << U0 << endl;
-
-            double index = ceil(start.y/interval);
-
-                // loop from U0 to U1 inclusive
-            while(index < end.y){
-
-                // find the intersection point at the position
-                // use f(y) = mx+b
-
-                // get the dx/dy slope of the line from start point to end point
-                dxdy = 1/start.angle(end).tangent();
-                
-                // get the x location of the intersection point with Y given
-                x = dxdy*(index) + start.x;
-                y = index + start.y;
-
-                DEBUG_MSG_C("\tINTERSECTION: " << Point(x,y));
-
-                // add the point to the intersections
-                intersections.push_back(Point(x,y));
-
-                index += interval;
-
-            }
-        }
-        else{
-            double index = floor(start.y/interval);
-
-            // loop from U0 to U1 inclusive
-            while(index > end.y){
-
-                // find the intersection point at the position
-                // use f(y) = mx+b
-
-                // get the dx/dy slope of the line from start point to end point
-                dxdy = 1/start.angle(end).tangent();
-                
-                // get the x location of the intersection point with Y given
-                x = dxdy*(index) + start.x;
-                y = index + start.y;
-
-                DEBUG_MSG_C("\tINTERSECTION: " << Point(x,y));
-
-                // add the point to the intersections
-                intersections.push_back(Point(x,y));
-
-                index -= interval;
-
-            }
-        }
-        */
-
-
-
-        
-    
+        }    
     }
-
-    DEBUG_MSG_C("DONE?");
-
 
     return intersections;
 }

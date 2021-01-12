@@ -38,6 +38,32 @@ void Family::generateIntersectionPoints(vector<Point>& intersectionPoints, doubl
 
     intersectionPoints = parentContour.getIntersectionPointsTraverse(lineThickness);
 
+    int row;
+
+    for(Point p : intersectionPoints){
+        row = (int)(p.y/lineThickness);
+        
+        // if the row has not been created yet initialize an empty vector
+        if(rowIntersectionMap.find(row) == rowIntersectionMap.end()){
+            rowIntersectionMap.insert(std::pair<int, std::vector<Point>>(row, std::vector<Point>()));
+        }
+
+        rowIntersectionMap.at(row).push_back(p);
+    }
+
+    for(auto elem : rowIntersectionMap)
+    {
+        std::cout << "ROW: " << elem.first << ": ";
+
+        std::cout <<  elem.second.size();
+        // for(Point p : elem.second){
+        //     std::cout << p << ", ";
+        // }
+
+        std::cout << std::endl;
+    }
+
+    
     std::cout << "x=[";
     for(int i = 0; i < intersectionPoints.size(); i++){
         cout << intersectionPoints[i].x << ", ";
@@ -47,11 +73,12 @@ void Family::generateIntersectionPoints(vector<Point>& intersectionPoints, doubl
         cout << intersectionPoints[i].y << ", ";
     }
     std::cout << "]" << std::endl;
+
 
     for(int i = 0; i < intersectionPoints.size(); i++){
         intersectionPoints[i].rotate(angle);
-        DEBUG_MSG("RESULT: " << intersectionPoints[i]);
     }
+
 
     std::cout << "x=[";
     for(int i = 0; i < intersectionPoints.size(); i++){
@@ -62,9 +89,7 @@ void Family::generateIntersectionPoints(vector<Point>& intersectionPoints, doubl
         cout << intersectionPoints[i].y << ", ";
     }
     std::cout << "]" << std::endl;
-
-
-    rotate(angle);
+    
     DEBUG_MSG("ENDING SIZE: " << intersectionPoints.size());
 
 }

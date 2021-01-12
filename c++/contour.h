@@ -30,7 +30,6 @@ class Contour{
         vector<Point> vertexList;
         vector<Point> intersectionPoints;
 
-
     public:
 
         int getStartingIndex(Point& p);
