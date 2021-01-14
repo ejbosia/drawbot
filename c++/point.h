@@ -4,25 +4,38 @@
 
 #include <iostream>
 #include <string>
+#include <math.h>
+
+#include "angle.h"
 
 class Point{
 
-    private:
-        int x;
-        int y;
-        bool visited;
-
     public:
+        double x;
+        double y;
+        bool available;
+        
+        Point(double x, double y);
 
-        Point(int x, int y);
+        double distance(Point& other);
+        Angle angle(Point& other);
 
-        int getX();
-        int getY();
+        double xRotation(Angle& angle);
+        double yRotation(Angle& angle);
 
-        void setVisited(bool visited);
-        bool getVisited();
 
-        std::string toString();
+        // point translation
+        void translate(double distance, Angle& angle);
+        void translate(double dx, double dy);
+
+        void rotate(Angle& angle);
+        void rotate(Point& point, Angle& angle);
+
+
+        bool operator==(const Point &p);
+        Point operator-(const Point &p);
+
+        friend std::ostream& operator<<(std::ostream &strm, const Point &p);
 };
 
 #endif
