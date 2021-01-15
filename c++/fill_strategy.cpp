@@ -203,6 +203,22 @@ std::vector<std::vector<Point>> LinearFillStrategy::generateTotalPath(Family fam
         intersectionPoints.push_back(intersectionStrategy->generateIntersectionPoints(family.get(i)));
     }
 
+    // std::cout << "x = [";
+
+    // for(Point p : intersectionPoints[0]){
+    //     std::cout << p.x << ", ";
+    // }
+
+    // std::cout << "]" << std::endl;
+
+    // std::cout << "y = [";
+
+    // for(Point p : intersectionPoints[0]){
+    //     std::cout << p.y << ", ";
+    // }
+    
+    // std::cout << "]" << std::endl;
+
     // index of point in the two vector storage
     int contour = 0;
     int index = 0;
@@ -226,6 +242,8 @@ std::vector<std::vector<Point>> LinearFillStrategy::generateTotalPath(Family fam
             p.rotate(angle);
         }
     }
+    
+    family.rotate(angle);
 
     return total_path;
 }
