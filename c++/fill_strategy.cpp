@@ -18,26 +18,27 @@ Create the row intersection map
 void LinearFillStrategy::initRowIntersectionMap(){
     Point temp(0.0,0.0);
 
+
     // initialize the rowIntersectionPoints
     for(int i = 0; i < intersectionPoints.size(); i++){
-        for(int j = 0; j < intersectionPoints[i].size(); i++){
+        for(int j = 0; j < intersectionPoints[i].size(); j++){
             
             temp = intersectionPoints[i][j];
             
             // if the key does not exist, init an empty vector
-            if(rowIntersectionMap.find((int)temp.y) == rowIntersectionMap.end()){
+            if(rowIntersectionMap.find((int)(temp.y/lineThickness)) == rowIntersectionMap.end()){
                 rowIntersectionMap.insert(std::pair<int, std::vector<Point*>>((int)temp.y, std::vector<Point*>()));
             }
 
             // add the point coordinates to the map
-            rowIntersectionMap[(int)temp.y].push_back(&intersectionPoints[i][j]);
+            rowIntersectionMap[(int)(temp.y/lineThickness)].push_back(&intersectionPoints[i][j]);
         }
     }
 
     // sort each row of pointers
     for(std::map<int,std::vector<Point*>>::iterator it = rowIntersectionMap.begin(); it != rowIntersectionMap.end(); ++it)
     {
-        std::sort(it->second.begin(), it->second.end()); // string's value 
+        std::sort((*it).second.begin(), (*it).second.end(),comparePointPtr); // string's value 
         std::cout << "\tROW: " << it->first << ": ";
         for(Point* p : it->second){
             std::cout << *p << " ";
@@ -55,7 +56,7 @@ void LinearFillStrategy::getAcrossPoint(int& contour, int& index){
     Point* currentPtr = &intersectionPoints[contour][index];
 
     // make a temp array
-    std::vector<Point*> rowPoints = rowIntersectionMap[(int)currentPtr->y];
+    std::vector<Point*> rowPoints = rowIntersectionMap[(int)(currentPtr->y/lineThickness)];
     
     // find the pointer in the row points
     std::vector<Point*>::iterator it = std::find (rowPoints.begin(), rowPoints.end(), currentPtr); 
@@ -87,12 +88,16 @@ void LinearFillStrategy::getNextPoint(int& contour, int& index){
 
     int cs = intersectionPoints[contour].size();
 
-    double previous_y = intersectionPoints[contour][(index-1)%cs].y;
-    double current_y = intersectionPoints[contour][index].y;
-    double next_y = intersectionPoints[contour][(index+1)%cs].y;
+    int previous_y = (int)(intersectionPoints[contour][(index-1)%cs].y/lineThickness);
+    int current_y = (int)(intersectionPoints[contour][index].y/lineThickness);
+    int next_y = (int)(intersectionPoints[contour][(index+1)%cs].y/lineThickness);
+
 
     bool check_previous = (previous_y > current_y);
     bool check_next = (next_y > current_y);
+
+    std::cout << "NEXT: " << previous_y << " " << current_y << " " << next_y;
+    std::cout << "\t" << check_previous << check_next << std::endl;
 
     if(check_previous == check_next){
         contour = -1;
@@ -124,9 +129,9 @@ void LinearFillStrategy::getAvailablePoint(int& contour, int& index){
 
     // iterate through each row, and check each point right to left
     for(int row : rowPts){
-        std::cout << "\t" << row << std::endl;
         for(Point* ptr : rowIntersectionMap[row]){
             if(ptr->available){
+                std::cout << "FIND: " << *ptr << std::endl;
                 findPoint(ptr, contour, index);
                 return;
             }
@@ -152,9 +157,9 @@ void LinearFillStrategy::findPoint(Point* newPtr, int& contour, int& index){
         if (it != contourVector.end()) {
             contour = c;
             index = it - contourVector.begin();
+            return;
         }
     }
-
     // if the point is not found, set contour and index to -1
     contour = -1;
     index = -1;
@@ -174,12 +179,13 @@ std::vector<Point> LinearFillStrategy::generatePath(int& contour, int& index){
         path.push_back(intersectionPoints[contour][index]);
         intersectionPoints[contour][index].available = false;
         getAcrossPoint(contour, index);
-
+        std::cout << contour << " " << index << std::endl;
 
         path.push_back(intersectionPoints[contour][index]);
         intersectionPoints[contour][index].available = false;
         getNextPoint(contour, index);
-       
+        std::cout << contour << " " << index << std::endl;
+
     }while(contour != -1);
 
     return path;
@@ -202,6 +208,8 @@ std::vector<std::vector<Point>> LinearFillStrategy::generateTotalPath(Family fam
     for(int i = 0; i < family.size(); i++){
         intersectionPoints.push_back(intersectionStrategy->generateIntersectionPoints(family.get(i)));
     }
+
+    initRowIntersectionMap();
 
     // std::cout << "x = [";
 

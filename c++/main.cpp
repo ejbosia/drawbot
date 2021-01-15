@@ -49,6 +49,7 @@ int main(int argc, char** argv){
     auto start = chrono::high_resolution_clock::now();
 
     string image_path = "Square.png";
+    std::cout << "IMAGE SLICER BEGIN" << std::endl;
 
     cv::Mat image = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
 
