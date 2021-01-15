@@ -95,41 +95,31 @@ int main(int argc, char** argv){
         }
     }
 
-    Angle a(M_PI/6);
-    // Angle a(0);
-    vector<vector<Point>> total_path;
+    // Angle a(M_PI/6);
+    // // Angle a(0);
+    // vector<vector<Point>> total_path;
 
-    for(int i = 0; i < familyList.size(); i++){
-        for(vector<Point> family_path : familyList[i].generateTotalPath(1, a)){
-            total_path.push_back(family_path);
-        }
-    }
+    // for(int i = 0; i < familyList.size(); i++){
+    //     for(vector<Point> family_path : familyList[i].generateTotalPath(1, a)){
+    //         total_path.push_back(family_path);
+    //     }
+    // }
 
-    for(vector<Point> path : total_path){
+    // for(vector<Point> path : total_path){
 
-        cout << "x = [";
-        for(Point p : path){
-            cout << p.x << ", ";
-        }
-        cout << "]" << endl;
+    //     cout << "x = [";
+    //     for(Point p : path){
+    //         cout << p.x << ", ";
+    //     }
+    //     cout << "]" << endl;
 
-        cout << "y = [";
-        for(Point p : path){
-            cout << p.y << ", ";
-        }
-        cout << "]" << endl;
-    }
+    //     cout << "y = [";
+    //     for(Point p : path){
+    //         cout << p.y << ", ";
+    //     }
+    //     cout << "]" << endl;
+    // }
     
-    //cv::imshow("Display window", image);
-    //int k = cv::waitKey(0); // Wait for a keystroke in the window
-
-    /*
-    _test_contour();
-
-    _test_distance();
-    
-    _test_intersection();
-    */
     
     auto stop = chrono::high_resolution_clock::now(); 
 

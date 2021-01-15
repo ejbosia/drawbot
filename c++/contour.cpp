@@ -121,40 +121,6 @@ Point* Contour::traverse(Point& start, double distance, bool clockwise){
 }
 
 
-int Contour::findIntersectionPointIndex(Point& p){
-
-    auto it = std::find(intersectionPoints.begin(), intersectionPoints.end(), p);;
-
-    if(it != intersectionPoints.end()){
-        return it - intersectionPoints.begin();
-    }
-    else{
-        return -1;
-    }
-
-}
-
-Point* Contour::getIntersectionPoint(int index){
-
-    // loop index if necessary because contour is a loop
-    index = index % intersectionPoints.size();
-
-    return &intersectionPoints[index];
-}
-
-int Contour::getFirstAvailable(){
-
-    for(int i = 0; i < intersectionPoints.size(); i++){
-        if(intersectionPoints[i].available){
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-
-
 // get the maximum point in the contour in the direction of the angle
 Point Contour::getMaximumPoint(Angle& angle){
 

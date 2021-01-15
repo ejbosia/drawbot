@@ -37,19 +37,13 @@ class Contour{
         int size();
 
 
-
         int getStartingIndex(Point& p);
-
-        int getFirstAvailable();
 
         Contour(vector<Point>& vertexList);
 
         Point getMaximumPoint(Angle& angle);
 
         Point* traverse(Point& p, double distance, bool clockwise=true);
-
-        int findIntersectionPointIndex(Point& p);
-
 
         void rotate(Angle& angle);
 
