@@ -31,7 +31,11 @@ class Contour{
         vector<Point> vertexList;
 
     public:
-        vector<Point> intersectionPoints;
+
+        // vertexList accessor functions
+        Point get(int index);
+        int size();
+
 
 
         int getStartingIndex(Point& p);
@@ -44,11 +48,8 @@ class Contour{
 
         Point* traverse(Point& p, double distance, bool clockwise=true);
 
-        vector<Point> getIntersectionPointsTraverse(double interval);
-
         int findIntersectionPointIndex(Point& p);
 
-        Point* getIntersectionPoint(int index);
 
         void rotate(Angle& angle);
 

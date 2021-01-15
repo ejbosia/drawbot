@@ -23,43 +23,6 @@ void Family::rotate(Angle& angle){
 }
 
 
-// generate the intersection points, starting from the local minima perpendicular to the angle and moving one lineThickness
-void Family::generateIntersectionPoints(double lineThickness, Angle& angle){
-
-    // create a deep copy of the angle and rotate perpendicular
-    Angle reverse(-angle.getAngle());
-
-    // rotate the to make the line perpendicular
-    rotate(reverse);
-
-    int row;
-
-    // get the intersection points for each contour, and add them to the map
-    for(int i = 0 ; i < contours.size(); i++){
-
-
-        vector<Point> temp = contours[i].getIntersectionPointsTraverse(lineThickness);
-        for(int j = 0 ; j < temp.size(); j++){
-
-            row = (int)(temp[j].y/lineThickness);
-            
-            // if the row has not been created yet initialize an empty vector
-            if(rowIntersectionMap.find(row) == rowIntersectionMap.end()){
-                rowIntersectionMap.insert(std::pair<int, std::vector<Point>>(row, std::vector<Point>()));
-            }
-
-            rowIntersectionMap.at(row).push_back(temp[j]);
-        }
-        std::cout << contours[i].intersectionPoints.size() << std::endl;
-    }
-    std::cout << contours[0].intersectionPoints.size() << std::endl;
-
-
-    DEBUG_MSG("ENDING SIZE: " << intersectionPoints.size());
-
-}
-
-
 /*
 Find the available intersection point - return NULL if no points are available
 */
@@ -239,7 +202,6 @@ std::vector<std::vector<Point>> Family::generateTotalPath(double lineThickness, 
 
         generatePath(startingPointer);
 
-        std::cout << "HAHAHA" << std::endl;
         // get a new starting point (that has not been visited)
         startingPointer = getAvailablePoint();
 
@@ -247,8 +209,6 @@ std::vector<std::vector<Point>> Family::generateTotalPath(double lineThickness, 
         for(Point p : rowIntersectionMap[0]){
             std::cout << p.available << " ";
         }
-
-        std::cout << "HOHOHO" << std::endl;
 
     }
 

@@ -23,23 +23,14 @@ class Family{
     private:
         std::vector<Contour> contours;  // parent contour is the first contour
 
-        std::map<int, std::vector<Point>> rowIntersectionMap;
-
-        void generateIntersectionPoints(double lineThickness, Angle& angle);
-
-        Point* getAvailablePoint();
-
-        std::vector<Point> generatePath(Point* point);
-
     public:
         Family(std::vector<Contour>& children);
 
+        // Family contour-list accessor methods
+        Contour get(int index);
+        int size();
+
         void rotate(Angle& angle);
-
-        Point* getAcrossPoint(Point* point);
-        Point* getNextPoint(Point* point, Point* start);
-
-        std::vector<std::vector<Point>> generateTotalPath(double lineThickness, Angle& angle);
 
         friend std::ostream& operator<<(std::ostream &strm, const Family &f);
 };

@@ -5,6 +5,22 @@ Contour::Contour(vector<Point>& vertexRef):vertexList(vertexRef){
 }
 
 /*
+Get the vertex at the input index - loop around the vertex
+*/
+Point Contour::get(int index){
+    return vertexList[index % vertexList.size()];
+}
+
+/*
+Get the number of vertices in the contour
+*/
+int Contour::size(){
+    return vertexList.size();
+}
+
+
+
+/*
 Rotate all of the points in the contour about pt 0,0
 */
 void Contour::rotate(Angle& angle){
@@ -104,67 +120,6 @@ Point* Contour::traverse(Point& start, double distance, bool clockwise){
     return NULL;
 }
 
-
-/*
-Find a point a distance around the perimeter of the contour
-
-This assumes the contour is rotated so that the intersection line is flat
-*/
-std::vector<Point> Contour::getIntersectionPointsTraverse(double interval){
-
-    // loop through the vertices
-    for(int i = 0; i < vertexList.size(); i++){
-
-        // get the start and end points
-        Point start = vertexList[i];
-        Point end = vertexList[(i+1)%vertexList.size()];
-
-        DEBUG_MSG_C(start << " " << end << "\t" << i);
-        // get the start and end y locations for looping
-        // these locations are capped inwards on the line (end point capped by loop)
-
-        // offset for the iteration process (moving the line to (0,0) does not make the intersection points on the integers)
-
-        double dxdy = 1/start.angle(end).tangent(); // dx/dy slope of the line (inverse of usual)
-        double x,y;
-
-        double index;
-        double distance = end.y - start.y;
-
-        if(distance > 0){
-            
-            //index = interval-fmod(start.y, interval);
-            index = interval*ceil(start.y/interval)-start.y;
-            
-            while(index <= distance){
-                
-                x = dxdy * index + start.x;
-                y = index + start.y;
-
-                index += interval;
-
-                intersectionPoints.push_back(Point(x,y));
-
-            }
-        }  
-        else{
-
-            index = interval*floor(start.y/interval)- start.y;
-            
-            while(index >= distance){
-
-                x = dxdy * index + start.x;
-                y = index + start.y;
-                
-                index -= interval;
-
-                intersectionPoints.push_back(Point(x,y));
-
-            }
-        }    
-    }
-    return intersectionPoints;
-}
 
 int Contour::findIntersectionPointIndex(Point& p){
 
