@@ -48,7 +48,7 @@ int main(int argc, char** argv){
 
     auto start = chrono::high_resolution_clock::now();
 
-    string image_path = "Square.png";
+    string image_path = "test2.png";
     std::cout << "IMAGE SLICER BEGIN" << std::endl;
 
     cv::Mat image = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
@@ -114,21 +114,26 @@ int main(int argc, char** argv){
     //     }
     // }
 
+    cout << "X = [";
     for(vector<Point> path : total_path){
-
-        cout << "x = [";
+        cout << "[";
         for(Point p : path){
             cout << p.x << ", ";
         }
-        cout << "]" << endl;
+        cout << "],";
+    }
+    cout << "]" << endl;
 
-        cout << "y = [";
+    cout << "Y = [";
+    for(vector<Point> path : total_path){
+        cout << "[";
         for(Point p : path){
             cout << p.y << ", ";
         }
-        cout << "]" << endl;
+        cout << "],";
     }
-    
+    cout << "]" << endl;
+
     
     auto stop = chrono::high_resolution_clock::now(); 
 
