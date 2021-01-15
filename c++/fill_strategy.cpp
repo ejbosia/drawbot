@@ -17,23 +17,46 @@ Create the row intersection map
 */
 void LinearFillStrategy::initRowIntersectionMap(){
     Point temp(0.0,0.0);
+    std::cout << "ROW INTERSECTION MAP" << std::endl;
 
+    vector<int> rowPts;
 
+    int row;
     // initialize the rowIntersectionPoints
     for(int i = 0; i < intersectionPoints.size(); i++){
         for(int j = 0; j < intersectionPoints[i].size(); j++){
             
             temp = intersectionPoints[i][j];
+
+            row = std::round(temp.y/lineThickness);
             
             // if the key does not exist, init an empty vector
-            if(rowIntersectionMap.find((int)(temp.y/lineThickness)) == rowIntersectionMap.end()){
-                rowIntersectionMap.insert(std::pair<int, std::vector<Point*>>((int)temp.y, std::vector<Point*>()));
+            if(rowIntersectionMap.find(row) == rowIntersectionMap.end()){
+                rowIntersectionMap.insert(std::pair<int, std::vector<Point*>>(row, std::vector<Point*>()));
             }
 
             // add the point coordinates to the map
-            rowIntersectionMap[(int)(temp.y/lineThickness)].push_back(&intersectionPoints[i][j]);
+            rowIntersectionMap[row].push_back(&intersectionPoints[i][j]);
+
+            if(std::find(rowPts.begin(), rowPts.end(), row) == rowPts.end()){
+                rowPts.push_back(row);
+            }
+        }
+
+        std::sort(rowPts.begin(), rowPts.end());
+
+        for(int r : rowPts){
+            std::cout << rowIntersectionMap[r].size() << " ";
+
+
+            for(Point* ptr : rowIntersectionMap[r]){
+                std::cout << *ptr <<  " ";
+            }
+
+            std::cout << std::endl;
         }
     }
+
 
     // sort each row of pointers by the x position
     for(std::map<int,std::vector<Point*>>::iterator it = rowIntersectionMap.begin(); it != rowIntersectionMap.end(); ++it)
@@ -47,17 +70,32 @@ void LinearFillStrategy::initRowIntersectionMap(){
 Update the current index values to the point across the contour
 */
 void LinearFillStrategy::getAcrossPoint(int& contour, int& index){
-    
-    Point* currentPtr = &intersectionPoints[contour][index];
 
+    std::cout << "ACROSS " << contour << " " << index  <<std::endl;
+
+    Point* currentPtr = &intersectionPoints[contour][index];
+    std::cout << "\t CURRENT " << *currentPtr << " " << currentPtr <<std::endl;
+
+    int row = std::round(currentPtr->y/lineThickness);
+
+    std::cout << "\t SIZE: " <<rowIntersectionMap[row].size() << std::endl;
     // make a temp array
-    std::vector<Point*> rowPoints = rowIntersectionMap[(int)(currentPtr->y/lineThickness)];
+    std::vector<Point*> rowPoints = rowIntersectionMap[row];
     
     // find the pointer in the row points
     std::vector<Point*>::iterator it = std::find (rowPoints.begin(), rowPoints.end(), currentPtr); 
 
     if(it == rowPoints.end()){
-        cout << "NOT FOUND!" << endl;
+        std::cout << "NOT FOUND! " << *currentPtr << " " << row << endl;
+
+        // for(Point* p : rowPoints){
+        //     std::cout << *p << " ";
+        // }
+
+        // std::cout << std::endl;
+
+        // std::cout << contour << " " << index << std::endl;
+
         throw 5;
     }
 
@@ -66,9 +104,12 @@ void LinearFillStrategy::getAcrossPoint(int& contour, int& index){
     Point* newPtr;
 
     if(index % 2 == 0){
+
+        std::cout << "MAX " << index+1 << std::endl;
         newPtr = rowPoints[index+1];
     }
     else{
+        std::cout << "ODD " << index-1 << std::endl;
         newPtr = rowPoints[index-1];
     }
 
@@ -80,25 +121,36 @@ void LinearFillStrategy::getAcrossPoint(int& contour, int& index){
 Get the next point around the contour. The point will always be "up" the contour in the Y direction
 */
 void LinearFillStrategy::getNextPoint(int& contour, int& index){
+    std::cout << "NEXT " << contour << " " << index <<std::endl;
 
     int cs = intersectionPoints[contour].size();
 
-    int previous_y = (int)(intersectionPoints[contour][(index-1)%cs].y/lineThickness);
-    int current_y = (int)(intersectionPoints[contour][index].y/lineThickness);
-    int next_y = (int)(intersectionPoints[contour][(index+1)%cs].y/lineThickness);
+    int low_index = (index-1);
+    if(low_index < 0){
+        low_index = cs-1;
+    }
+    
+    int high_index = (index+1);
+    if(high_index == cs){
+        high_index = 0;
+    }
 
-    bool check_previous = (previous_y > current_y);
-    bool check_next = (next_y > current_y);
+    int previous_y = std::round(intersectionPoints[contour][low_index].y/lineThickness);
+    int current_y = std::round(intersectionPoints[contour][index].y/lineThickness);
+    int next_y = std::round(intersectionPoints[contour][high_index].y/lineThickness);
+
+    bool check_previous = (previous_y > current_y) && intersectionPoints[contour][low_index].available;
+    bool check_next = (next_y > current_y) && intersectionPoints[contour][high_index].available;
 
     if(check_previous == check_next){
         contour = -1;
         index = -1;
     }
     else if(check_previous){
-        index = (index-1)%cs;
+        index = low_index;
     }
     else if(check_next){
-        index = (index+1)%cs;
+        index = high_index;
     }
 }
 
@@ -107,6 +159,8 @@ void LinearFillStrategy::getNextPoint(int& contour, int& index){
 Get the first available point ~ lowest row, farthest left
 */
 void LinearFillStrategy::getAvailablePoint(int& contour, int& index){
+
+    std::cout << "AVAILABLE" << std::endl;
 
     std::vector<int> rowPts;
 
@@ -118,11 +172,33 @@ void LinearFillStrategy::getAvailablePoint(int& contour, int& index){
     // sort the rows
     std::sort(rowPts.begin(), rowPts.end());
 
-    // iterate through each row, and check each point right to left
+
+//     for(Point* ptr : rowIntersectionMap[-113]){
+//         std::cout << *ptr << " ";
+//     }
+//     std::cout << std::endl;
+
+
+//    // iterate through each row, and check each point right to left
+//     for(Point* ptr : rowIntersectionMap[-114]){
+//         std::cout << *ptr << " ";
+//     }
+
+//     std::cout << std::endl;
+
+//     // iterate through each row, and check each point right to left
     for(int row : rowPts){
         for(Point* ptr : rowIntersectionMap[row]){
+            // std::cout << ptr << " ";
             if(ptr->available){
-                std::cout << "FIND: " << *ptr << std::endl;
+                // double angle = M_PI/6;
+
+                // double c = cos(angle);
+                // double s = sin(angle);
+
+                // // std::cout << "X: " << ptr->x * c - ptr->y * s << " " << "Y: " << ptr->x * s + ptr->y * c << std::endl;
+                // // std::cout << std::endl << "FIND: " << (*ptr) << " " << ptr->available << " " << ptr << " " << row <<  std::endl;
+
                 findPoint(ptr, contour, index);
                 return;
             }
@@ -136,7 +212,7 @@ void LinearFillStrategy::getAvailablePoint(int& contour, int& index){
 
 // pick the lowest, farthest right point
 void LinearFillStrategy::findPoint(Point* newPtr, int& contour, int& index){
-
+    std::cout << "\tFIND: " << newPtr << std::endl;
     // find the contour, index position of the new point
     for (int c = 0; c < intersectionPoints.size(); c++) {
 
@@ -148,6 +224,10 @@ void LinearFillStrategy::findPoint(Point* newPtr, int& contour, int& index){
         if (it != contourVector.end()) {
             contour = c;
             index = it - contourVector.begin();
+            
+            // std::cout << "FOUND " << contourVector[index] << " " <<intersectionPoints[contour][index] << std::endl;
+            // std::cout << "\t" << newPtr << " " << &intersectionPoints[contour][index] << std::endl;
+
             return;
         }
     }
@@ -163,6 +243,8 @@ Generate a path, moving back and forth
 std::vector<Point> LinearFillStrategy::generatePath(int& contour, int& index){
     
     std::vector<Point> path;
+
+    std::cout << intersectionPoints[contour][index] << "\t" << intersectionPoints[contour][index].available << " " << &intersectionPoints[contour][index] << std::endl;
 
     // loop until there are no valid next points
     do{
@@ -229,3 +311,9 @@ std::vector<std::vector<Point>> LinearFillStrategy::generateTotalPath(Family fam
 
     return total_path;
 }
+
+
+/*
+GRID FILL
+
+*/

@@ -44,11 +44,11 @@ Contour convertContour(vector<cv::Point> pointList){
 int main(int argc, char** argv){
 
 
-    //std::cout.precision(std::numeric_limits<double>::digits10 + 2);
+    std::cout.precision(std::numeric_limits<double>::digits10 + 2);
 
     auto start = chrono::high_resolution_clock::now();
 
-    string image_path = "test2.png";
+    string image_path = "Square.png";
     std::cout << "IMAGE SLICER BEGIN" << std::endl;
 
     cv::Mat image = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
@@ -98,10 +98,15 @@ int main(int argc, char** argv){
     }
 
 
-    FillStrategy* strategy = new LinearFillStrategy(1, M_PI/6);
+    FillStrategy* strategy = new LinearFillStrategy(0.3, M_PI/6);
 
-    vector<vector<Point>> total_path = strategy->generateTotalPath(familyList[0]);
+    vector<vector<Point>> total_path;
 
+    for(Family family : familyList){
+        for(vector<Point> path : strategy->generateTotalPath(family)){
+            total_path.push_back(path);
+        }
+    }
     cout << total_path.size() << endl;
 
     // Angle a(M_PI/6);
