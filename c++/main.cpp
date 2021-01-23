@@ -139,7 +139,7 @@ int main(int argc, char** argv){
     }else{
         scale = scale_y;
     }
-    GCode gcode(scale);
+    GCode gcode(scale, 50.0, 50.0);
 
 
     std::string output = gcode.generateGCode(total_path);

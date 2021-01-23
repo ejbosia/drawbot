@@ -16,7 +16,7 @@ Class of strategies that take in a family of contours and output a vector of pat
 class GCode{
     
     private:
-        double scale;
+        double scale, x_offset, y_offset;
         std::string Z_UP, Z_DOWN;
 
         std::string commandDraw(double x, double y);
@@ -27,7 +27,7 @@ class GCode{
         std::string commandDown();
 
     public:
-        GCode(double scale);
+        GCode(double scale, double x_offset, double y_offset);
 
         std::string generateSubPath(std::vector<Point> sub_path);
         std::string generateGCode(std::vector<std::vector<Point>> total_path);
