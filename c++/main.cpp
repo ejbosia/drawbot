@@ -1,7 +1,7 @@
 
 #include <iostream>
 #include <chrono>
-
+#include <fstream>
 #include <vector>
 
 #include "point.h"
@@ -11,6 +11,7 @@
 #include "family.h"
 #include "intersection_strategy.h"
 #include "fill_strategy.h"
+#include "gcode.h"
 
 #include <stdio.h>
 // #include <opencv2/core.hpp>
@@ -43,12 +44,11 @@ Contour convertContour(vector<cv::Point> pointList){
 
 int main(int argc, char** argv){
 
-
     std::cout.precision(std::numeric_limits<double>::digits10 + 2);
 
     auto start = chrono::high_resolution_clock::now();
 
-    string image_path = "Square.png";
+    string image_path = "test_pic.png";
     std::cout << "IMAGE SLICER BEGIN" << std::endl;
 
     cv::Mat image = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
@@ -74,7 +74,6 @@ int main(int argc, char** argv){
 
             vector<Contour> contourList;
 
-
             // create a family with the starting contour
             contourList.push_back(convertContour(contours[i]));
             
@@ -97,8 +96,7 @@ int main(int argc, char** argv){
         }
     }
 
-
-    FillStrategy* strategy = new LinearFillStrategy(0.3, M_PI/6);
+    FillStrategy* strategy = new LinearFillStrategy(2.5, M_PI/6);
 
     vector<vector<Point>> total_path;
 
@@ -108,16 +106,6 @@ int main(int argc, char** argv){
         }
     }
     cout << total_path.size() << endl;
-
-    // Angle a(M_PI/6);
-    // // Angle a(0);
-    // vector<vector<Point>> total_path;
-
-    // for(int i = 0; i < familyList.size(); i++){
-    //     for(vector<Point> family_path : familyList[i].generateTotalPath(1, a)){
-    //         total_path.push_back(family_path);
-    //     }
-    // }
 
     cout << "X = [";
     for(vector<Point> path : total_path){
@@ -139,7 +127,26 @@ int main(int argc, char** argv){
     }
     cout << "]" << endl;
 
-    
+    // generate the gcode
+
+    double scale_y = 100.0/((double)image.rows);
+    double scale_x = 100.0/((double)image.cols);
+
+    double scale;
+
+    if(scale_x < scale_y){
+        scale = scale_x;
+    }else{
+        scale = scale_y;
+    }
+    GCode gcode(scale);
+
+
+    std::string output = gcode.generateGCode(total_path);
+
+    std::ofstream out("output.gcode");
+    out << output;
+
     auto stop = chrono::high_resolution_clock::now(); 
 
     auto duration = chrono::duration_cast<chrono::microseconds>(stop - start); 
