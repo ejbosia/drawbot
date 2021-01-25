@@ -105,27 +105,28 @@ int main(int argc, char** argv){
             total_path.push_back(path);
         }
     }
-    cout << total_path.size() << endl;
 
-    cout << "X = [";
-    for(vector<Point> path : total_path){
-        cout << "[";
-        for(Point p : path){
-            cout << p.x << ", ";
-        }
-        cout << "],";
-    }
-    cout << "]" << endl;
+    // cout << total_path.size() << endl;
 
-    cout << "Y = [";
-    for(vector<Point> path : total_path){
-        cout << "[";
-        for(Point p : path){
-            cout << p.y << ", ";
-        }
-        cout << "],";
-    }
-    cout << "]" << endl;
+    // cout << "X = [";
+    // for(vector<Point> path : total_path){
+    //     cout << "[";
+    //     for(Point p : path){
+    //         cout << p.x << ", ";
+    //     }
+    //     cout << "],";
+    // }
+    // cout << "]" << endl;
+
+    // cout << "Y = [";
+    // for(vector<Point> path : total_path){
+    //     cout << "[";
+    //     for(Point p : path){
+    //         cout << p.y << ", ";
+    //     }
+    //     cout << "],";
+    // }
+    // cout << "]" << endl;
 
     // generate the gcode
 
@@ -140,7 +141,6 @@ int main(int argc, char** argv){
         scale = scale_y;
     }
     GCode gcode(scale, 50.0, 50.0);
-
 
     std::string output = gcode.generateGCode(total_path);
 
