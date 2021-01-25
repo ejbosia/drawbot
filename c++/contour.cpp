@@ -88,8 +88,6 @@ Point* Contour::traverse(Point& start, double distance, bool clockwise){
     while(distance > 0){
 
         edgeDistance = start.distance(vertexList[index]);
-
-        std::cout << "\tSTART: " << start << " DISTANCE: " << distance << std::endl;
         
         // if the distance remaining is longer than the edge distance, move to the next edge
         if(distance > edgeDistance){
@@ -146,7 +144,7 @@ Point Contour::getMaximumPoint(Angle& angle){
 }
 
 
-ostream& operator<<(ostream &strm, const Contour &c){
+std::ostream& operator<<(std::ostream &strm, const Contour &c){
     
     strm << "\nCONTOUR" << endl;
 

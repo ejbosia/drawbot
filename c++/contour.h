@@ -22,13 +22,11 @@ author: ejbosia
 
 #include "line.h"
 
-using namespace std;
-
 
 class Contour{
 
     private:
-        vector<Point> vertexList;
+        std::vector<Point> vertexList;
 
     public:
 
@@ -39,7 +37,7 @@ class Contour{
 
         int getStartingIndex(Point& p);
 
-        Contour(vector<Point>& vertexList);
+        Contour(std::vector<Point>& vertexList);
 
         Point getMaximumPoint(Angle& angle);
 

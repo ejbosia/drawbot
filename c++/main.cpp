@@ -113,7 +113,7 @@ int main(int argc, char** argv){
         }
     }
 
-    FillStrategy* strategy = new LinearFillStrategy(2.5, M_PI/6);
+    FillStrategy* strategy = new LinearFillStrategy(0.5, M_PI/6);
 
     vector<vector<Point>> total_path;
 

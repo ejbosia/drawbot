@@ -6,24 +6,27 @@ GCode::GCode(double x_offset, double y_offset): x_offset(x_offset), y_offset(y_o
 
 
     Z_UP = "G01 Z1;";
-    Z_DOWN = "G01 Z1";
+    Z_DOWN = "G01 Z10";
 }
 
 
 std::string GCode::commandDraw(double x, double y){
-    return "G01 X" + std::to_string(scale*x+x_offset) + " Y" + std::to_string(scale*y+y_offset) + ";\n";
+    return "G01 X" + std::to_string(x+x_offset) + " Y" + std::to_string(y+y_offset) + ";\n";
 }
+
 
 std::string GCode::commandDraw(Point p){
-    return "G01 X" + std::to_string(scale*p.x+x_offset) + " Y" + std::to_string(scale*p.y+y_offset) + ";\n";
+    return "G01 X" + std::to_string(p.x+x_offset) + " Y" + std::to_string(p.y+y_offset) + ";\n";
 }
+
 
 std::string GCode::commandTravel(double x, double y){
-    return "G00 X" + std::to_string(scale*x+x_offset) + " Y" + std::to_string(scale*y+y_offset) + ";\n";
+    return "G00 X" + std::to_string(x+x_offset) + " Y" + std::to_string(y+y_offset) + ";\n";
 }
 
+
 std::string GCode::commandTravel(Point p){
-    return "G00 X" + std::to_string(scale*p.x+x_offset) + " Y" + std::to_string(scale*p.y+y_offset) + ";\n";
+    return "G00 X" + std::to_string(p.x+x_offset) + " Y" + std::to_string(p.y+y_offset) + ";\n";
 }
 
 
@@ -67,6 +70,10 @@ std::string GCode::generateGCode(std::vector<std::vector<Point>> total_path){
     // set the speeds
     output += "G00 F6000;\n";
     output += "G01 F2400;\n\n";
+
+    // set the Z steps per mm
+    // one rotation is "20 mm"
+    output += "M92 Z10;\n\n";
 
     // home the start
     output += Z_UP + "\n";
