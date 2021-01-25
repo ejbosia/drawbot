@@ -1,8 +1,12 @@
 #include "gcode.h"
 
-GCode::GCode(double scale, double x_offset, double y_offset): scale(scale), x_offset(x_offset), y_offset(y_offset){
-    Z_UP = "M106 S0;\nG4 P800;";
-    Z_DOWN = "M106 S255;\nG4 P800;";
+GCode::GCode(double x_offset, double y_offset): x_offset(x_offset), y_offset(y_offset){
+    // Z_UP = "M106 S0;\nG4 P800;";
+    // Z_DOWN = "M106 S255;\nG4 P800;";
+
+
+    Z_UP = "G01 Z1;";
+    Z_DOWN = "G01 Z1";
 }
 
 

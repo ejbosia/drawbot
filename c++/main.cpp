@@ -20,13 +20,17 @@
 #include <opencv2/opencv.hpp>
 
 
+#define X_OFFSET 50.0
+#define Y_OFFSET 50.0
+
+
 using namespace std;
 
 
 /*
 Convert a contour into the Contour class
 */
-Contour convertContour(vector<cv::Point> pointList){
+Contour convertContour(vector<cv::Point> pointList, double scale_x, double scale_y){
 
     vector<Point> vertexList;
 
@@ -34,7 +38,7 @@ Contour convertContour(vector<cv::Point> pointList){
         
         cv::Point cv_pt = pointList[i];
         
-        Point p(cv_pt.x, cv_pt.y);
+        Point p(cv_pt.x * scale_x, cv_pt.y * scale_y);
  
         vertexList.push_back(p);
     }
@@ -59,6 +63,19 @@ int main(int argc, char** argv){
         return 1;
     }
 
+    // set the scale
+    double scale_y = 100.0/((double)image.rows);
+    double scale_x = 100.0/((double)image.cols);
+
+    double scale;
+
+    if(scale_x < scale_y){
+        scale = scale_x;
+    }else{
+        scale = scale_y;
+    }
+
+
     // get the contours
     vector<vector<cv::Point>> contours;
     vector<cv::Vec4i> hierarchy;
@@ -75,7 +92,7 @@ int main(int argc, char** argv){
             vector<Contour> contourList;
 
             // create a family with the starting contour
-            contourList.push_back(convertContour(contours[i]));
+            contourList.push_back(convertContour(contours[i], scale_x, scale_y));
             
             // add the children to the family
 
@@ -83,7 +100,7 @@ int main(int argc, char** argv){
 
             while(index != -1){
                 
-                contourList.push_back(convertContour(contours[index]));
+                contourList.push_back(convertContour(contours[index], scale_x, scale_y));
 
                 index = hierarchy[index][0];
 
@@ -106,41 +123,30 @@ int main(int argc, char** argv){
         }
     }
 
-    // cout << total_path.size() << endl;
+    cout << total_path.size() << endl;
 
-    // cout << "X = [";
-    // for(vector<Point> path : total_path){
-    //     cout << "[";
-    //     for(Point p : path){
-    //         cout << p.x << ", ";
-    //     }
-    //     cout << "],";
-    // }
-    // cout << "]" << endl;
+    cout << "X = [";
+    for(vector<Point> path : total_path){
+        cout << "[";
+        for(Point p : path){
+            cout << p.x << ", ";
+        }
+        cout << "],";
+    }
+    cout << "]" << endl;
 
-    // cout << "Y = [";
-    // for(vector<Point> path : total_path){
-    //     cout << "[";
-    //     for(Point p : path){
-    //         cout << p.y << ", ";
-    //     }
-    //     cout << "],";
-    // }
-    // cout << "]" << endl;
+    cout << "Y = [";
+    for(vector<Point> path : total_path){
+        cout << "[";
+        for(Point p : path){
+            cout << p.y << ", ";
+        }
+        cout << "],";
+    }
+    cout << "]" << endl;
 
     // generate the gcode
-
-    double scale_y = 100.0/((double)image.rows);
-    double scale_x = 100.0/((double)image.cols);
-
-    double scale;
-
-    if(scale_x < scale_y){
-        scale = scale_x;
-    }else{
-        scale = scale_y;
-    }
-    GCode gcode(scale, 50.0, 50.0);
+    GCode gcode(X_OFFSET, Y_OFFSET);
 
     std::string output = gcode.generateGCode(total_path);
 
