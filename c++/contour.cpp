@@ -1,6 +1,6 @@
 #include "contour.h"
         
-Contour::Contour(vector<Point>& vertexRef):vertexList(vertexRef){
+Contour::Contour(std::vector<Point>& vertexRef):vertexList(vertexRef){
 
 }
 
@@ -146,10 +146,10 @@ Point Contour::getMaximumPoint(Angle& angle){
 
 std::ostream& operator<<(std::ostream &strm, const Contour &c){
     
-    strm << "\nCONTOUR" << endl;
+    strm << "\nCONTOUR" << std::endl;
 
     for(int i = 0; i < c.vertexList.size(); i++){
-        strm << "\t" << c.vertexList[i] << endl;
+        strm << "\t" << c.vertexList[i] << std::endl;
     }
 
     return strm;

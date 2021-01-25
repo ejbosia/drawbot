@@ -18,7 +18,7 @@ Create the row intersection map
 void LinearFillStrategy::initRowIntersectionMap(){
     Point temp(0.0,0.0);
 
-    vector<int> rowPts;
+    std::vector<int> rowPts;
 
     int row;
     // initialize the rowIntersectionPoints
@@ -70,7 +70,7 @@ void LinearFillStrategy::getAcrossPoint(int& contour, int& index){
     std::vector<Point*>::iterator it = std::find (rowPoints.begin(), rowPoints.end(), currentPtr); 
 
     if(it == rowPoints.end()){
-        std::cout << "NOT FOUND! " << *currentPtr << " " << row << endl;
+        std::cout << "NOT FOUND! " << *currentPtr << " " << row << std::endl;
 
         throw 5;
     }
@@ -94,8 +94,7 @@ void LinearFillStrategy::getAcrossPoint(int& contour, int& index){
 Get the next point around the contour. The point will always be "up" the contour in the Y direction
 */
 void LinearFillStrategy::getNextPoint(int& contour, int& index){
-    // std::cout << "NEXT " << contour << " " << index <<std::endl;
-
+    
     int cs = intersectionPoints[contour].size();
 
     int low_index = (index-1);
