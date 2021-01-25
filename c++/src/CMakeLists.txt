@@ -18,6 +18,6 @@ message(STATUS ${drawbot_SOURCE_DIR})
 
 link_directories(${drawbot_SOURCE_DIR}/src)
 
-add_executable( drawbot main.cpp point.cpp angle.cpp line.cpp contour.cpp family.cpp intersection_strategy.cpp fill_strategy.cpp gcode.cpp)
+add_executable( drawbot main.cpp point.cpp angle.cpp line.cpp contour.cpp family.cpp intersection_strategy.cpp fill_strategy.cpp linear_fill_strategy.cpp gcode.cpp)
 
 target_link_libraries(drawbot ${OpenCV_LIBS})
