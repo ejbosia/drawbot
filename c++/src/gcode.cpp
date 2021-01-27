@@ -5,8 +5,8 @@ GCode::GCode(double x_offset, double y_offset): x_offset(x_offset), y_offset(y_o
     // Z_DOWN = "M106 S255;\nG4 P800;";
 
 
-    Z_UP = "G01 Z1;";
-    Z_DOWN = "G01 Z10";
+    Z_UP = "G01 Z0.5;";
+    Z_DOWN = "G01 Z8";
 }
 
 
@@ -64,16 +64,9 @@ std::string GCode::generateSubPath(std::vector<Point> sub_path){
 
 std::string GCode::generateGCode(std::vector<std::vector<Point>> total_path){
 
-    
+    std::cout << "NEW GCODE" << std::endl;
+
     std::string output = "";
-
-    // set the speeds
-    output += "G00 F6000;\n";
-    output += "G01 F2400;\n\n";
-
-    // set the Z steps per mm
-    // one rotation is "20 mm"
-    output += "M92 Z10;\n\n";
 
     // home the start
     output += Z_UP + "\n";

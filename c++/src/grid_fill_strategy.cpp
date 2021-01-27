@@ -10,12 +10,19 @@ GridFillStrategy::GridFillStrategy(double lineThickness, Angle angle):lineThickn
 }
 
 
-std::vector<std::vector<Point>> generateTotalPath(Family family){
+std::vector<std::vector<Point>> GridFillStrategy::generateTotalPath(Family family){
 
     std::vector<std::vector<Point>> total_path;
 
+    Angle reverse(-angle.getAngle());
 
+    // rotate the family to match the angle
+    family.rotate(reverse);
 
+    // find the intersection points for each contour
+    for(int i = 0; i < family.size(); i++){
+        intersectionPoints.push_back(intersectionStrategy->generateIntersectionPoints(family.get(i)));
+    }
 
 }
 

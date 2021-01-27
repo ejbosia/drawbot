@@ -11,6 +11,7 @@
 #include "family.h"
 #include "intersection_strategy.h"
 #include "fill_strategy.h"
+#include "linear_fill_strategy.h"
 #include "gcode.h"
 
 #include <stdio.h>
@@ -20,8 +21,8 @@
 #include <opencv2/opencv.hpp>
 
 
-#define X_OFFSET 50.0
-#define Y_OFFSET 50.0
+#define X_OFFSET 20.0
+#define Y_OFFSET 20.0
 
 
 using namespace std;
@@ -92,7 +93,7 @@ int main(int argc, char** argv){
             vector<Contour> contourList;
 
             // create a family with the starting contour
-            contourList.push_back(convertContour(contours[i], scale_x, scale_y));
+            contourList.push_back(convertContour(contours[i], scale, scale));
             
             // add the children to the family
 
@@ -100,7 +101,7 @@ int main(int argc, char** argv){
 
             while(index != -1){
                 
-                contourList.push_back(convertContour(contours[index], scale_x, scale_y));
+                contourList.push_back(convertContour(contours[index], scale, scale));
 
                 index = hierarchy[index][0];
 
@@ -123,27 +124,27 @@ int main(int argc, char** argv){
         }
     }
 
-    cout << total_path.size() << endl;
+    // cout << total_path.size() << endl;
 
-    cout << "X = [";
-    for(vector<Point> path : total_path){
-        cout << "[";
-        for(Point p : path){
-            cout << p.x << ", ";
-        }
-        cout << "],";
-    }
-    cout << "]" << endl;
+    // cout << "X = [";
+    // for(vector<Point> path : total_path){
+    //     cout << "[";
+    //     for(Point p : path){
+    //         cout << p.x << ", ";
+    //     }
+    //     cout << "],";
+    // }
+    // cout << "]" << endl;
 
-    cout << "Y = [";
-    for(vector<Point> path : total_path){
-        cout << "[";
-        for(Point p : path){
-            cout << p.y << ", ";
-        }
-        cout << "],";
-    }
-    cout << "]" << endl;
+    // cout << "Y = [";
+    // for(vector<Point> path : total_path){
+    //     cout << "[";
+    //     for(Point p : path){
+    //         cout << p.y << ", ";
+    //     }
+    //     cout << "],";
+    // }
+    // cout << "]" << endl;
 
     // generate the gcode
     GCode gcode(X_OFFSET, Y_OFFSET);
