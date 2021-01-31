@@ -21,9 +21,16 @@
 #include <opencv2/opencv.hpp>
 
 
+#define X_MAX 100.0
+#define Y_MAX 150.0
+
 #define X_OFFSET 20.0
 #define Y_OFFSET 20.0
 
+#define LINETHICKNESS 0.5
+#define ANGLE (M_PI/6)
+
+#define IMAGE_PATH "test_pic.png"
 
 using namespace std;
 
@@ -53,7 +60,7 @@ int main(int argc, char** argv){
 
     auto start = chrono::high_resolution_clock::now();
 
-    string image_path = "test_pic.png";
+    string image_path = IMAGE_PATH;
     std::cout << "IMAGE SLICER BEGIN" << std::endl;
 
     cv::Mat image = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
@@ -65,8 +72,8 @@ int main(int argc, char** argv){
     }
 
     // set the scale
-    double scale_y = 100.0/((double)image.rows);
-    double scale_x = 100.0/((double)image.cols);
+    double scale_y = Y_MAX/((double)image.rows);
+    double scale_x = X_MAX/((double)image.cols);
 
     double scale;
 
@@ -75,6 +82,8 @@ int main(int argc, char** argv){
     }else{
         scale = scale_y;
     }
+
+    std::cout << scale << "\tX " << scale_x << " Y" << scale_y << std::endl;
 
 
     // get the contours
@@ -114,13 +123,17 @@ int main(int argc, char** argv){
         }
     }
 
-    FillStrategy* strategy = new LinearFillStrategy(0.5, M_PI/6);
+    std::cout << "CONTOURS DONE" << std::endl;  
+
+    FillStrategy* strategy = new LinearFillStrategy(LINETHICKNESS, ANGLE);
 
     vector<vector<Point>> total_path;
-
+    int i = 0;
     for(Family family : familyList){
         for(vector<Point> path : strategy->generateTotalPath(family)){
             total_path.push_back(path);
+            std::cout << "FAMILY " << i << std::endl; 
+            i++; 
         }
     }
 

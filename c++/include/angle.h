@@ -16,6 +16,7 @@ class Angle{
         
 
     public:
+        Angle();
         Angle(double angle);
 
         // mutators and accessors

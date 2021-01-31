@@ -70,7 +70,6 @@ bool Line::checkEndPointIntersection(Point& p, Angle& a){
 
     DEBUG_MSG_L(temp1 << "\t" << temp2);
 
-
     // rotate the temp points to match the ray
     Angle reverse(-a.getAngle());
     temp1.rotate(reverse);

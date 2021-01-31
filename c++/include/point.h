@@ -14,6 +14,7 @@ struct Point{
     double y;
     bool available;
     
+    Point();
     Point(double x, double y);
 
     double distance(Point& other);

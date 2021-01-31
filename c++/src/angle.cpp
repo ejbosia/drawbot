@@ -1,5 +1,11 @@
 #include "angle.h"
 
+
+Angle::Angle(){
+    
+}
+
+
 /*
 Create an angle object. This enforces angles between 0-2PI
 */

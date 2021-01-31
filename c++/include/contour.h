@@ -20,7 +20,7 @@ author: ejbosia
 #include <map>
 #include <algorithm>
 
-#include "line.h"
+#include "point.h"
 
 
 class Contour{
@@ -34,13 +34,11 @@ class Contour{
         Point get(int index);
         int size();
 
-
         int getStartingIndex(Point& p);
 
         Contour(std::vector<Point>& vertexList);
 
         Point getMaximumPoint(Angle& angle);
-
         Point* traverse(Point& p, double distance, bool clockwise=true);
 
         void rotate(Angle& angle);

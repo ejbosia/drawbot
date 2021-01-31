@@ -232,7 +232,6 @@ std::vector<std::vector<Point>> LinearFillStrategy::generateTotalPath(Family fam
     getAvailablePoint(contour, index);
 
     while(contour != -1){
-
         total_path.push_back(generatePath(contour, index));
 
         getAvailablePoint(contour, index);
