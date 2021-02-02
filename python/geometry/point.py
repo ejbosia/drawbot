@@ -24,6 +24,22 @@ class Point:
         return math.sqrt((self.x-other.x)**2 + (self.y-other.y)**2)
 
 
+    def translate(self, dx, dy):
+        self.x += dx
+        self.y += dy
+
+
+    def rotate(self, angle):
+        s = math.sin(angle)
+        c = math.cos(angle)
+
+        x = self.x * c - self.y * s
+        y = self.x * s + self.y * c
+
+        self.x = x
+        self.y = y
+
+    
     def tuple(self):
         return (self.x,self.y)
 

@@ -30,8 +30,8 @@ class Line:
 
     # find the angle of the line from p1 to p2
     def __angle(self):
-        dx = self.p2[0] - self.p1[0]
-        dy = self.p2[1] - self.p1[1]
+        dx = self.p2.x - self.p1.x
+        dy = self.p2.y - self.p1.y
         return np.arctan2(dy,dx)
 
 
@@ -50,8 +50,8 @@ class Line:
         if self.p2 is None:
             return None
 
-        x = (self.p1[0] + self.p2[0])/2
-        y = (self.p1[1] + self.p2[1])/2
+        x = (self.p1.x + self.p2.x)/2
+        y = (self.p1.y + self.p2.y)/2
 
         return (x,y)
 
@@ -61,8 +61,8 @@ class Line:
         if self.p2 is None:
             return np.inf
 
-        dx = self.p2[0] - self.p1[0]
-        dy = self.p2[1] - self.p1[1]
+        dx = self.p2.x - self.p1.x
+        dy = self.p2.y - self.p1.y
 
         return math.sqrt(dx**2 + dy**2)
 
@@ -75,74 +75,50 @@ class Line:
 
         ux, uy = self.slope()
 
-        px = distance * ux + self.p1[0]
-        py = distance * uy + self.p1[1]
+        px = distance * ux + self.p1.x
+        py = distance * uy + self.p1.y
 
         return (px, py)
 
+    '''
+    Check if there is a possible intersection
+    '''
+    def check_possible_intersection(self, p, a):
+        # create two temporary points for the line endpoints
+        l1 = self.p1
+        l2 = self.p2
 
-    # check if the input point is on the line
-    def check_on_line(self, point):
+        # move the points to 0
+        l1.translate(-p.x,-p.y)
+        l2.translate(-p.x,-p.y)
 
-        # check if p2 is the point ( do not check p1 to avoid rays )
-        if not self.p2 is None:
-            if round(point[0],5) == round(self.p2[0],5) and round(point[1],5) == round(self.p2[1],5):
-                return True
-        
-        # build a temporary line from p1 to the input point
-        # TODO this might not be the most efficient method
-        temp = Line(self.p1, p2=point)
+        # rotate the temp points to match the ray
+        l1.rotate(-a)
+        l2.rotate(-a)
 
-        # if the angle is not equivalent, return false
-        if not round(self.angle%(2*np.pi),5) == round(temp.angle%(2*np.pi),5):
+        # if the sign of each y component are the same, intersection is impossible
+        if(l1.y * l2.y > 0):
             return False
 
-        # to be on the line, the point must be between the two existing points
-        if self.length() >= temp.length():
-            return True
-        else:
-            return False
+        '''
+        X check
+        - check the x normalized to y sum is greater than 0
+        - the ray is currently at angle 0, so lines that have negative weight have an intersection point in -x
+        '''
+        normal = l1.x/abs(l1.y) + l2.x/abs(l2.y)
 
+        return normal > 0
 
-    # find the intersection point with another line ~ None if there is none
-    def intersection(self, line):
-        
-        # check if the angles are the same
-        if (self.angle - line.angle) % np.pi == 0:
-            return None
-
-        # find the intersection point
-        point = self.__intersection_ray(line)
-
-        # check if the point is on both lines
-        if self.check_on_line(point) and line.check_on_line(point):
-            return point
-        else:
-            return None
-
-
-    # find the intersection point of the two lines, treated as rays
-    def __intersection_ray(self, line):
-
-        dx, dy = self.slope()
-        lx, ly = line.slope()
-
-        V = (self.p1[1] - line.p1[1] + (dy/dx) * (line.p1[0] - self.p1[0])) / (ly - (dy/dx) * lx)
-
-        px = line.p1[0] + lx * V
-        py = line.p1[1] + ly * V
-
-        return (px, py)
 
     
     # return the cross product of this and another line
     def cross_product(self, line):
 
-        ax = self.p2[0]-self.p1[0]
-        ay = self.p2[1]-self.p1[1]
+        ax = self.p2.x-self.p1.x
+        ay = self.p2.y-self.p1.y
 
-        bx = line.p2[0]-line.p1[0]
-        by = line.p2[1]-line.p1[1]
+        bx = line.p2.x-line.p1.x
+        by = line.p2.y-line.p1.y
 
         result = (ax * by) - (ay*bx)
 
@@ -156,7 +132,7 @@ class Line:
     
         else:
             dx, dy = self.slope()
-            points = [self.p1, (dx*40+self.p1[0], dy*40+self.p1[1])]
+            points = [self.p1, (dx*40+self.p1.x, dy*40+self.p1.y)]
 
         return zip(*points)
 
