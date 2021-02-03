@@ -9,6 +9,8 @@ import numpy as np
 import math
 import logging
 
+from geometry.point import Point
+
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 class Line:
@@ -80,24 +82,29 @@ class Line:
 
         return (px, py)
 
+
     '''
     Check if there is a possible intersection
     '''
     def check_possible_intersection(self, p, a):
+        # check for parallel lines
+        if((self.angle%np.pi) == (a%np.pi)):
+            return False
+
         # create two temporary points for the line endpoints
-        l1 = self.p1
-        l2 = self.p2
+        l1 = Point(self.p1.x, self.p1.y)
+        l2 = Point(self.p2.x, self.p2.y)
 
         # move the points to 0
-        l1.translate(-p.x,-p.y)
-        l2.translate(-p.x,-p.y)
+        l1.translate_XY(-p.x,-p.y)
+        l2.translate_XY(-p.x,-p.y)
 
         # rotate the temp points to match the ray
         l1.rotate(-a)
         l2.rotate(-a)
 
         # if the sign of each y component are the same, intersection is impossible
-        if(l1.y * l2.y > 0):
+        if(round(l1.y,10) * round(l2.y,10) > 0):
             return False
 
         '''
@@ -105,9 +112,35 @@ class Line:
         - check the x normalized to y sum is greater than 0
         - the ray is currently at angle 0, so lines that have negative weight have an intersection point in -x
         '''
-        normal = l1.x/abs(l1.y) + l2.x/abs(l2.y)
 
-        return normal > 0
+        if l1.y == 0:
+            return l1.x > 0
+        elif l2.y == 0:
+            return l2.x > 0
+        else:
+            normal = l1.x/abs(l1.y) + l2.x/abs(l2.y)
+
+            return normal > 0
+
+
+    def intersection(self, line):
+
+        check1 = self.check_possible_intersection(line.p1, line.angle)
+        check2 = line.check_possible_intersection(self.p1, self.angle)
+
+        if not check1 or not check2:
+            return None
+        
+        s1 = np.tan(self.angle)
+        s2 = np.tan(line.angle)
+
+        V = (self.p1.y - line.p1.y + s1 * (line.p1.x - self.p1.x)) / (s2 - s1)
+
+        px = line.p1.x + V
+        py = line.p1.y + s2 * V
+
+        return Point(px,py)
+
 
 
     
@@ -124,17 +157,17 @@ class Line:
 
         return result
     
+
     # return a zip of the line for plotting
     def plot(self):
         
         if not self.p2 is None:
-            points = [self.p1, self.p2]
-    
-        else:
-            dx, dy = self.slope()
-            points = [self.p1, (dx*40+self.p1.x, dy*40+self.p1.y)]
+            X = [self.p1.x, self.p2.x]
+            Y = [self.p1.y, self.p2.y]
+            return X,Y
 
-        return zip(*points)
+        else:
+            raise Exception("NOT IMPLEMENTED YET")
 
 
     def __eq__(self, line):
