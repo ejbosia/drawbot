@@ -51,6 +51,8 @@ class Point:
 
         return np.arctan2(dy,dx) % (2*np.pi)
 
+    def copy(self):
+        return Point(self.x, self.y)
 
     
     def tuple(self):

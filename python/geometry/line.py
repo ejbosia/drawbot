@@ -83,6 +83,15 @@ class Line:
         return (px, py)
 
 
+    def fast_on_line(self, p):
+
+        # compare angles
+        test_angle = self.p1.angle(p)
+
+        return (test_angle - self.angle)%np.pi == 0
+
+        
+
     '''
     Check if there is a possible intersection
     '''
@@ -123,6 +132,25 @@ class Line:
             return normal > 0
 
 
+    def fast_check_intersection(self, line):
+        check1 = self.check_possible_intersection(line.p1, line.angle)
+        check2 = line.check_possible_intersection(self.p1, self.angle)
+
+        return check1 and check2
+
+
+    def fast_intersection(self, line):
+
+        s1 = np.tan(self.angle)
+        s2 = np.tan(line.angle)
+
+        V = (self.p1.y - line.p1.y + s1 * (line.p1.x - self.p1.x)) / (s2 - s1)
+
+        px = line.p1.x + V
+        py = line.p1.y + s2 * V
+
+        return Point(px,py)
+
     def intersection(self, line):
 
         check1 = self.check_possible_intersection(line.p1, line.angle)
@@ -142,6 +170,38 @@ class Line:
         return Point(px,py)
 
 
+    def distance_2(self, point):
+
+        angle = self.p1.angle(point)%(2*np.pi)
+
+        a = self.angle - angle
+
+        d = self.p1.distance(point)
+
+        dis = d * np.cos(a)
+
+        # calculate hypothenus from p1
+        if dis < 0:
+            return self.p1.distance(point)
+        # calculate hypothenus from p2
+        elif dis > self.p1.distance(self.p2):
+            return self.p2.distance(point)
+        else:
+            return self.distance(point)
+            
+
+
+
+
+    def distance(self, p):
+
+        dx = self.p2.x-self.p1.x
+        dy = self.p2.y-self.p1.y
+
+        numerator = dx*(self.p1.y-p.y)-(self.p1.x-p.x)*dy
+        denominator = np.sqrt(dx**2+dy**2)
+
+        return abs(numerator)/denominator
 
     
     # return the cross product of this and another line
