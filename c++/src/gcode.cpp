@@ -72,6 +72,7 @@ std::string GCode::generateGCode(std::vector<std::vector<Point>> total_path){
     output += "G28 Z;\n";
     output += Z_UP + "\n";
     output += "G28 X Y;\n\n";
+
     // loop through each path
     for(int i = 0; i < total_path.size(); i++){
         output += generateSubPath(total_path[i]);
