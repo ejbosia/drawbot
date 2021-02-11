@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, DateField, validators
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
-from app.models import User
 
 class GcodeForm(FlaskForm):
     username = StringField('Username', validators = [DataRequired()])
