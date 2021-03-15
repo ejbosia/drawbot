@@ -11,3 +11,5 @@
 *.pdf
 
 *.out
+
+/.vscode
