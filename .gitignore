@@ -1,4 +1,7 @@
 *.png
+*.jpg
+*.jpeg
+
 *.gcode
 *.pyc
 *.odt

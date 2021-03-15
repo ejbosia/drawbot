@@ -197,14 +197,18 @@ def plot_gcode(gcode, debug=True, show=True, image=False, startstop=True, scale=
 
 
     for c in commands:
+        c = c.strip(';')
         if debug:
             print(c)
-        if "Z0" in c:
+        if "Z8" in c:
             Z_down.append(np.array([prev_x, prev_y]))
             X.append([prev_x])
             Y.append([prev_y])
             pen_down=True
-        if "X" in c or "Y" in c:
+
+        if "G28" in c:
+            continue
+        elif "X" in c or "Y" in c:
             if pen_down:
                 if scale:
                     X[-1].append(float(c.split("X")[1].split(" ")[0]))
@@ -219,7 +223,7 @@ def plot_gcode(gcode, debug=True, show=True, image=False, startstop=True, scale=
                 prev_x = float(c.split("X")[1].split(" ")[0]) / CONFIG.SCALE
                 prev_y = float(c.split("Y")[1].split(" ")[0]) / CONFIG.SCALE
 
-        if not ("Z0" in c) and "Z" in c:
+        if not ("Z8" in c) and "Z" in c:
             try:
                 pen_down = False
                 Z_up.append(np.array([prev_x, prev_y]))
@@ -227,6 +231,7 @@ def plot_gcode(gcode, debug=True, show=True, image=False, startstop=True, scale=
                 continue
         if c == "" and debug:
             print("HAHAHA")
+    
     for i, temp in enumerate(X):
         plt.plot(X[i], Y[i], linewidth=0.2)
 
