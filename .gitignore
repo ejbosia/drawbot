@@ -1,3 +1,4 @@
+/* Images */
 *.png
 *.jpg
 *.jpeg
@@ -7,5 +8,6 @@
 *.odt
 *.odt#
 *.ipynb
+*.pdf
 
 *.out
