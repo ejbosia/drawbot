@@ -1,4 +1,4 @@
-/* Images */
+# images
 *.png
 *.jpg
 *.jpeg
@@ -12,5 +12,6 @@
 
 *.out
 
+# settings folders
 /.vscode
 /__pycache__
