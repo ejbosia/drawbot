@@ -1,9 +1,9 @@
 # drawbot
-The current goal is to be able to convert images into gcode commands to fill in the image.
+This repository works with the "drawbot" project, which is a simple cartesian drawing robot. The program takes binary images and "fills" them using different fill techniques. A goal is to branch into more generic images.
+
+## Fill Techniques
+Rectilinear fill --> done
+Spiral fill --> done
+CFS fill --> in progress
 
 
-## Line Generation
-The current objective is to break the image into lines that can be input into the GCODE parser. 
-
-## GCODE
-The GCODE parser takes in lists of points and outputs GCODE.
