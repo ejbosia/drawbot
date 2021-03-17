@@ -92,13 +92,6 @@ def remove_peaks(intersection_list, row_points):
     return intersection_list, row_points
 
 
-
-
-
-
-
-
-
 '''
 Get the next point up the polygon
 '''
@@ -166,12 +159,17 @@ def generate_path(polygon, line_thickness = 1, angle = np.pi/7):
     intersection_list, intersection_contours = generate_intersection_points(polygon, line_thickness)
 
     
-
     # generate the paths until no points remain
+    start = get_available_pt([], intersection_list)
 
+    total_path = []
+    while not start is None:
+        
+        total_path.append(fill_path(start, intersection_list, row_points))
+        start = get_available_pt(total_path, intersection_list)
 
     # rotate the path back
-
+    
     return total_path
 
 
