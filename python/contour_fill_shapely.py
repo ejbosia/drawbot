@@ -32,17 +32,19 @@ def generate_intersection_points(polygon, distance):
     l1 = l1.parallel_offset(distance/2, 'left')
 
     intersection_list = []
-
     intersection_contours = []
 
     # loop while the line intersects the polygon
     while l1.intersects(polygon):
         
+        # get the intersection points
         intersection_points = polygon.exterior.intersection(l1)
 
+        # add the intersection points to the next row
         intersection_list.append(list(intersection_points))
         
-        l1 = l1.parallel_offset(1, 'left')    
+        # move the line to the next position
+        l1 = l1.parallel_offset(distance, 'left')    
 
     '''
     Flatten and sort the contour points
@@ -146,6 +148,42 @@ def get_available_pt(total_path, intersection_list):
 
 
 '''
+Generate path until completion
+'''
+def fill_path(start, intersection_list, row_points):
+    p1 = start
+    
+    index = 0
+    
+    for i, row in enumerate(intersection_list):
+        if start in row:
+            index = i
+            break
+    path = []
+
+    while not p1 is None:
+        
+        path.append(p1)
+        p2 = across_point(p1, intersection_list[index])
+        path.append(p2)  
+
+        index+=1
+        
+        
+        if index == len(intersection_list):
+            p1 = None
+        else:
+            p1 = next_point(p2, row_points, intersection_list[index])
+
+
+    plot_linestring(new.exterior)
+    plot_path(path)
+    
+    return path
+
+
+
+'''
 Generate the path for one of the polygons
 '''
 def generate_path(polygon, line_thickness = 1, angle = np.pi/7):
@@ -158,7 +196,6 @@ def generate_path(polygon, line_thickness = 1, angle = np.pi/7):
     # get the intersection points
     intersection_list, intersection_contours = generate_intersection_points(polygon, line_thickness)
 
-    
     # generate the paths until no points remain
     start = get_available_pt([], intersection_list)
 
@@ -169,7 +206,7 @@ def generate_path(polygon, line_thickness = 1, angle = np.pi/7):
         start = get_available_pt(total_path, intersection_list)
 
     # rotate the path back
-    
+
     return total_path
 
 
