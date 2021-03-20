@@ -169,15 +169,10 @@ def fill_path(start, intersection_list, row_points):
 
         index+=1
         
-        
         if index == len(intersection_list):
             p1 = None
         else:
             p1 = next_point(p2, row_points, intersection_list[index])
-
-
-    plot_linestring(new.exterior)
-    plot_path(path)
     
     return path
 

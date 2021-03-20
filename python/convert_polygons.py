@@ -28,9 +28,9 @@ def get_children(contour_list, parent_contour):
 
     child_list = []
 
-    first_child_index = parent_contour.heirarchy[2]
+    first_child_index = parent_contour[1][2]
     child = contour_list[first_child_index]
-    child_list.append(child)
+    child_list.append(child[0])
 
 
     # loop while there are more children
@@ -64,6 +64,8 @@ def create_polygons(contour_list):
             else:
                 child_list = get_children(contour_list, contour)
 
+
+            print(contour[0], child_list)
             polygon_list.append(Polygon(contour[0], holes=child_list))
 
     return polygon_list
