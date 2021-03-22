@@ -64,8 +64,6 @@ def create_polygons(contour_list):
             else:
                 child_list = get_children(contour_list, contour)
 
-
-            print(contour[0], child_list)
             polygon_list.append(Polygon(contour[0], holes=child_list))
 
     return polygon_list
