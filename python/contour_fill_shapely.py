@@ -147,8 +147,10 @@ def next_point(point, contour_indices, all_points):
     i0 = i1-1
     i2 = i1+1    
     
-    if i0 in contour_indices:
-        i0 = contour_indices[np.where(i0 == contour_indices)[0][0]+1] -1
+
+
+    if i0+1 in contour_indices:
+        i0 = contour_indices[np.where((i0+1) == contour_indices)[0][0]+1] -1
     elif i2 in contour_indices:
         i2 = contour_indices[np.where(i2 == contour_indices)[0][0]-1]
         
@@ -203,17 +205,14 @@ Generate path until completion
 def fill_path(start_index, all_points, contour_indices):    
         
     p1 = all_points[start_index]
-    index = start_index
     
     path = []
-    
+
     while not p1 is None:
-        
         path.append(p1)
         p2 = across_point(p1, all_points)
-        
         path.append(p2)
-        p1 = next_point(p2, contour_indices, all_points)    
+        p1 = next_point(p2, contour_indices, all_points)         
             
     return path
 
@@ -238,13 +237,13 @@ def generate_path(all_points, contour_indices):
         temp.extend(path)
                         
         last_start = get_available_pt_index(last_start, np.array(temp), sort_points)
-                
+        
         if last_start != -1:
+
             start_point = sort_points[last_start]
 
             # get the start index in all points
             start_index = np.where((all_points[:,0]==start_point[0]) & (all_points[:,1]==start_point[1]))[0][0]
-
         total_path.append(path)
 
     return total_path
@@ -264,10 +263,13 @@ def generate_total_path(polygon_list, distance = 1, angle = np.pi/7):
 
         intersections, contour_indices = generate_intersections(polygon, distance)
 
-        total_path.append(generate_path(intersections, contour_indices))
-        
-        logging.info("Polygon: " + str(i) + ": " + str(time.time() - start))
-    
+        print("INTERSECTIONS", intersections.shape)
+        if intersections.shape[0] != 0:
+            total_path.append(generate_path(intersections, contour_indices))
+            
+            logging.info("Polygon: " + str(i) + ": " + str(time.time() - start))
+        else:
+            print("SKIPPER")
     logging.info("TOTAL TIME: " + str(time.time() - total_start))
 
     return total_path 
@@ -275,15 +277,17 @@ def generate_total_path(polygon_list, distance = 1, angle = np.pi/7):
 
 
 # execute the contour fill on the image
-def execute(image):
+def execute(image, distance):
     # create the border lines for each contour
     # organize contours into families of contours
     polygon_list = cp.execute(image)
     
     # generate the paths
-    total_path = generate_total_path(polygon_list)
+    total_path = generate_total_path(polygon_list, distance=distance)
 
     return total_path
 
 if __name__ == "__main__":
-    main()
+    image = cv2.imread("../images/test_pic.png", 0)
+
+    print(execute(image, 10))
