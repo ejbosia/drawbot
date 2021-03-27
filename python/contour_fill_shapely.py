@@ -202,7 +202,7 @@ def get_available_pt_index(last_start,total_path, all_points):
 Generate path until completion
 '''
 @jit(nopython=True)  
-def fill_path(start_index, all_points, contour_indices):    
+def fill_path(start_index, all_points, contour_indices, points_map):    
         
     p1 = all_points[start_index]
     
@@ -210,9 +210,9 @@ def fill_path(start_index, all_points, contour_indices):
 
     while not p1 is None:
         path.append(p1)
-        p2 = across_point(p1, all_points)
+        p2 = across_point(p1, all_points, points_map)
         path.append(p2)
-        p1 = next_point(p2, contour_indices, all_points)         
+        p1 = next_point(p2, contour_indices, all_points, points_map)         
             
     return path
 
@@ -225,9 +225,13 @@ def generate_path(all_points, contour_indices):
     total_path = []
     temp = []
     start_index = 0
+
+    point_map = np.zeros(all_points.shape[0], bool)
     
-    sort_points = all_points[all_points[:,1].argsort()]
-        
+    map_to_sort = all_points[:,1].argsort()
+    map_to_all = np.argsort(map_to_sort)
+    sort_points = all_points[map_to_sort]
+
     last_start = 0
     
     while last_start != -1:
@@ -263,13 +267,10 @@ def generate_total_path(polygon_list, distance = 1, angle = np.pi/7):
 
         intersections, contour_indices = generate_intersections(polygon, distance)
 
-        print("INTERSECTIONS", intersections.shape)
         if intersections.shape[0] != 0:
             total_path.append(generate_path(intersections, contour_indices))
             
             logging.info("Polygon: " + str(i) + ": " + str(time.time() - start))
-        else:
-            print("SKIPPER")
     logging.info("TOTAL TIME: " + str(time.time() - total_start))
 
     return total_path 
@@ -289,5 +290,3 @@ def execute(image, distance):
 
 if __name__ == "__main__":
     image = cv2.imread("../images/test_pic.png", 0)
-
-    print(execute(image, 10))
