@@ -132,7 +132,7 @@ def generate_intersections(polygon, distance):
 Get the next point up the polygon
 '''
 @jit(nopython=True) 
-def next_point(point, contour_indices, all_points):
+def next_point(point, contour_indices, all_points, available):
         
     i1 = np.where((all_points[:,0] == point[0]) & (all_points[:,1]==point[1]))[0][0]
     
@@ -145,11 +145,13 @@ def next_point(point, contour_indices, all_points):
         i2 = contour_indices[np.where(i2 == contour_indices)[0][0]-1]
         
     # check the previous point
-    if all_points[i0][1] > point[1]:
+    if available[i0] and all_points[i0][1] > point[1]:
+        available[i0] = False
         return all_points[i0]
     
     # check the next point
-    if all_points[i2][1] > point[1]:
+    if available[i2] and all_points[i2][1] > point[1]:
+        available[i2] = False
         return all_points[i2]    
     
     # if neither point returns
@@ -160,7 +162,7 @@ def next_point(point, contour_indices, all_points):
 Get the point across polygon
 '''
 @jit(nopython=True) 
-def across_point(point, all_points): 
+def across_point(point, all_points, available): 
 
     row = all_points[all_points[:,1]==point[1]][:,0]
     row.sort()
@@ -173,26 +175,12 @@ def across_point(point, all_points):
         return np.array([row[index-1], point[1]])
 
 
-'''
-Find an intersection point that is not in the path
-'''
-@jit(nopython=True)
-def get_available_pt_index(last_start,total_path, all_points):   
-
-    for i in range(last_start, len(all_points)):
-        if ((total_path[:,0] == all_points[i,0]) & (total_path[:,1] == all_points[i,1])).any():
-            continue
-        else:
-            return i
-    
-    return -1   
-
 
 '''
 Generate path until completion
 '''
 @jit(nopython=True)  
-def fill_path(start_index, all_points, contour_indices):    
+def fill_path(start_index, all_points, contour_indices, available):    
         
     p1 = all_points[start_index]
     
@@ -201,10 +189,10 @@ def fill_path(start_index, all_points, contour_indices):
     while not p1 is None:
         
         path.append(p1)
-        p2 = across_point(p1, all_points)
+        p2 = across_point(p1, all_points, available)
         
         path.append(p2)
-        p1 = next_point(p2, contour_indices, all_points)    
+        p1 = next_point(p2, contour_indices, all_points, available)    
             
     return path
 
@@ -215,27 +203,21 @@ Generate the path for one of the polygons
 def generate_path(all_points, contour_indices):
 
     total_path = []
-    temp = []
+
     start_index = 0
     
-    sort_points = all_points[all_points[:,1].argsort()]
-        
-    last_start = 0
-    
-    while last_start != -1:
+    sort_index = all_points[:,1].argsort()
+    sort_to_all = sort_index.argsort()
 
-        path = fill_path(start_index, all_points, contour_indices)
+    # array that stores available points
+    available = np.ones(all_points.shape[0], bool)
+            
+    while available.any():
+
+        first_available_index = np.argmax(available[sort_index])
+
+        path = fill_path(sort_to_all[first_available_index], all_points, contour_indices, available)
                 
-        temp.extend(path)
-        
-        last_start = get_available_pt_index(last_start, np.array(temp), sort_points)
-                
-        if last_start != -1:
-            start_point = sort_points[last_start]
-
-            # get the start index in all points
-            start_index = np.where((all_points[:,0]==start_point[0]) & (all_points[:,1]==start_point[1]))[0][0]
-
         total_path.append(path)
 
     return total_path
