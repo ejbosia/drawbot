@@ -147,53 +147,71 @@ def next_point(point, contour_indices, all_points, available):
     # check the previous point
     if available[i0] and all_points[i0][1] > point[1]:
         available[i0] = False
+        print("NEXT:",np.sum(available), i0)
+
         return all_points[i0]
     
     # check the next point
     if available[i2] and all_points[i2][1] > point[1]:
+        print("NEXT:",np.sum(available), i2)
         available[i2] = False
-        return all_points[i2]    
+
+        return all_points[i2]   
     
     # if neither point returns
+    print("NEXT:",np.sum(available), "NONE")
+
     return None
 
 
 '''
 Get the point across polygon
 '''
-@jit(nopython=True) 
-def across_point(point, all_points, available): 
+# @jit(nopython=True) 
+def across_point(point, all_points): 
 
-    row = all_points[all_points[:,1]==point[1]][:,0]
-    row.sort()
+    index = (all_points[:,1]==point[1]).nonzero()[0]
+    row = all_points[index][:,0]
+
+    # sort the row
+    row_sort = row.argsort()
+
+    index = index[row_sort]
+    row = row[row_sort]
         
-    index = np.where((row == point[0]))[0][0]
+    i = np.where((row == point[0]))[0][0]
         
-    if index % 2 == 0:
-        return np.array([row[index+1], point[1]])
+    if i % 2 == 0:
+        return index[i+1]
     else:
-        return np.array([row[index-1], point[1]])
+        return index[i-1]
 
 
 
 '''
 Generate path until completion
 '''
-@jit(nopython=True)  
+# @jit(nopython=True)  
 def fill_path(start_index, all_points, contour_indices, available):    
         
     p1 = all_points[start_index]
+    available[start_index] = False
     
     path = []
     
     while not p1 is None:
         
         path.append(p1)
-        p2 = across_point(p1, all_points, available)
+        i2 = across_point(p1, all_points)
+        available[i2] = False
+        p2 = all_points[i2]
         
+        print("ACCR:", np.sum(available), i2)
+
         path.append(p2)
         p1 = next_point(p2, contour_indices, all_points, available)    
-            
+
+
     return path
 
 
@@ -203,8 +221,6 @@ Generate the path for one of the polygons
 def generate_path(all_points, contour_indices):
 
     total_path = []
-
-    start_index = 0
     
     sort_index = all_points[:,1].argsort()
     sort_to_all = sort_index.argsort()
@@ -216,9 +232,12 @@ def generate_path(all_points, contour_indices):
 
         first_available_index = np.argmax(available[sort_index])
 
+        print(first_available_index, sort_to_all[first_available_index], np.sum(available))
+
         path = fill_path(sort_to_all[first_available_index], all_points, contour_indices, available)
                 
         total_path.append(path)
+
 
     return total_path
 
