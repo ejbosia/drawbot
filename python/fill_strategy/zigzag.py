@@ -147,27 +147,21 @@ def next_point(point, contour_indices, all_points, available):
     # check the previous point
     if available[i0] and all_points[i0][1] > point[1]:
         available[i0] = False
-        print("NEXT:",np.sum(available), i0)
-
         return all_points[i0]
     
     # check the next point
     if available[i2] and all_points[i2][1] > point[1]:
-        print("NEXT:",np.sum(available), i2)
         available[i2] = False
-
         return all_points[i2]   
     
     # if neither point returns
-    print("NEXT:",np.sum(available), "NONE")
-
     return None
 
 
 '''
 Get the point across polygon
 '''
-# @jit(nopython=True) 
+@jit(nopython=True) 
 def across_point(point, all_points): 
 
     index = (all_points[:,1]==point[1]).nonzero()[0]
@@ -191,7 +185,7 @@ def across_point(point, all_points):
 '''
 Generate path until completion
 '''
-# @jit(nopython=True)  
+@jit(nopython=True)  
 def fill_path(start_index, all_points, contour_indices, available):    
         
     p1 = all_points[start_index]
@@ -206,8 +200,6 @@ def fill_path(start_index, all_points, contour_indices, available):
         available[i2] = False
         p2 = all_points[i2]
         
-        print("ACCR:", np.sum(available), i2)
-
         path.append(p2)
         p1 = next_point(p2, contour_indices, all_points, available)    
 
@@ -223,18 +215,16 @@ def generate_path(all_points, contour_indices):
     total_path = []
     
     sort_index = all_points[:,1].argsort()
-    sort_to_all = sort_index.argsort()
 
     # array that stores available points
     available = np.ones(all_points.shape[0], bool)
             
     while available.any():
 
+        # get the first available index in Y
         first_available_index = np.argmax(available[sort_index])
 
-        print(first_available_index, sort_to_all[first_available_index], np.sum(available))
-
-        path = fill_path(sort_to_all[first_available_index], all_points, contour_indices, available)
+        path = fill_path(sort_index[first_available_index], all_points, contour_indices, available)
                 
         total_path.append(path)
 
