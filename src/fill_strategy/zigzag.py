@@ -16,6 +16,18 @@ logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 from numba import jit
 
+class ZigZag:
+
+    def __init__(self):
+        pass
+
+class ZigZagGenerator:
+
+    def __init__(self):
+        pass
+
+
+
 '''
 Generate the intersection points using horizontal lines on the polygon
 '''
