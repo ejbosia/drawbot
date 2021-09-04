@@ -18,31 +18,34 @@ import warnings
 
 from numba import jit
 
-class ZigZag(FillPattern):
+class ZigZag:
 
     '''
     '''
     def __init__(self, start_index, all_points, contour_indices, available):
-        self.path = self._generate_zigzag(contours, distance)
+        self.path = ZigZag._generate_zigzag(start_index, all_points, contour_indices, available)
 
     '''
     '''
     @jit(nopython=True)  
     def _generate_zigzag(start_index, all_points, contour_indices, available):    
-            
+
+        path = []    
+        
         p1 = all_points[start_index]
         available[start_index] = False
                 
         while not p1 is None:
             
-            self.path.append(p1)
+            path.append(p1)
             i2 = across_point(p1, all_points)
             available[i2] = False
             p2 = all_points[i2]
             
-            self.path.append(p2)
+            path.append(p2)
             p1 = next_point(p2, contour_indices, all_points, available)    
 
+        return path
 
     '''
     Output the path as a list of points
@@ -75,11 +78,13 @@ class ZigZagGenerator:
 
         zigzags = []
 
-        warnings.warn("ANGLE IS NOT BEING USED")
+        warnings.warn("ANGLE IS NOT BEING USED: {}".format(self.angle))
 
-        for i, polygon in enumerate(polygon_list):
+        for i, polygon in enumerate(self.polygons):
 
-            intersections, contour_indices = self._generate_intersections(self.polygon, self.distance)
+            polygon = rotate(polygon, self.angle, use_radians=True)
+
+            intersections, contour_indices = self._generate_intersections(polygon, self.distance)
 
             if intersections.shape[0] != 0:
                 zigzags.append(self._generate_path(intersections, contour_indices))
@@ -91,7 +96,6 @@ class ZigZagGenerator:
     Generate all intersections (and contour indices) for an input polygon
     '''
     def _generate_intersections(self, polygon, distance):
-    Generate
         contour_indices = [0]
         all_points = []
         sum = 0
@@ -131,14 +135,14 @@ class ZigZagGenerator:
                 
         while available.any():
 
-            # get the first available index in Y
-            first_available_index = np.argmax(available[sort_index])
-
-            path = ZigZag(sort_index[first_available_index], all_points, contour_indices, available))
-            path.generate()
-                    
-            total_path.append(path)
-
+            total_path.append(
+                ZigZag(
+                    sort_index[np.argmax(available[sort_index])],
+                    all_points, 
+                    contour_indices, 
+                    available
+                )
+            )
 
         return total_path
 
@@ -229,7 +233,7 @@ def generate_intersections_contour(vertex_list, distance):
 Get the next point up the polygon
 '''
 @jit(nopython=True) 
-def _next_point(point, contour_indices, all_points, available):
+def next_point(point, contour_indices, all_points, available):
         
     i1 = np.where((all_points[:,0] == point[0]) & (all_points[:,1]==point[1]))[0][0]
     
@@ -259,7 +263,7 @@ def _next_point(point, contour_indices, all_points, available):
 Get the point across polygon
 '''
 @jit(nopython=True) 
-def _across_point(point, all_points): 
+def across_point(point, all_points): 
 
     index = (all_points[:,1]==point[1]).nonzero()[0]
     row = all_points[index][:,0]

@@ -28,12 +28,11 @@ from src.utilities.shapely_conversion import convert
 from src.utilities.shapely_utilities import *
 
 # import spiral generation
-from src.fill_strategy.spiral import SpiralGenerator
-import src.fill_strategy.spiral as FS
+from src.fill_strategy.zigzag import ZigZagGenerator
 
 # add-on modules
-from metrics import Metrics
-from gcode import GcodeWriter
+from src.utilities.metrics import Metrics
+from src.utilities.gcode import GcodeWriter
 
 '''
 Plot a single path
@@ -58,17 +57,11 @@ def plot_recursive_path(total_path, color=None, endpoints=False, intersections=F
     
     for path in total_path:
         
-        if type(path) is list:
-            plot_path(path, color)
-            if intersections:
-                for i in self_intersections_binary(LineString(path)):
-                    pyplot.scatter(i.x,i.y, c='red')
-        else:
-            rest.append(path)
-            
-    plot_path(rest, color)
-    pyplot.gca().invert_yaxis()
+        for subpath in path:
 
+            plot_path(subpath.get_path())
+            
+    pyplot.gca().invert_yaxis()
 
 
 def main():
@@ -86,22 +79,16 @@ def main():
     image = cv2.imread(filename,0)
     assert not image is None
     
-    polygons = convert(image, approximation = cv2.CHAIN_APPROX_SIMPLE, optimize=args.optimize, simplify=1)
+    polygons = convert(image, approximation = cv2.CHAIN_APPROX_SIMPLE, simplify=1)
 
     path_type = ""
 
     # determine which path to create
-    if args.spiral:
-        results = S.execute(polygons, distance)
-        path_type = "S"
-    elif args.zigzag:
-        results = Z.execute(polygons, distance, connected=False)
-        path_type = "FS"
-    elif args.connected_fermat:
-        results = FS.execute(polygons, distance, connected=True)
-        path_type = "CFS"
+    if args.zigzag:
+        results = ZigZagGenerator(polygons, distance).generate()
+        path_type = "ZZ"
     else:
-        raise NotImplementedError("SPIRAL TYPE NOT INPUT")
+        raise NotImplementedError("FILL TYPE NOT INPUT")
 
 
     if args.plot:

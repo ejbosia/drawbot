@@ -78,13 +78,11 @@ def create_contour_families(contour_list):
     return family_list
 
 
-
-
 '''
 Convert an image into a list of shapely polygons.
  - use this function to perform all of the conversion steps
 '''
-def convert(image, approximation = cv2.CHAIN_APPROX_SIMPLEm, simplify=1):
+def convert(image, approximation = cv2.CHAIN_APPROX_SIMPLE, simplify=0):
    
     assert simplify >= 0
 
