@@ -14,56 +14,133 @@ from shapely.affinity import rotate
 import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
+import warnings
+
 from numba import jit
 
-class ZigZag:
+class ZigZag(FillPattern):
 
-    def __init__(self):
-        pass
+    '''
+    '''
+    def __init__(self, start_index, all_points, contour_indices, available):
+        self.path = self._generate_zigzag(contours, distance)
 
+    '''
+    '''
+    @jit(nopython=True)  
+    def _generate_zigzag(start_index, all_points, contour_indices, available):    
+            
+        p1 = all_points[start_index]
+        available[start_index] = False
+                
+        while not p1 is None:
+            
+            self.path.append(p1)
+            i2 = across_point(p1, all_points)
+            available[i2] = False
+            p2 = all_points[i2]
+            
+            self.path.append(p2)
+            p1 = next_point(p2, contour_indices, all_points, available)    
+
+
+    '''
+    Output the path as a list of points
+    '''
+    def get_path(self):
+        return self.path
+
+'''
+Generate a list of Spirals from a list of polygons
+'''
 class ZigZagGenerator:
 
-    def __init__(self):
-        pass
+    def __init__(self, polygons, distance, boundaries=0, angle=np.pi/6):
+
+        if not polygons:
+            raise ValueError("POLYGONS IS EMPTY")
+        if distance <= 0:
+            raise ValueError("DISTANCE IS 0 OR NEGATIVE")
+
+        self.polygons = polygons
+        self.distance = distance
+        self.boundaries = 0
+        self.angle = angle
 
 
+    '''
+    Generate the complete path from all of the contour families
+    '''
+    def generate(self):
 
-'''
-Generate the intersection points using horizontal lines on the polygon
-'''
-@jit(nopython=True)
-def generate_intersections_contour(vertex_list, distance):
-    
-    intersections = []
-    
-    for i in range(len(vertex_list)-1):        
-        p0 = vertex_list[i]
-        p1 = vertex_list[i+1]
+        zigzags = []
+
+        warnings.warn("ANGLE IS NOT BEING USED")
+
+        for i, polygon in enumerate(polygon_list):
+
+            intersections, contour_indices = self._generate_intersections(self.polygon, self.distance)
+
+            if intersections.shape[0] != 0:
+                zigzags.append(self._generate_path(intersections, contour_indices))
+
+        return zigzags 
+
+
+    '''
+    Generate all intersections (and contour indices) for an input polygon
+    '''
+    def _generate_intersections(self, polygon, distance):
+    Generate
+        contour_indices = [0]
+        all_points = []
+        sum = 0
+
+        vertex_list = np.array(list(polygon.exterior.coords)) 
+        intersections = generate_intersections_contour(vertex_list, distance)
+        intersections = remove_peaks(vertex_list, intersections, np.ones(intersections.shape[0], bool))
+
+        sum += len(intersections)
+
+        all_points.extend(intersections)
+        contour_indices.append(sum)
+
+        for interior in polygon.interiors:
+            vertex_list = np.array(list(interior.coords)) 
+            intersections = generate_intersections_contour(vertex_list, distance)
+            intersections = remove_peaks(vertex_list, intersections, np.ones(intersections.shape[0], bool))
+
+            sum += len(intersections)
+
+            all_points.extend(intersections)
+            contour_indices.append(sum)
+
+        return np.array(all_points), np.array(contour_indices)
+
+    '''
+    Generate the path for one of the polygons
+    '''
+    def _generate_path(self, all_points, contour_indices):
+
+        total_path = []
         
-        dx = p1[0] - p0[0]
-        dy = p1[1] - p0[1]
-        
-        if dy == 0:
-            continue
-            
-        dxdy = dx/dy
-        
-        if p0[1] < p1[1]:
-            indices = range(np.ceil(p0[1]/distance), np.ceil(p1[1]/distance))            
-        else:
-            indices = range(int(p0[1]/distance), int(p1[1]/distance), -1)
+        sort_index = all_points[:,1].argsort()
 
-                        
-        for j in indices:
+        # array that stores available points
+        available = np.ones(all_points.shape[0], bool)
+                
+        while available.any():
 
-            index = j * distance - p0[1]
-            
-            x = dxdy * index + p0[0]
-            y = index + p0[1]
+            # get the first available index in Y
+            first_available_index = np.argmax(available[sort_index])
 
-            intersections.append((x,y))
-            
-    return np.array(intersections)
+            path = ZigZag(sort_index[first_available_index], all_points, contour_indices, available))
+            path.generate()
+                    
+            total_path.append(path)
+
+
+        return total_path
 
 
 # find peaks numba
@@ -111,40 +188,48 @@ def remove_peaks(contour, intersections, mask):
 
 
 '''
-Generate all intersections (and contour indices) for an input polygon
+Generate the intersection points using horizontal lines on the polygon
 '''
-def generate_intersections(polygon, distance):
+@jit(nopython=True)
+def generate_intersections_contour(vertex_list, distance):
+    
+    intersections = []
+    
+    for i in range(len(vertex_list)-1):        
+        p0 = vertex_list[i]
+        p1 = vertex_list[i+1]
+        
+        dx = p1[0] - p0[0]
+        dy = p1[1] - p0[1]
+        
+        if dy == 0:
+            continue
+            
+        dxdy = dx/dy
+        
+        if p0[1] < p1[1]:
+            indices = range(np.ceil(p0[1]/distance), np.ceil(p1[1]/distance))            
+        else:
+            indices = range(int(p0[1]/distance), int(p1[1]/distance), -1)
 
-    contour_indices = [0]
-    all_points = []
-    sum = 0
+                        
+        for j in indices:
 
-    vertex_list = np.array(list(polygon.exterior.coords)) 
-    intersections = generate_intersections_contour(vertex_list, distance)
-    intersections = remove_peaks(vertex_list, intersections, np.ones(intersections.shape[0], bool))
+            index = j * distance - p0[1]
+            
+            x = dxdy * index + p0[0]
+            y = index + p0[1]
 
-    sum += len(intersections)
+            intersections.append((x,y))
+            
+    return np.array(intersections)
 
-    all_points.extend(intersections)
-    contour_indices.append(sum)
-
-    for interior in polygon.interiors:
-        vertex_list = np.array(list(interior.coords)) 
-        intersections = generate_intersections_contour(vertex_list, distance)
-        intersections = remove_peaks(vertex_list, intersections, np.ones(intersections.shape[0], bool))
-
-        sum += len(intersections)
-
-        all_points.extend(intersections)
-        contour_indices.append(sum)
-
-    return np.array(all_points), np.array(contour_indices)
 
 '''
 Get the next point up the polygon
 '''
 @jit(nopython=True) 
-def next_point(point, contour_indices, all_points, available):
+def _next_point(point, contour_indices, all_points, available):
         
     i1 = np.where((all_points[:,0] == point[0]) & (all_points[:,1]==point[1]))[0][0]
     
@@ -174,7 +259,7 @@ def next_point(point, contour_indices, all_points, available):
 Get the point across polygon
 '''
 @jit(nopython=True) 
-def across_point(point, all_points): 
+def _across_point(point, all_points): 
 
     index = (all_points[:,1]==point[1]).nonzero()[0]
     row = all_points[index][:,0]
@@ -191,87 +276,3 @@ def across_point(point, all_points):
         return index[i+1]
     else:
         return index[i-1]
-
-
-
-'''
-Generate path until completion
-'''
-@jit(nopython=True)  
-def fill_path(start_index, all_points, contour_indices, available):    
-        
-    p1 = all_points[start_index]
-    available[start_index] = False
-    
-    path = []
-    
-    while not p1 is None:
-        
-        path.append(p1)
-        i2 = across_point(p1, all_points)
-        available[i2] = False
-        p2 = all_points[i2]
-        
-        path.append(p2)
-        p1 = next_point(p2, contour_indices, all_points, available)    
-
-
-    return path
-
-
-'''
-Generate the path for one of the polygons
-'''
-def generate_path(all_points, contour_indices):
-
-    total_path = []
-    
-    sort_index = all_points[:,1].argsort()
-
-    # array that stores available points
-    available = np.ones(all_points.shape[0], bool)
-            
-    while available.any():
-
-        # get the first available index in Y
-        first_available_index = np.argmax(available[sort_index])
-
-        path = fill_path(sort_index[first_available_index], all_points, contour_indices, available)
-                
-        total_path.append(path)
-
-
-    return total_path
-
-
-'''
-Generate the complete path from all of the contour families
-'''
-def generate_total_path(polygon_list, distance = 1, angle = np.pi/7):
-
-    total_path = []
-
-    total_start = time.time()
-
-    for i, polygon in enumerate(polygon_list):
-        start = time.time()
-
-        intersections, contour_indices = generate_intersections(polygon, distance)
-
-        if intersections.shape[0] != 0:
-            total_path.append(generate_path(intersections, contour_indices))
-            
-            logging.info("Polygon: " + str(i) + ": " + str(time.time() - start))
-    logging.info("TOTAL TIME: " + str(time.time() - total_start))
-
-    return total_path 
-
-
-
-# execute the contour fill on the image
-def execute(polygons, distance):
-
-    # generate the paths
-    total_path = generate_total_path(polygons, distance=distance)
-
-    return total_path
