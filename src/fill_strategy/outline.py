@@ -6,16 +6,8 @@ Generate the outline path of a list of polygons
 '''
 class Outline:
 
-    def __init__(self, polygon):
-        self.path = self.generate_outline(polygon)
-
-    def _generate_outline(self, polygon):
-        path = [list(polygon.exterior.coords)]
-        
-        for interior in polygon.interiors:
-            path.append(list(interior.coords))
-
-        return path
+    def __init__(self, perimeter):
+        self.path = list(perimeter.coords)
 
     def get_path(self):
         return self.path
@@ -27,9 +19,13 @@ class OutlineGenerator:
         self.polygons = polygons
 
     def generate(self):
-         total_path = []
+        total_path = []
 
-        for polygon in polygons:
-            total_path.extend(outline_polygon(polygon))
+        for polygon in self.polygons:
+
+            total_path.append(Outline(polygon.exterior))
+
+            for interior in polygon.interiors:
+                total_path.append(Outline(interior))
 
         return total_path

@@ -13,6 +13,7 @@ parser.add_argument("distance", help="line thickness", type=float)
 group = parser.add_mutually_exclusive_group()
 group.add_argument("-z","--zigzag", help="zigzag (rectilinear) fill", action='store_true')
 group.add_argument("-s","--spiral", help="spiral fill", action='store_true')
+group.add_argument("-o","--outline", help="outline fill", action='store_true')
 
 parser.add_argument("-p", "--plot", help="enable plotting", action='store_true')
 parser.add_argument("-g", "--gcode", help="enable output", type=str)
@@ -30,6 +31,7 @@ from src.utilities.shapely_utilities import *
 # import spiral generation
 from src.fill_strategy.zigzag import ZigZagGenerator
 from src.fill_strategy.spiral import SpiralGenerator
+from src.fill_strategy.outline import OutlineGenerator
 
 # add-on modules
 from src.utilities.metrics import Metrics
@@ -57,10 +59,7 @@ def plot_recursive_path(total_path, color=None, endpoints=False, intersections=F
     rest = []
     
     for path in total_path:
-        
-        for subpath in path:
-
-            plot_path(subpath.get_path())
+        plot_path(path.get_path())
             
     pyplot.gca().invert_yaxis()
 
@@ -91,6 +90,9 @@ def main():
     elif args.spiral:
         results = SpiralGenerator(polygons, distance).generate()
         path_type = "S"
+    elif args.outline:
+        results = OutlineGenerator(polygons).generate()
+        path_type = "O"
     else:
         raise NotImplementedError("FILL TYPE NOT INPUT")
 
