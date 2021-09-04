@@ -29,6 +29,7 @@ def generate_border_lines(image, approximation = cv2.CHAIN_APPROX_SIMPLE):
 
     return contour_list
 
+
 '''
 Get all of the children of the parent contour using heirarchy information
 '''
@@ -49,6 +50,7 @@ def get_children(contour_list, parent_contour):
     
     # return the list of children
     return child_list
+
 
 '''
 Convert formatted list of contours with heirarchy info into polygons
@@ -84,7 +86,8 @@ Convert an image into a list of shapely polygons.
 '''
 def convert(image, approximation = cv2.CHAIN_APPROX_SIMPLE, simplify=0):
    
-    assert simplify >= 0
+    if simplify < 0:
+        raise ValueError("SIMPLIFY MUST BE GEQ 0")
 
     contour_list = generate_border_lines(image, approximation)
 

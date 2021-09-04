@@ -6,7 +6,9 @@ Generate an easy gradient fill of the image
 '''
 
 
-# generate the gradient fill of the image
-def execute(image, skip_row=5):
+class GradientFill:
+    pass
 
-    raise NotImplementedError
+
+class GradientFillGenerator:
+    pass

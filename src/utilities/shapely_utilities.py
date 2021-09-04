@@ -12,38 +12,10 @@ from shapely.geometry import CAP_STYLE, JOIN_STYLE
 from matplotlib import pyplot
 
 '''
-Recursively run the distance transform on the input polygon
-- if result is empty, terminate with empty list
-- if result is Polygon, add current Polygon
-- if result is MultiPolygon, run for each Polygon in the MultiPolygon
-'''
-def distance_transform(polygon, distance):
-        
-    t = polygon.buffer(distance, cap_style = CAP_STYLE.flat, join_style = JOIN_STYLE.mitre)
-    
-    # if t is empty, return the empty list
-    if not t:
-        return []
-        
-    result = []
-
-    # MultiPolygons are the result of concave shapes ~ distance transform creates multiple polygons
-    if t.type == "MultiPolygon":
-        for p in t:
-            result.append([p])
-            result[-1].extend(distance_transform(p, distance))
-    else:
-        result.append(t)
-        result.extend(distance_transform(t, distance))
-        
-    return result
-
-'''
 Distance transform without changing holes
 '''
-def distance_transform_diff(polygon, distance):
+def distance_transform(polygon, distance):
 
- 
     if polygon.is_empty:
         return []
 
@@ -60,12 +32,13 @@ def distance_transform_diff(polygon, distance):
     if polygon.type == "MultiPolygon":
         for p in polygon:
             result.append([p.exterior])
-            result[-1].extend(distance_transform_diff(p, distance))
+            result[-1].extend(distance_transform(p, distance))
     else:
         result.append(polygon.exterior)
-        result.extend(distance_transform_diff(polygon, distance))
+        result.extend(distance_transform(polygon, distance))
     
     return result
+
 
 '''
 Plot all of the contours of an input polygon
@@ -121,18 +94,16 @@ def cut(line, distance):
 '''
 Reformat the linestring so position 0 is the start point. This may involve inserting a new point into the contour.
 '''
-def cycle(contour, point):
-    
-    # find the point projection on the contour
-    proj = contour.project(point)
-    
+def cycle(contour, distance):
+
+    # force the distance to within the contour
+    distance = distance % contour.length
+        
     # cut the contour at the projection distance
-    result = cut(contour, proj)
+    result = cut(contour, distance)
     
-    if result[0] is None:
-        points = result[1]
-    elif result[1] is None:
-        points = result[0]
+    if result[0] is None or result[1] is None:
+        points = list(contour.coords)
     else:
         [ls1,ls2] = result
         points = list(ls2.coords) + list(ls1.coords)
@@ -211,7 +182,7 @@ def reverse(ls):
 Merge two linestrings
 '''
 def merge(ls1, ls2):
-    return LineString(ls1.coords + ls2.coords)
+    return LineString(list(ls1.coords) + list(ls2.coords))
 
 
 '''

@@ -142,7 +142,6 @@ class GcodeWriter:
         while current_layer < height:
             for path in total_path:
                 
-                
                 # move to p0
                 output += self.command_rapid(path[0])
                 
@@ -180,7 +179,6 @@ class GcodeWriter:
         
         # return the string (for debugging, not really needed)
         return output
-
 
 
     '''

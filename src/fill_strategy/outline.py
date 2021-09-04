@@ -4,26 +4,32 @@ Generate the outline path of a list of polygons
 
 @author ejbosia
 '''
+class Outline:
 
-'''
-Get the outline of the input polygon
-'''
-def outline_polygon(polygon):
+    def __init__(self, polygon):
+        self.path = self.generate_outline(polygon)
 
-    path = [list(polygon.exterior.coords)]
-    
-    for interior in polygon.interiors:
-        path.append(list(interior.coords))
+    def _generate_outline(self, polygon):
+        path = [list(polygon.exterior.coords)]
+        
+        for interior in polygon.interiors:
+            path.append(list(interior.coords))
 
-    return path
+        return path
+
+    def get_path(self):
+        return self.path
 
 
-# execute the contour fill on the image
-def execute(polygons, distance):
+class OutlineGenerator:
 
-    total_path = []
+    def __init__(self, polygons):
+        self.polygons = polygons
 
-    for polygon in polygons:
-        total_path.extend(outline_polygon(polygon))
+    def generate(self):
+         total_path = []
 
-    return total_path
+        for polygon in polygons:
+            total_path.extend(outline_polygon(polygon))
+
+        return total_path

@@ -29,6 +29,7 @@ from src.utilities.shapely_utilities import *
 
 # import spiral generation
 from src.fill_strategy.zigzag import ZigZagGenerator
+from src.fill_strategy.spiral import SpiralGenerator
 
 # add-on modules
 from src.utilities.metrics import Metrics
@@ -87,6 +88,9 @@ def main():
     if args.zigzag:
         results = ZigZagGenerator(polygons, distance).generate()
         path_type = "ZZ"
+    elif args.spiral:
+        results = SpiralGenerator(polygons, distance).generate()
+        path_type = "S"
     else:
         raise NotImplementedError("FILL TYPE NOT INPUT")
 

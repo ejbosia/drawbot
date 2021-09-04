@@ -6,7 +6,6 @@ This file contains the logic for creating a contour fill of a black and white im
 '''
 
 import numpy as np
-import time
 
 from shapely.geometry import Point, LineString, LinearRing, Polygon, MultiLineString
 from shapely.affinity import rotate
@@ -78,8 +77,6 @@ class ZigZagGenerator:
 
         zigzags = []
 
-        warnings.warn("ANGLE IS NOT BEING USED: {}".format(self.angle))
-
         for i, polygon in enumerate(self.polygons):
 
             polygon = rotate(polygon, self.angle, use_radians=True)
@@ -87,7 +84,7 @@ class ZigZagGenerator:
             intersections, contour_indices = self._generate_intersections(polygon, self.distance)
 
             if intersections.shape[0] != 0:
-                zigzags.append(self._generate_path(intersections, contour_indices))
+                zigzags.extend(self._generate_path(intersections, contour_indices))
 
         return zigzags 
 
