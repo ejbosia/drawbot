@@ -96,11 +96,9 @@ def main():
     else:
         raise NotImplementedError("FILL TYPE NOT INPUT")
 
-
     if args.plot:
         plot_recursive_path(results)
         pyplot.show()
-
     
     if not args.gcode is None:
         assert args.gcode.split('.')[-1] == 'gcode'
