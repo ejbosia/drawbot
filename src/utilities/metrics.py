@@ -24,7 +24,7 @@ class Metrics:
         commands = 0
 
         for path in total_path:
-            commands += len(path)
+            commands += len(path.get_path())
 
         return commands
 

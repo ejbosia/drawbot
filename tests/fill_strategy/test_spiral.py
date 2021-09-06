@@ -18,9 +18,14 @@ def test_generation():
 
     polygons = convert(image)
 
-    output = SpiralGenerator(polygons, 5).generate()
-    
-    assert len(output) >= 3
-    
-    for spiral in output:
-        assert isinstance(spiral, Spiral)
+    generator = SpiralGenerator(polygons, 5)
+
+    for i in range(180):
+        generator.angle = np.radians(i)
+
+        output = generator.generate()
+
+        assert len(output) >= 3
+        
+        for spiral in output:
+            assert isinstance(spiral, Spiral)

@@ -1,14 +1,35 @@
 
 from src.utilities.metrics import Metrics
 
-'''
-Test the instantiation of the metric class
-'''
-def test_creation():
-    metric = Metrics()
+from src.fill_strategy.zigzag import ZigZagGenerator
+from src.fill_strategy.spiral import SpiralGenerator
 
+from src.utilities.shapely_conversion import convert
+
+import numpy as np
+import cv2
+import os
+import pytest
+
+'''
+Test number of commands is correctly calculated
+'''
 def test_commands():
-    pass
+
+    metric = Metrics()
+    image = cv2.imread(os.path.join('test_images', 'test.png'),0)
+    polygons = convert(image)
+
+    generator = ZigZagGenerator(polygons, 5)
+    output = generator.generate()
+
+    assert metric.measure_commands(output) == sum([len(x.get_path()) for x in output])
+    
+    generator = SpiralGenerator(polygons, 5)
+    output = generator.generate()
+
+    assert metric.measure_commands(output) == sum([len(x.get_path()) for x in output])
+
 
 def test_curvature():
     pass

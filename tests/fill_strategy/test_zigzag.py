@@ -17,10 +17,14 @@ def test_generation():
     image = cv2.imread(os.path.join('test_images', 'test.png'), 0)
 
     polygons = convert(image)
+    generator = ZigZagGenerator(polygons, 5)
 
-    output = ZigZagGenerator(polygons, 5).generate()
-    
-    assert len(output) >= 3
-    
-    for zigzag in output:
-        assert isinstance(zigzag, ZigZag)
+    for i in range(180):
+        generator.angle = np.radians(i)
+
+        output = generator.generate()
+
+        assert len(output) >= 3
+        
+        for zigzag in output:
+            assert isinstance(zigzag, ZigZag)
