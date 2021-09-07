@@ -20,7 +20,7 @@ def test_generation():
 
     generator = SpiralGenerator(polygons, 5)
 
-    for i in range(180):
+    for i in range(0,180,10):
         generator.angle = np.radians(i)
 
         output = generator.generate()
