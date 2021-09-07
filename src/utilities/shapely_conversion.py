@@ -8,14 +8,16 @@ import cv2
 
 from shapely.geometry import Polygon
 
-'''
-Convert an input binary image into a formatted list of contours with heirarch information
- - this returns all of the contours and heirarchy information
- - returns a list of tuples --> (list of points, heirarchy)
-'''
-def generate_border_lines(image, approximation = cv2.CHAIN_APPROX_SIMPLE):
 
-    # cv2.RETR_CCOMP outputs parent-children relationships in the heirarchy
+def generate_border_lines(image, approximation = cv2.CHAIN_APPROX_SIMPLE):
+    '''
+    Convert an input binary image into a formatted list of contours with heirarch information
+        Parameters:
+            image (cv2 image)
+            approximation
+        Returns:
+            contour_list (list of (contour,heirarchy))
+    '''
     contours,heirarchy = cv2.findContours(image, cv2.RETR_CCOMP, approximation)  
 
     contour_list = []
@@ -24,17 +26,22 @@ def generate_border_lines(image, approximation = cv2.CHAIN_APPROX_SIMPLE):
         point_list = []
         for point in contour:
             point_list.append(tuple(point[0]))
-            
+ 
         contour_list.append((point_list, heirarchy))
 
     return contour_list
 
 
-'''
-Get all of the children of the parent contour using heirarchy information
-'''
-def get_children(contour_list, parent_contour):
 
+def get_children(contour_list, parent_contour):
+    '''
+    Get all of the children of the parent contour using heirarchy information
+        Parameters:
+            contour_list (list of contours)
+            parent_contour (contour)
+        Returns:
+            child_list (list of contours): Children of the parent contour
+    '''
     child_list = []
 
     first_child_index = parent_contour[1][2]
@@ -47,23 +54,24 @@ def get_children(contour_list, parent_contour):
         next_child_index = child[1][0]
         child = contour_list[next_child_index]
         child_list.append(child[0])
-    
+
     # return the list of children
     return child_list
 
 
-'''
-Convert formatted list of contours with heirarchy info into polygons
- - a shapely polygon has an exterior list of points, and a list of interiors (lists of points)
- - this uses the heirarchy info to find the interiors of an exterior polygon
-'''
 def create_contour_families(contour_list):
-
+    '''
+    Convert formatted list of contours with heirarchy info into polygons
+        Parameters:
+            contour_list (list of (contour, heirarchy))
+        Returns:
+            family_list (list of Polygon)
+    '''
     family_list = []
 
     # find the first parent contour
     for contour in contour_list:
-        
+
         # start with a parent contour
         if contour[1][3]==-1:
 
@@ -80,12 +88,17 @@ def create_contour_families(contour_list):
     return family_list
 
 
-'''
-Convert an image into a list of shapely polygons.
- - use this function to perform all of the conversion steps
-'''
+
 def convert(image, approximation = cv2.CHAIN_APPROX_SIMPLE, simplify=0):
-   
+    '''
+    Convert an image into a list of shapely polygons
+        Parameters:
+            image
+            approximation
+            simplify
+        Returns
+            polygons (list of Polygon)
+    '''
     if simplify < 0:
         raise ValueError("SIMPLIFY MUST BE GEQ 0")
 
@@ -95,5 +108,5 @@ def convert(image, approximation = cv2.CHAIN_APPROX_SIMPLE, simplify=0):
 
     if simplify > 0:
         polygons = [polygon.simplify(simplify) for polygon in polygons]
-    
+
     return polygons
