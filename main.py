@@ -4,6 +4,22 @@ This is a cli for path generation
 
 import argparse
 import warnings
+import os
+import cv2
+
+from matplotlib import pyplot
+
+# import utility functions
+from src.utilities.shapely_conversion import convert
+
+# import spiral generation
+from src.fill_strategy.zigzag import ZigZagGenerator
+from src.fill_strategy.spiral import SpiralGenerator
+from src.fill_strategy.outline import OutlineGenerator
+
+# add-on modules
+from src.utilities.metrics import Metrics
+from src.utilities.gcode import GcodeWriter
 
 parser = argparse.ArgumentParser()
 
@@ -19,28 +35,12 @@ parser.add_argument("-p", "--plot", help="enable plotting", action='store_true')
 parser.add_argument("-g", "--gcode", help="enable output", type=str)
 parser.add_argument("-m", "--metrics", help="enable metrics", action='store_true')
 
-import cv2
-from matplotlib import pyplot
 
-import os
 
-# import utility functions
-from src.utilities.shapely_conversion import convert
-from src.utilities.shapely_utilities import *
-
-# import spiral generation
-from src.fill_strategy.zigzag import ZigZagGenerator
-from src.fill_strategy.spiral import SpiralGenerator
-from src.fill_strategy.outline import OutlineGenerator
-
-# add-on modules
-from src.utilities.metrics import Metrics
-from src.utilities.gcode import GcodeWriter
-
-'''
-Plot a single path
-'''
 def plot_path(path, color=None):
+    '''
+    Plot a single path
+    '''
     
     X = []
     Y = []
@@ -51,15 +51,14 @@ def plot_path(path, color=None):
         
     pyplot.plot(X,Y,c=color)
 
-'''
-Plot a list of paths
-'''
-def plot_recursive_path(total_path, color=None, endpoints=False, intersections=False):
-    
-    rest = []
-    
+
+def plot_recursive_path(total_path, color=None):
+    '''
+    Plot a list of fill_patterns
+    '''
+
     for path in total_path:
-        plot_path(path.get_path())
+        plot_path(path.get_path(), color)
             
     pyplot.gca().invert_yaxis()
 
@@ -102,13 +101,12 @@ def main():
     
     if not args.gcode is None:
         assert args.gcode.split('.')[-1] == 'gcode'
-        gc = GcodeWriter(filename=args.gcode, scale = 0.1)
-        gc.convert(results)
+        gcode_writer = GcodeWriter(filename=args.gcode, scale = 0.1)
+        gcode_writer.convert(results)
     
-
     if args.metrics:
-        m = Metrics(segments=True, commands=True, curvature=False, underfill=True, overfill=True)
-        print(m.measure(results, os.path.basename(filename), path_type, distance, polygons))
+        metric = Metrics(segments=True, commands=True, curvature=False, underfill=True, overfill=True)
+        print(metric.measure(results, os.path.basename(filename), path_type, distance, polygons))
 
 
 if __name__ == "__main__":
