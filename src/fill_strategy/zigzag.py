@@ -18,17 +18,46 @@ import warnings
 from numba import jit
 
 class ZigZag:
-
     '''
+    ZigZag Class
+   
+    Args
+    ----
+    start_index: int
+    all_points: numpy.array
+    contour_indices: numpy.array
+    available: numpy.array
+   
+    Attributes
+    ----------
+    path: list of tuples
+    
+    Methods
+    -------
+    get_path()
+        Output the path as a list of points
     '''
+    
     def __init__(self, start_index, all_points, contour_indices, available):
         self.path = ZigZag._generate_zigzag(start_index, all_points, contour_indices, available)
 
-    '''
-    '''
+
     @jit(nopython=True)  
     def _generate_zigzag(start_index, all_points, contour_indices, available):    
-
+        '''
+        Generate the zigzag path. Class level method
+        
+        Parameters
+        ----------
+        start_index: int
+        all_points: numpy.array
+        contour_indices: numpy.array
+        available: numpy.array
+        
+        Returns
+        -------
+        path (list of tuples)
+        '''
         path = []    
         
         p1 = all_points[start_index]
@@ -46,17 +75,36 @@ class ZigZag:
 
         return path
 
-    '''
-    Output the path as a list of points
-    '''
+
     def get_path(self):
+        '''
+        Output the path as a list of points
+        
+        Returns
+        -------
+        path: list of tuple(double, double)
+        '''
         return self.path
 
 '''
 Generate a list of Spirals from a list of polygons
 '''
 class ZigZagGenerator:
+    '''
+    Converts a list of Polygons into a list of ZigZag
 
+    Attributes
+    ----------
+    polygons (list of Polygon)
+    distance (float)
+    boundaries (int)
+    angle (float)
+
+    Methods
+    -------
+    generate()
+        Generate the spirals from a list of Polygons
+    '''
     def __init__(self, polygons, distance, boundaries=0, angle=np.pi/6):
 
         if not polygons:
@@ -70,11 +118,15 @@ class ZigZagGenerator:
         self.angle = angle
 
 
-    '''
-    Generate the complete path from all of the contour families
-    '''
-    def generate(self):
 
+    def generate(self):
+        '''
+        Generate the spirals from the list of Polygons
+        
+        Returns
+        -------
+        list of ZigZag
+        '''
         zigzags = []
 
         for i, polygon in enumerate(self.polygons):
@@ -89,10 +141,21 @@ class ZigZagGenerator:
         return zigzags 
 
 
-    '''
-    Generate all intersections (and contour indices) for an input polygon
-    '''
+
     def _generate_intersections(self, polygon, distance):
+        '''
+        Generate all intersections (and contour indices) for an input polygon
+        
+        Parameters
+        ----------
+        polygon: shapely.geometry.Polygon
+        distance: float
+        
+        Returns
+        -------
+        numpy.array, numpy.array
+        '''
+
         contour_indices = [0]
         all_points = []
         sum = 0
@@ -118,11 +181,19 @@ class ZigZagGenerator:
 
         return np.array(all_points), np.array(contour_indices)
 
-    '''
-    Generate the path for one of the polygons
-    '''
-    def _generate_path(self, all_points, contour_indices):
 
+    def _generate_path(self, all_points, contour_indices):
+        '''
+        Generate the path for one of the polygons
+        Parameters
+        ----------
+        all_points: numpy.array
+        contour_indices: numpy.array
+        
+        Returns
+        -------
+        total_path: list of ZigZag
+        '''
         total_path = []
         
         sort_index = all_points[:,1].argsort()
@@ -144,9 +215,22 @@ class ZigZagGenerator:
         return total_path
 
 
-# find peaks numba
 @jit(nopython=True)
 def remove_peaks(contour, intersections, mask):
+    '''
+    Remove "peaks" from the intersection list. These are points that could be ignored with no failures in path planning.
+    
+    Parameters
+    ----------
+    contour: contour
+    intersections: numpy.array
+    mask: numpy.array
+    
+    Returns
+    -------
+    numpy.array
+        These are the valid intersection points (peaks masked out)
+    '''
     
     end = len(intersections)-1
     
@@ -188,12 +272,21 @@ def remove_peaks(contour, intersections, mask):
     return intersections[mask,:]
 
 
-'''
-Generate the intersection points using horizontal lines on the polygon
-'''
+
 @jit(nopython=True)
 def generate_intersections_contour(vertex_list, distance):
+    '''
+    Generate the intersection points using horizontal lines on the polygon
+        
+    Parameters
+    ----------
+    vertex_list: numpy.array
+    distance: float
     
+    Returns
+    -------
+    numpy.array: interesection points on the contour
+    '''
     intersections = []
     
     for i in range(len(vertex_list)-1):        
@@ -226,12 +319,22 @@ def generate_intersections_contour(vertex_list, distance):
     return np.array(intersections)
 
 
-'''
-Get the next point up the polygon
-'''
+
 @jit(nopython=True) 
 def next_point(point, contour_indices, all_points, available):
+    '''
+    Get the next point up the polygon. This follows along the current contour
+    Parameters
+    ----------
+    point: 
+    contour_indices
+    all_points
+    available
         
+        
+    Returns:
+            numpy.array: the next point
+    '''
     i1 = np.where((all_points[:,0] == point[0]) & (all_points[:,1]==point[1]))[0][0]
     
     i0 = i1-1

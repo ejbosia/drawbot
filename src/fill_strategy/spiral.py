@@ -80,16 +80,17 @@ class Spiral:
 class SpiralGenerator:
     '''
     Converts a list of Polygons into a list of Spirals
+        Args:
+            polygons (list of Polygon)
+            distance (float)
+            boundaries (int)
+        Attributes:
+            polygons (list of Polygon)
+            distance (float)
+            boundaries (int)
     '''
 
     def __init__(self, polygons, distance, boundaries=0):
-        '''
-        Initialize the SpiralGenerator object
-            Parameters:
-                polygons (list of Polygon)
-                distance (float)
-                boundaries (int)
-        '''
         if not polygons:
             raise ValueError("POLYGONS IS EMPTY")
         if distance <= 0:
