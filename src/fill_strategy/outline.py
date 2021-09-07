@@ -1,3 +1,5 @@
+'''Contains classes for the creating an Outline'''
+
 class Outline:
     '''
     Outline Class
