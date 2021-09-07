@@ -11,11 +11,16 @@ from shapely.geometry import CAP_STYLE, JOIN_STYLE
 
 from matplotlib import pyplot
 
-'''
-Distance transform without changing holes
-'''
-def distance_transform(polygon, distance):
 
+def distance_transform(polygon, distance):
+    '''
+    Apply a distance transform to the polygon
+        Parameters:
+            polygon (Polygon)
+            distance (float)
+        Returns:
+            result (list of LinearRing)
+    '''
     if polygon.is_empty:
         return []
 
@@ -40,20 +45,20 @@ def distance_transform(polygon, distance):
     return result
 
 
-'''
-Plot all of the contours of an input polygon
-'''
 def plot_poly(polygon):
+    '''
+    Plot all of the contours of an input polygon
+    '''
     pyplot.plot(*polygon.exterior.xy)
     
     for i in polygon.interiors:
         pyplot.plot(*i.xy)
 
 
-'''
-Plot all of the contours in the result of a distance transform
-'''
 def plot_contours(result):
+    '''
+    Plot all of the contours in the result of a distance transform
+    '''
     for p in result:
         if type(p) is list:
             plot_contours(p)
@@ -61,10 +66,16 @@ def plot_contours(result):
             plot_poly(p)
 
 
-'''
-Cut a linestring at a specified distance. This always returns at least one linestring and a None, or two linestrings
-'''
 def cut(line, distance):
+    '''
+    Cut a linestring at a specified distance
+        Parameters:
+            line (LineString)
+            distance (float)
+        Returns:
+            [LineString, LineString] or [None, LineString] or [LineString, None]
+    '''
+
     # Cuts a line in two at a distance from its starting point
     if distance <= 0.0:
         return [None, LineString(line)]
@@ -91,11 +102,17 @@ def cut(line, distance):
         LineString([(cp.x, cp.y)] + [coords[-1]])]
 
 
-'''
-Reformat the linestring so position 0 is the start point. This may involve inserting a new point into the contour.
-'''
-def cycle(contour, distance):
 
+def cycle(contour, distance):
+    '''
+    Reformat the linestring so position 0 is the start point.
+    This may involve inserting a new point into the contour.
+        Parameters:
+            contour (LineString)
+            distance (float)
+        Returns:
+            points (LineString)
+    '''
     # force the distance to within the contour
     distance = distance % contour.length
         
@@ -111,11 +128,15 @@ def cycle(contour, distance):
     return LineString(points) 
 
 
-'''
-Find any self intersections in the input linestring
-'''
+
 def self_intersections(ls):
-    
+    '''
+    Find any self intersections in the input linestring
+        Parameters:
+            ls (LineString)
+        Returns:
+            intersection_points (list of Point)
+    '''
     intersection_points = []
     
     for i in range(len(ls.coords)-3):
@@ -140,11 +161,15 @@ def self_intersections(ls):
     return intersection_points
 
 
-'''
-Find any self intersections in the input linestring using binary search like recursion
-'''
 def self_intersections_binary(ls):
     
+    '''
+    Find any self intersections in the input linestring using binary search like recursion
+        Parameters:
+            ls (LineString)
+        Returns:
+            intersection_points (list of Point)
+    '''
     intersection_points = []
 
     pivot = int(len(ls.coords)/2)
@@ -171,25 +196,40 @@ def self_intersections_binary(ls):
 
 
 
-'''
-Reverse a input linestring ~ this is helpful for projection when the distance is ambiguous (intersections)
-'''
+
 def reverse(ls):
+    '''
+    Reverse a input linestring
+        Parameters:
+            ls (LineString)
+        Returns:
+            LineString
+    '''
     return LineString(ls.coords[::-1])
 
 
-'''
-Merge two linestrings
-'''
 def merge(ls1, ls2):
+    '''
+    Merge two linestrings
+        Parameters:
+            ls1 (LineString)
+            ls2 (LineString)
+        Returns:
+            LineString
+    '''
     return LineString(list(ls1.coords) + list(ls2.coords))
 
 
-'''
-Evenly sample the linestring ~ this returns a list of points
-'''
+
 def sample(ls, distance):
-    
+    '''
+    Evenly sample the linestring
+        Parameters:
+            ls (LineString)
+            distance (float)
+        Returns:
+            LineString: coordinates are sample points
+    '''
     pos = 0
     
     points = []
@@ -202,11 +242,13 @@ def sample(ls, distance):
     return LineString(points)
 
 
-'''
-Create a virtual boundary around a polygon ~ returns the exterior and a list of interiors
-'''
 def virtual_boundary(polygon, distance):
-
+    '''
+    Create a virtual boundary around a polygon
+        Parameters:
+            polygon (Polygon)
+            distance (float)
+    '''
     virtual_polygon = polygon.buffer(distance)
 
     exterior = list(virtual_polygon.exterior.coords)
@@ -216,16 +258,19 @@ def virtual_boundary(polygon, distance):
     return exterior, interiors
 
 
-'''
-Generate the curvature of each vertex on a linestring. The endpoints are set to ??? ~ this returns a list of curvatures of size equal to the number of vertices
-'''
 def curvature(ls):
+    '''
+    Generate the curvature of each vertex on a linestring
+    Raises:
+        NotImplementedError
+    '''
     raise NotImplementedError("Curvature calculations has not been implemented yet")
 
 
-
-'''
-Adaptively sample the linestring based on the curvature of each vertex ~ this returns a new list of points
-'''
 def adaptive_sample(ls, K=1):
+    '''
+    Adaptively sample the linestring based on the curvature of each vertex ~ this returns a new list of points
+    Raises:
+        NotImplementedError
+    '''
     raise NotImplementedError("Adaptive sampling has not been implemented")
