@@ -4,12 +4,9 @@ Generate a space-filling spiral path on an input polygon
 @author ejbosia
 '''
 
-from src.utilities.shapely_utilities import distance_transform, cut, cycle, self_intersections_binary, reverse
+from src.utilities.shapely_utilities import distance_transform, cut, cycle
 
 from shapely.geometry import Point, LineString, Polygon
-
-import numpy as np
-
 
 class Spiral:
     '''
