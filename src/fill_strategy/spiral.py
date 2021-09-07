@@ -10,18 +10,20 @@ from shapely.geometry import Point, LineString, Polygon
 
 import numpy as np
 
-'''
-Spiral Class
 
-This stores the components that make a spiral ~ a list of separate paths that can be formatted into a full path.
-'''
 class Spiral:
+    '''
+    Spiral Class
+    This stores the components that make a spiral ~ a list of separate paths that can be formatted into a full path.
+    '''
 
-    '''
-    Initialize the spiral ~ to do this, just need to find the start and end points of each contour
-    '''
     def __init__(self, contours, distance):
-
+        '''
+        Initialize the spiral
+            Parameters:
+                contours (list of contours)
+                distance (float)
+        '''
         if distance <= 0:
             raise ValueError("SPIRAL DISTANCE MUST BE GREATER THAN 0")
         
@@ -30,11 +32,16 @@ class Spiral:
 
         self.contours = self._generate_spiral(contours, distance)
 
-    '''
-    Generate the spiral
-    '''
+
     def _generate_spiral(self, contours, distance):
-    
+        '''
+        Generate the spiral
+            Parameters:
+                contours (list of contours)
+                distance (float)
+            Returns
+                spiral_contours (list of contours)
+        '''
         spiral_contours = []
         end = None
 
@@ -56,24 +63,33 @@ class Spiral:
         return spiral_contours
 
 
-    '''
-    Output the path as a list of points
-    '''
     def get_path(self):
+        '''
+        Get the total path of the spiral
+            Returns:
+                path (list of points)
+        '''
+
         path = [c for contour in self.contours for c in contour.coords]
         
-        # remove duplicates
         path = list(dict.fromkeys(path))
 
         return path
 
-'''
-Generate a list of Spirals from a list of polygons
-'''
+
 class SpiralGenerator:
+    '''
+    Converts a list of Polygons into a list of Spirals
+    '''
 
     def __init__(self, polygons, distance, boundaries=0):
-
+        '''
+        Initialize the SpiralGenerator object
+            Parameters:
+                polygons (list of Polygon)
+                distance (float)
+                boundaries (int)
+        '''
         if not polygons:
             raise ValueError("POLYGONS IS EMPTY")
         if distance <= 0:
@@ -84,9 +100,12 @@ class SpiralGenerator:
         self.boundaries = 0
 
 
-    # create a list of Spirals from the polygons
     def generate(self):
-
+        '''
+        Generate the spirals from the list of Polygons
+            Returns:
+                spirals (list of Spiral)
+        '''
         spirals = []
 
         for polygon in self.polygons:
@@ -101,12 +120,17 @@ class SpiralGenerator:
 
         return spirals
 
-    # flatten the output of distance_transform
     def _flatten(self, contours):
-        
+        '''
+        Flatten the arbitrarily deep list of lists of contours into a list of contours
+            Parameters:
+                contours (list of list of ... contours)
+            Returns:
+                format_list (list of contours)
+        '''        
         format_list = []
         temp = []
-            
+
         for c in contours:
             if type(c) is list:
                 format_list.extend(self._flatten(c))
@@ -118,11 +142,15 @@ class SpiralGenerator:
         return format_list
 
 
-'''
-Find the endpoint guarenteed ~ avoids finding the wrong point in calculate point
-'''
 def calculate_endpoint(contour, radius):
-    
+    '''
+    Find the point a distance away from the end of the contour
+        Parameters:
+            contour (LineString)
+            radius (float)
+        Returns:
+            point (Point)
+    '''    
     # reverse the contour coords to loop backwards through them
     points = contour.coords[::-1]
 
@@ -149,12 +177,5 @@ def calculate_endpoint(contour, radius):
 
     # the return of this must be a point
     point = distance_ring.intersection(line)
-        
+
     return point
-
-
-def calculate_point():
-    pass
-
-def calculate_point_contour():
-    pass
