@@ -1,10 +1,3 @@
-'''
-Contour Fill
-This file contains the logic for creating a contour fill of a black and white image
-
-@author ejbosia
-'''
-
 import numpy as np
 
 from shapely.geometry import Point, LineString, LinearRing, Polygon, MultiLineString

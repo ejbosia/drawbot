@@ -14,16 +14,24 @@ import numpy as np
 class Spiral:
     '''
     Spiral Class
-    This stores the components that make a spiral ~ a list of separate paths that can be formatted into a full path.
+   
+    Args
+    ----
+    contours: contours
+    distance: float
+   
+    Attributes
+    ----------
+    contours: list of shapely.geometry.LineString
+    
+    Methods
+    -------
+    get_path()
+        Output the path as a list of points
     '''
 
     def __init__(self, contours, distance):
-        '''
-        Initialize the spiral
-            Parameters:
-                contours (list of contours)
-                distance (float)
-        '''
+
         if distance <= 0:
             raise ValueError("SPIRAL DISTANCE MUST BE GREATER THAN 0")
         
@@ -36,11 +44,15 @@ class Spiral:
     def _generate_spiral(self, contours, distance):
         '''
         Generate the spiral
-            Parameters:
-                contours (list of contours)
-                distance (float)
-            Returns
-                spiral_contours (list of contours)
+        
+        Parameters
+        ----------
+        contours: list of shapely.geometry.LineString
+        distance: float
+        
+        Returns
+        -------
+        spiral_contours: list of shapely.geometry.LineString
         '''
         spiral_contours = []
         end = None
@@ -66,8 +78,10 @@ class Spiral:
     def get_path(self):
         '''
         Get the total path of the spiral
-            Returns:
-                path (list of points)
+        
+        Returns
+        -------
+        path: list of points
         '''
 
         path = [c for contour in self.contours for c in contour.coords]
@@ -79,15 +93,24 @@ class Spiral:
 
 class SpiralGenerator:
     '''
-    Converts a list of Polygons into a list of Spirals
-        Args:
-            polygons (list of Polygon)
-            distance (float)
-            boundaries (int)
-        Attributes:
-            polygons (list of Polygon)
-            distance (float)
-            boundaries (int)
+    Converts a list of Polygons into a list of Spiral
+
+    Args
+    ----------
+    polygons: list of shapely.geometry.Polygon
+    distance: float
+    boundaries: int, optional
+
+    Attributes
+    ----------
+    polygons: list of shapely.geometry.Polygon
+    distance: float
+    boundaries: int
+
+    Methods
+    -------
+    generate()
+        Generate the spirals from a list of Polygons
     '''
 
     def __init__(self, polygons, distance, boundaries=0):
@@ -104,8 +127,10 @@ class SpiralGenerator:
     def generate(self):
         '''
         Generate the spirals from the list of Polygons
-            Returns:
-                spirals (list of Spiral)
+        
+        Returns
+        -------
+        spirals: list of Spiral
         '''
         spirals = []
 
@@ -124,10 +149,14 @@ class SpiralGenerator:
     def _flatten(self, contours):
         '''
         Flatten the arbitrarily deep list of lists of contours into a list of contours
-            Parameters:
-                contours (list of list of ... contours)
-            Returns:
-                format_list (list of contours)
+        
+        Parameters
+        ----------
+        contours: list of list of ... LineString
+        
+        Returns
+        -------
+        format_list: list of LineString
         '''        
         format_list = []
         temp = []
@@ -146,11 +175,14 @@ class SpiralGenerator:
 def calculate_endpoint(contour, radius):
     '''
     Find the point a distance away from the end of the contour
-        Parameters:
-            contour (LineString)
-            radius (float)
-        Returns:
-            point (Point)
+    
+    Parameters
+    ----------
+    contour: shapely.geometry.LineString
+    radius: float
+    
+    Returns:
+    point: shapely.geometry.Point
     '''    
     # reverse the contour coords to loop backwards through them
     points = contour.coords[::-1]
