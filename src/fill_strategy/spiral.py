@@ -8,7 +8,7 @@ from shapely.geometry import Point, LineString
 
 from src.utilities.shapely_utilities import distance_transform, cut, cycle
 
-class Spiral:
+class Spiral(Pattern):
     '''
     Spiral Class
    
