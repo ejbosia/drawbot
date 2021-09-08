@@ -14,8 +14,9 @@ from src.utilities.shapely_conversion import convert
 
 # import spiral generation
 from src.fill_strategy.zigzag import ZigZagGenerator
-from src.fill_strategy.spiral import SpiralGenerator
+from src.fill_strategy.spiral import SpiralGenerator, Spiral
 from src.fill_strategy.outline import OutlineGenerator
+from src.fill_strategy.fermat_spiral import FermatSpiralGenerator
 
 # add-on modules
 from src.utilities.metrics import Metrics
@@ -30,6 +31,7 @@ group = parser.add_mutually_exclusive_group()
 group.add_argument("-z","--zigzag", help="zigzag (rectilinear) fill", action='store_true')
 group.add_argument("-s","--spiral", help="spiral fill", action='store_true')
 group.add_argument("-o","--outline", help="outline fill", action='store_true')
+group.add_argument("-f","--fermat", help="fermat fill", action='store_true')
 
 parser.add_argument("-p", "--plot", help="enable plotting", action='store_true')
 parser.add_argument("-g", "--gcode", help="enable output", type=str)
@@ -59,7 +61,16 @@ def plot_recursive_path(total_path, color=None):
 
     for path in total_path:
         plot_path(path.get_path(), color)
-            
+
+        if isinstance(path, Spiral):
+            for contour in path.contours:
+
+                start = contour.coords[0]
+                end = contour.coords[-1]
+
+                pyplot.scatter(start[0],start[1])
+                pyplot.scatter(end[0],end[1])
+
     pyplot.gca().invert_yaxis()
 
 
@@ -92,6 +103,9 @@ def main():
     elif args.outline:
         results = OutlineGenerator(polygons).generate()
         path_type = "O"
+    elif args.fermat:
+        results = FermatSpiralGenerator(polygons, distance).generate()
+        path_type = "F"
     else:
         raise NotImplementedError("FILL TYPE NOT INPUT")
 

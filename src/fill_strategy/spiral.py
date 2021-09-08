@@ -8,7 +8,7 @@ from shapely.geometry import Point, LineString
 
 from src.utilities.shapely_utilities import distance_transform, cut, cycle
 
-class Spiral(Pattern):
+class Spiral:
     '''
     Spiral Class
    
@@ -196,14 +196,10 @@ def calculate_endpoint(contour, radius):
             break
     else:
         return None
+    
 
-    # set the index correctly to match reverse
-    i1 = index
-    i0 = (index-1)
-
-    # we know the intersection must be on this line, and there can only be one
     distance_ring = start.buffer(radius).exterior
-    line = LineString(points[i0:i1+1])
+    line = LineString(points[index-1:index+1])
 
     # the return of this must be a point
     point = distance_ring.intersection(line)

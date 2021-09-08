@@ -1,14 +1,17 @@
+'''
+ZigZag Module
+Includes a ZigZag class and a ZigZagGenerator class
+'''
+
 import numpy as np
+import warnings
+from numba import jit
 
 from shapely.geometry import Point, LineString, LinearRing, Polygon, MultiLineString
 from shapely.affinity import rotate
 
 import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
-
-import warnings
-
-from numba import jit
 
 class ZigZag:
     '''
