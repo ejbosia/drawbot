@@ -3,11 +3,11 @@ import os
 import numpy as np
 import cv2
 
-from src.utilities.shapely_conversion import convert
+from utilities.shapely_conversion import convert
 
 from shapely.affinity import rotate
 
-from src.fill_strategy.fermat_spiral import FermatSpiral, FermatSpiralGenerator
+from fill_strategy.fermat_spiral import FermatSpiral, FermatSpiralGenerator
 
 '''
 Test valid spiral generation using different angles of the image

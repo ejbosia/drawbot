@@ -2,7 +2,7 @@
 
 '''
 
-import src.utilities.shapely_utilities as SU
+import utilities.shapely_utilities as SU
 
 from shapely.geometry import LineString, Point
 

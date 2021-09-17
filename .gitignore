@@ -21,3 +21,6 @@
 
 # coverage
 .coverage
+
+/drawbot.egg-info
+/.tox

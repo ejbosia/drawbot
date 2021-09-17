@@ -2,7 +2,7 @@
 Test different shapely conversions
 '''
 
-import src.utilities.shapely_conversion as SC
+import utilities.shapely_conversion as SC
 
 import os
 import cv2

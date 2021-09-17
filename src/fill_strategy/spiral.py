@@ -6,7 +6,7 @@ Generate a space-filling spiral path on an input polygon
 
 from shapely.geometry import Point, LineString
 
-from src.utilities.shapely_utilities import distance_transform, cut, cycle
+from utilities.shapely_utilities import distance_transform, cut, cycle
 
 class Spiral:
     '''

@@ -1,10 +1,10 @@
 
-from src.utilities.metrics import Metrics
+from utilities.metrics import Metrics
 
-from src.fill_strategy.zigzag import ZigZagGenerator
-from src.fill_strategy.spiral import SpiralGenerator
+from fill_strategy.zigzag import ZigZagGenerator
+from fill_strategy.spiral import SpiralGenerator
 
-from src.utilities.shapely_conversion import convert
+from utilities.shapely_conversion import convert
 
 import numpy as np
 import cv2

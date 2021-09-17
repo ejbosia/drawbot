@@ -6,9 +6,9 @@ Methods for generating fermat spirals from input spirals
 
 from shapely.geometry import Point, LineString
 
-from src.utilities.shapely_utilities import cut, distance_transform, reverse
+from utilities.shapely_utilities import cut, distance_transform, reverse
 
-from src.fill_strategy.spiral import Spiral, SpiralGenerator, calculate_endpoint
+from fill_strategy.spiral import Spiral, SpiralGenerator, calculate_endpoint
 
 class FermatSpiral:
 

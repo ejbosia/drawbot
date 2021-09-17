@@ -10,17 +10,17 @@ import cv2
 from matplotlib import pyplot
 
 # import utility functions
-from src.utilities.shapely_conversion import convert
+from utilities.shapely_conversion import convert
 
 # import spiral generation
-from src.fill_strategy.zigzag import ZigZagGenerator
-from src.fill_strategy.spiral import SpiralGenerator, Spiral
-from src.fill_strategy.outline import OutlineGenerator
-from src.fill_strategy.fermat_spiral import FermatSpiralGenerator
+from fill_strategy.zigzag import ZigZagGenerator
+from fill_strategy.spiral import SpiralGenerator, Spiral
+from fill_strategy.outline import OutlineGenerator
+from fill_strategy.fermat_spiral import FermatSpiralGenerator
 
 # add-on modules
-from src.utilities.metrics import Metrics
-from src.utilities.gcode import GcodeWriter
+from utilities.metrics import Metrics
+from utilities.gcode import GcodeWriter
 
 parser = argparse.ArgumentParser()
 

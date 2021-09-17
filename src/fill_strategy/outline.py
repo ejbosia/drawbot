@@ -1,5 +1,6 @@
 '''Contains classes for the creating an Outline'''
 
+
 class Outline:
     '''
     Outline Class
@@ -49,7 +50,6 @@ class OutlineGenerator:
     generate()
         Create a list of Outline objects from the polygons
     '''
-
 
     def __init__(self, polygons):
         self.polygons = polygons
