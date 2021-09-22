@@ -24,117 +24,104 @@ class GcodeWriter:
         self.extruder = extruder
         self.scale = scale
 
-        self.coordinate = ['X','Y','Z']
+        self.coordinate = ['X', 'Y', 'Z']
         self.offsets = {
             "X": x_offset,
             "Y": y_offset,
             "Z": z_offset,
         }
 
-    '''
-    Convert a point into GCODE coordinates ~ assumes p is X,Y,Z in that order with Z optional
-    '''
     def convert_point(self, p):
-        return " ".join([self.coordinate[i] + str(value * self.scale + self.offsets[self.coordinate[i]]) for i,value in enumerate(p)])
+        '''
+        Convert a point into GCODE coordinates ~ assumes p is X,Y,Z in that order with Z optional
+        '''
+        return " ".join([self.coordinate[i] + str(value * self.scale + self.offsets[self.coordinate[i]]) for i, value in enumerate(p)])
 
-
-    '''
-    Normal move to point
-    '''
     def command_move(self, p):
+        '''
+        Normal move to point
+        '''
         return "G01 " + self.convert_point(p) + ";\n"
 
-
-
-    '''
-    Move with printing
-    '''
     def command_print(self, start, end, E=0.031617):
-
+        '''
+        Move with printing
+        '''
         distance = self.scale * sqrt((start[0]-end[0])**2 + (start[1]-end[1])**2)
 
         return "G01 " + self.convert_point(end) + " E" + str(E * distance) + ";\n"
 
-
-    '''
-    Rapid move to point
-    '''
-    def command_rapid(self,p):
+    def command_rapid(self, p):
+        '''
+        Rapid move to point
+        '''
         return "G00 " + self.convert_point(p) + ";\n"
 
-
-
-    # move the pen up (drawbot specific)
     def command_down(self):
+        '''
+        Drawbot command pen down
+        '''
         return "G01 Z8.0\n"
 
-
-    # move the pen down (drawbot specific)
     def command_up(self):
+        '''
+        Drawbot command pen up
+        '''
         return "G01 Z2.0;\n"
 
-
-    '''
-    Build the header for the GCODE file
-    '''
     def header(self):
+        '''
+        Build the header for the GCODE file
+        '''
 
-        # home the printer
         output = "G28 Z;\n"
         output += self.command_up()
         output += "G28 X Y;\n\n"
-        
+
         return output
 
-
-    '''
-    Convert the total path into 
-    '''
-    def convert(self, total_path): 
-        
+    def convert(self, total_path):
+        '''
+        Convert the total path into gcode
+        '''
         output = self.header()
 
         # loop through each path
         for path in total_path:
-            
+
             if path:
 
                 # move to p0
                 output += self.command_rapid(path[0])
-                
+
                 # pen down
                 output += self.command_down()
-                
-                p0 = path[0]
 
                 # trace the path
                 for p1 in path[1:]:
                     output += self.command_move(p1)
-                    
+
                 # pen up
                 output += self.command_up()
-            
+
         # home machine
         output += "G28;\n"
-                
+
         # write the code to a gcode file
-        if not self.filename is None:
+        if self.filename is not None:
             f = open(self.filename, "w")
             f.write(output)
             f.close()
-        
+
         # return the string (for debugging, not really needed)
         return output
 
-
-    '''
-    Convert the path into printable code
-    '''
     def convert_print(self, total_path, layer, height):
-
+        '''
+        Convert the path into printable code
+        '''
         current_layer = layer
 
-        # add the prusa printer header
         with open("prusa_mk3s.txt") as f:
             output = "".join(f.readlines())
 
@@ -142,51 +129,49 @@ class GcodeWriter:
 
         while current_layer < height:
             for path in total_path:
-                
+
                 # move to p0
                 output += self.command_rapid(path[0])
-                
+
                 # undo retraction
                 output += "G1 E1.40000 F2100.00000;\n"
 
                 # pen down
                 output += "G01 Z" + str(current_layer) + ";\n"
-                
+
                 p0 = path[0]
 
                 # trace the path
                 for p1 in path[1:]:
                     output += self.command_print(p0, p1)
                     p0 = p1
-                    
+
                 # retraction
                 output += "G1 E-1.40000 F2100.00000;\n"
 
                 # pen up
                 output += "G01 Z" + str(current_layer + 0.2) + ";\n"
-            
+
             current_layer += layer
             output += "G01 Z" + str(current_layer + 0.2) + ";\n"
 
         # add the prusa printer footer
         with open("prusa_mk3s_end.txt") as f:
             output += "".join(f.readlines())
-                
+
         # write the code to a gcode file
         if self.filename is not None:
             f = open(self.filename, "w")
             f.write(output)
             f.close()
-        
+
         # return the string (for debugging, not really needed)
         return output
 
-
-    '''
-    Convert the path into printable code
-    '''
     def convert_supervase(self, path, layer=0.2, height=10):
-
+        '''
+        Convert the path into printable code ~ vase fill
+        '''
         # super vase only works for length 1 paths
         assert len(path) == 1
 
@@ -210,8 +195,8 @@ class GcodeWriter:
             p0 = path[0][0]
             z = current_layer
 
-            output += self.command_move((p0[0],p0[1],z))
-            debug_list.append((p0[0],p0[1],z))
+            output += self.command_move((p0[0], p0[1], z))
+            debug_list.append((p0[0], p0[1], z))
 
             # trace the path
             for p in path[0][1:]:
@@ -219,27 +204,21 @@ class GcodeWriter:
                 # add a fraction of the layer based on the difference of the layer
                 z += Point(p0).distance(Point(p))/total_dis * layer
 
-                output += self.command_move((p[0],p[1],z))
-                debug_list.append((p[0],p[1],z))
-            
+                output += self.command_move((p[0], p[1], z))
+                debug_list.append((p[0], p[1], z))
+
             current_layer += layer
 
         # pen up
         output += "G01 Z" + str(current_layer + 2) + ";\n"
-            
+
         # home machine
         output += "G28 X Y;\n"
-                
+
         # write the code to a gcode file
-        if not self.filename is None:
+        if self.filename is not None:
             f = open(self.filename, "w")
             f.write(output)
             f.close()
-        
-        # return the string (for debugging, not really needed)
+
         return debug_list
-
-
-
-
-
