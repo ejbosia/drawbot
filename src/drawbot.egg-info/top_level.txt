@@ -1,3 +1,0 @@
-fill_strategy
-shade_strategy
-utilities
