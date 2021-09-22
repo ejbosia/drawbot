@@ -15,14 +15,14 @@ def test_commands():
     Test number of commands is correctly calculated
     '''
     metric = Metrics()
-    image = cv2.imread(os.path.join('test_images', 'test.png'),0)
+    image = cv2.imread(os.path.join('test_images', 'test.png'), 0)
     polygons = convert(image)
 
     generator = ZigZagGenerator(polygons, 5)
     output = generator.generate()
 
     assert metric.measure_commands(output) == sum([len(x.get_path()) for x in output])
-    
+
     generator = SpiralGenerator(polygons, 5)
     output = generator.generate()
 

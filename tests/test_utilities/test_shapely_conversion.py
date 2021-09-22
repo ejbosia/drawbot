@@ -53,10 +53,10 @@ def test_convert():
     assert error.value.args[0] == "SIMPLIFY MUST BE GEQ 0"
     assert error.type == ValueError
 
-    image = cv2.imread(os.path.join('test_images', 'test.png'),0)
+    image = cv2.imread(os.path.join('test_images', 'test.png'), 0)
     polygons1 = SC.convert(image)
     polygons2 = SC.convert(image, simplify=1)
 
     for p1, p2 in zip(polygons1, polygons2):
         assert len(p1.exterior.coords) >= len(p2.exterior.coords)
-        assert abs(p1.area - p2.area) < 0.01*p1.area
+        assert abs(p1.area - p2.area) < 0.01 * p1.area
