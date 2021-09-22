@@ -6,9 +6,10 @@ Methods for generating fermat spirals from input spirals
 
 from shapely.geometry import Point, LineString
 
-from utilities.shapely_utilities import cut, distance_transform, reverse
+from utilities.shapely_utilities import cut, reverse
 
-from fill_strategy.spiral import Spiral, SpiralGenerator, calculate_endpoint
+from fill_strategy.spiral import SpiralGenerator, calculate_endpoint
+
 
 class FermatSpiral:
 
@@ -25,13 +26,13 @@ class FermatSpiral:
         path = []
 
         # loop through the even spirals ~ the outer most spiral is the outer spiral
-        for i in range(0,len(contours),2):
+        for i in range(0, len(contours), 2):
 
             contour = LineString(contours[i])
             
             # get the reroute point away from the end towards start
             reroute = calculate_endpoint(contour, distance)
-            cut_path,_ = cut(contour, contour.project(reroute))
+            cut_path, _ = cut(contour, contour.project(reroute))
             path.extend(list(cut_path.coords))
 
             # return if there are no more inner paths
@@ -44,7 +45,7 @@ class FermatSpiral:
             _,cut_path = cut(contour_inner, distance)
 
             # if there is no cut path, only add the last point
-            if not cut_path is None:
+            if cut_path is not None:
                 path.extend(list(cut_path.coords))
             else:
                 path.append(list(contour_inner.coords[-1]))
@@ -64,7 +65,7 @@ class FermatSpiral:
 
             contour = reverse(LineString(contours[i]))
             reroute = calculate_endpoint(contour, distance)
-            cut_path,_ = cut(contour, contour.project(reroute))
+            cut_path, _ = cut(contour, contour.project(reroute))
             path.append(list(cut_path.coords))
 
             # the odd spiral piece goes from the projection point to the end
