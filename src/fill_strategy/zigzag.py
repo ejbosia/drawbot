@@ -32,6 +32,7 @@ class ZigZag:
 
     def __init__(self, start_index, all_points, contour_indices, available):
         self.path = ZigZag._generate_zigzag(start_index, all_points, contour_indices, available)
+        self.path = [(x,y) for x,y in self.path]
 
     @jit(nopython=True)
     def _generate_zigzag(start_index, all_points, contour_indices, available):
@@ -72,7 +73,7 @@ class ZigZag:
 
         Returns
         -------
-        path: list of tuple(double, double)
+        path: list of np.array(double, double)
         '''
         return self.path
 
