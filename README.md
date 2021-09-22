@@ -2,6 +2,8 @@
 
 ![Tests](https://github.com/ejbosia/drawbot/actions/workflows/tests.yml/badge.svg)
 
+**THIS IS A WORK IN PROGRESS!!! TESTS ARE NOT COMPREHENSIVE YET**
+
 This repository works with the "drawbot" project, which is a simple cartesian drawing robot. The program takes in binary images and "fills" them using different fill techniques. An eventual goal is to branch into more generic images, including color.
 
 The code is written in Python.
