@@ -9,7 +9,7 @@ import cv2
 from shapely.geometry import Polygon
 
 
-def generate_border_lines(image, approximation = cv2.CHAIN_APPROX_SIMPLE):
+def generate_border_lines(image, approximation=cv2.CHAIN_APPROX_SIMPLE):
     '''
     Convert an input binary image into a formatted list of contours with heirarch information
         Parameters:
@@ -18,19 +18,18 @@ def generate_border_lines(image, approximation = cv2.CHAIN_APPROX_SIMPLE):
         Returns:
             contour_list (list of (contour,heirarchy))
     '''
-    contours,heirarchy = cv2.findContours(image, cv2.RETR_CCOMP, approximation)  
+    contours, heirarchy = cv2.findContours(image, cv2.RETR_CCOMP, approximation)
 
     contour_list = []
 
-    for contour,heirarchy in zip(contours, heirarchy[0]):
+    for contour, heirarchy in zip(contours, heirarchy[0]):
         point_list = []
         for point in contour:
             point_list.append(tuple(point[0]))
- 
+
         contour_list.append((point_list, heirarchy))
 
     return contour_list
-
 
 
 def get_children(contour_list, parent_contour):
@@ -47,7 +46,6 @@ def get_children(contour_list, parent_contour):
     first_child_index = parent_contour[1][2]
     child = contour_list[first_child_index]
     child_list.append(child[0])
-
 
     # loop while there are more children
     while not child[1][0] == -1:
@@ -73,7 +71,7 @@ def create_contour_families(contour_list):
     for contour in contour_list:
 
         # start with a parent contour
-        if contour[1][3]==-1:
+        if contour[1][3] == -1:
 
             # if there are no children, create an empty family with only the parent contour
             if contour[1][2] == -1:
@@ -88,8 +86,7 @@ def create_contour_families(contour_list):
     return family_list
 
 
-
-def convert(image, approximation = cv2.CHAIN_APPROX_SIMPLE, simplify=0):
+def convert(image, approximation=cv2.CHAIN_APPROX_SIMPLE, simplify=0):
     '''
     Convert an image into a list of shapely polygons
         Parameters:
