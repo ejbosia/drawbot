@@ -4,15 +4,15 @@
 class Outline:
     '''
     Outline Class
-   
+
     Args
     ----
     perimeter: shapely.geometry.LineString
-   
+
     Attributes
     ----------
     path: list of shapely.geometry.Point
-    
+
     Methods
     -------
     get_path()
@@ -36,15 +36,15 @@ class Outline:
 class OutlineGenerator:
     '''
     OutlineGenerator Class
-   
+
     Args
     ----
     polygons: list of shapely.geometry.Polygon
-   
+
     Attributes
     ----------
     polygons: list of shapely.geometry.Polygon
-    
+
     Methods
     -------
     generate()
@@ -57,7 +57,7 @@ class OutlineGenerator:
     def generate(self):
         '''
         Create a list of Outline objects from the polygons
-        
+
         Returns
         -------
         list of Outline
