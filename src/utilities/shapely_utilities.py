@@ -4,9 +4,7 @@ Utility functions to use with Shapely geometry objects
 @author ejbosia
 '''
 
-from shapely.geometry import Point
-from shapely.geometry import Polygon
-from shapely.geometry import LineString
+from shapely.geometry import Point, LineString
 from shapely.geometry import CAP_STYLE, JOIN_STYLE
 
 from matplotlib import pyplot
@@ -24,8 +22,8 @@ def distance_transform(polygon, distance):
     if polygon.is_empty:
         return []
 
-    temp = polygon.exterior.buffer(distance, cap_style = CAP_STYLE.flat, join_style = JOIN_STYLE.mitre)
-    
+    temp = polygon.exterior.buffer(distance, cap_style=CAP_STYLE.flat, join_style=JOIN_STYLE.mitre)
+
     polygon = polygon.difference(temp)
 
     if polygon.is_empty:
@@ -41,7 +39,7 @@ def distance_transform(polygon, distance):
     else:
         result.append(polygon.exterior)
         result.extend(distance_transform(polygon, distance))
-    
+
     return result
 
 
@@ -50,7 +48,7 @@ def plot_poly(polygon):
     Plot all of the contours of an input polygon
     '''
     pyplot.plot(*polygon.exterior.xy)
-    
+
     for i in polygon.interiors:
         pyplot.plot(*i.xy)
 
@@ -81,7 +79,7 @@ def cut(line, distance):
         return [None, LineString(line)]
     elif distance >= line.length:
         return [LineString(line), None]
-    
+
     coords = list(line.coords)
     for i, p in enumerate(coords):
         pd = line.project(Point(p))
@@ -102,7 +100,6 @@ def cut(line, distance):
         LineString([(cp.x, cp.y)] + [coords[-1]])]
 
 
-
 def cycle(contour, distance):
     '''
     Reformat the linestring so position 0 is the start point.
@@ -115,18 +112,17 @@ def cycle(contour, distance):
     '''
     # force the distance to within the contour
     distance = distance % contour.length
-        
+
     # cut the contour at the projection distance
     result = cut(contour, distance)
-    
+
     if result[0] is None or result[1] is None:
         points = list(contour.coords)
     else:
-        [ls1,ls2] = result
+        [ls1, ls2] = result
         points = list(ls2.coords) + list(ls1.coords)
 
-    return LineString(points) 
-
+    return LineString(points)
 
 
 def self_intersections(ls):
@@ -138,20 +134,20 @@ def self_intersections(ls):
             intersection_points (list of Point)
     '''
     intersection_points = []
-    
+
     for i in range(len(ls.coords)-3):
-        
+
         p0 = ls.coords[i]
         p1 = ls.coords[i+1]
-    
+
         remaining_path = LineString(ls.coords[i+2:])
-        test = LineString([p0,p1])
-        
+        test = LineString([p0, p1])
+
         # check for intersection only with the linestring coords 2 past the start (the next line cannot intersect with the current line)
         if test.intersects(remaining_path):
-            
+
             intersections = test.intersection(remaining_path)
-            
+
             if intersections.type == "Point":
                 intersection_points.append(intersections)
             else:
@@ -162,7 +158,7 @@ def self_intersections(ls):
 
 
 def self_intersections_binary(ls):
-    
+
     '''
     Find any self intersections in the input linestring using binary search like recursion
         Parameters:
@@ -188,13 +184,11 @@ def self_intersections_binary(ls):
     if not s0 and s1 and s2:
         return self_intersections(ls)
     if not s1:
-       intersection_points.extend(self_intersections_binary(ls1))
+        intersection_points.extend(self_intersections_binary(ls1))
     if not s2:
-       intersection_points.extend(self_intersections_binary(ls2))
+        intersection_points.extend(self_intersections_binary(ls2))
 
     return intersection_points
-
-
 
 
 def reverse(ls):
@@ -220,7 +214,6 @@ def merge(ls1, ls2):
     return LineString(list(ls1.coords) + list(ls2.coords))
 
 
-
 def sample(ls, distance):
     '''
     Evenly sample the linestring
@@ -231,14 +224,14 @@ def sample(ls, distance):
             LineString: coordinates are sample points
     '''
     pos = 0
-    
+
     points = []
-    
+
     while pos < ls.length:
         points.append(ls.interpolate(pos))
-        
+
         pos += distance
-        
+
     return LineString(points)
 
 
@@ -253,7 +246,7 @@ def virtual_boundary(polygon, distance):
 
     exterior = list(virtual_polygon.exterior.coords)
 
-    interiors =  [list(interior.coords) for interior in virtual_polygon.interiors]
+    interiors = [list(interior.coords) for interior in virtual_polygon.interiors]
 
     return exterior, interiors
 
