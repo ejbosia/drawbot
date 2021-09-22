@@ -17,7 +17,7 @@ class FermatSpiral:
         self.path = self._convert_spiral(spiral, distance)
 
     def _convert_spiral(self, spiral, distance):
-        path = self._outer_spiral(spiral.contours, distance)#  + self._inner_spiral(spiral.contours, distance)
+        path = self._outer_spiral(spiral.contours, distance)
 
         return path
 
@@ -29,7 +29,7 @@ class FermatSpiral:
         for i in range(0, len(contours), 2):
 
             contour = LineString(contours[i])
-            
+           
             # get the reroute point away from the end towards start
             reroute = calculate_endpoint(contour, distance)
             cut_path, _ = cut(contour, contour.project(reroute))
@@ -49,7 +49,6 @@ class FermatSpiral:
                 path.extend(list(cut_path.coords))
             else:
                 path.append(list(contour_inner.coords[-1]))
-            
         return path
 
     def _inner_spiral(self, contours, distance):
@@ -58,7 +57,7 @@ class FermatSpiral:
 
         # get the last "odd" index
         length = len(contours)
-        last_index = length if length % 2 == 1 else length -1
+        last_index = length if length % 2 == 1 else length - 1
 
         # loop backwards through the odd values
         for i in range(last_index, 0, 2):
@@ -71,7 +70,7 @@ class FermatSpiral:
             # the odd spiral piece goes from the projection point to the end
             contour_inner = reverse(LineString(contours[i-1]))
             end_point = Point(cut_path.coords[-1])
-            _,cut_path = cut(contour_inner, contour_inner.project(end_point))
+            _, cut_path = cut(contour_inner, contour_inner.project(end_point))
 
             path.append(list(cut_path.coords))
 
@@ -83,7 +82,7 @@ class FermatSpiral:
 
 class FermatSpiralGenerator:
 
-    def __init__(self, polygons, distance, borders = 0, connected=False):
+    def __init__(self, polygons, distance, borders=0, connected=False):
         self.polygons = polygons
         self.distance = distance
         self.borders = borders

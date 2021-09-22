@@ -38,20 +38,19 @@ parser.add_argument("-g", "--gcode", help="enable output", type=str)
 parser.add_argument("-m", "--metrics", help="enable metrics", action='store_true')
 
 
-
 def plot_path(path, color=None):
     '''
     Plot a single path
     '''
-    
+
     X = []
     Y = []
 
     for p in path:
         X.append(p[0])
         Y.append(p[1])
-        
-    pyplot.plot(X,Y,c=color)
+
+    pyplot.plot(X, Y, c=color)
 
 
 def plot_recursive_path(total_path, color=None):
@@ -68,8 +67,8 @@ def plot_recursive_path(total_path, color=None):
                 start = contour.coords[0]
                 end = contour.coords[-1]
 
-                pyplot.scatter(start[0],start[1])
-                pyplot.scatter(end[0],end[1])
+                pyplot.scatter(start[0], start[1])
+                pyplot.scatter(end[0], end[1])
 
     pyplot.gca().invert_yaxis()
 
@@ -86,10 +85,10 @@ def main():
     assert distance > 0
 
     # read the image
-    image = cv2.imread(filename,0)
-    assert not image is None
-    
-    polygons = convert(image, approximation = cv2.CHAIN_APPROX_SIMPLE, simplify=1)
+    image = cv2.imread(filename, 0)
+    assert image is not None
+
+    polygons = convert(image, approximation=cv2.CHAIN_APPROX_SIMPLE, simplify=1)
 
     path_type = ""
 
@@ -112,12 +111,12 @@ def main():
     if args.plot:
         plot_recursive_path(results)
         pyplot.show()
-    
-    if not args.gcode is None:
+
+    if args.gcode is not None:
         assert args.gcode.split('.')[-1] == 'gcode'
-        gcode_writer = GcodeWriter(filename=args.gcode, scale = 0.1)
+        gcode_writer = GcodeWriter(filename=args.gcode, scale=0.1)
         gcode_writer.convert(results)
-    
+
     if args.metrics:
         metric = Metrics(segments=True, commands=True, curvature=False, underfill=True, overfill=True)
         print(metric.measure(results, os.path.basename(filename), path_type, distance, polygons))
