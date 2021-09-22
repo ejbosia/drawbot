@@ -7,19 +7,19 @@ import utilities.shapely_conversion as SC
 import os
 import cv2
 
-from shapely.geometry import Polygon
-
 import pytest
+
 
 def test_generate_border_lines():
 
-    # get the square boundaries    
+    # get the square boundaries
     square = cv2.imread(os.path.join('test_images', 'test.png'), 0)
 
     # get the border lines
     borders = SC.generate_border_lines(square)
 
     assert len(borders) == 5
+
 
 def test_create_contour_families():
 
@@ -28,7 +28,7 @@ def test_create_contour_families():
 
     # get the border lines (should be 5 total, each with 4 sides)
     borders = SC.generate_border_lines(test)
-    
+
     assert len(borders) == 5
 
     # get the polygons

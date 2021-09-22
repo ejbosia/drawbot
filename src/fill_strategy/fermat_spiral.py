@@ -29,7 +29,7 @@ class FermatSpiral:
         for i in range(0, len(contours), 2):
 
             contour = LineString(contours[i])
-           
+
             # get the reroute point away from the end towards start
             reroute = calculate_endpoint(contour, distance)
             cut_path, _ = cut(contour, contour.project(reroute))
@@ -42,7 +42,7 @@ class FermatSpiral:
             # the odd spiral piece goes from the projection point to the end
             contour_inner = LineString(contours[i+1])
             distance = contour_inner.project(reroute)
-            _,cut_path = cut(contour_inner, distance)
+            _, cut_path = cut(contour_inner, distance)
 
             # if there is no cut path, only add the last point
             if cut_path is not None:

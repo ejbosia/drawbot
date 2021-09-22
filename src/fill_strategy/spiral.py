@@ -51,22 +51,26 @@ class Spiral:
         -------
         spiral_contours: list of shapely.geometry.LineString
         '''
+
+        if not contours:
+            return []
+
         spiral_contours = []
         end = None
+        possible_cycle = False
 
         # find the start and end point of each contour
         for contour in contours:
 
-            # if there is a previous end point, find the start using this end point
-            if end is not None:
-
-                # set the start of the contour to the closest point to the end point
+            if possible_cycle:
                 contour = cycle(contour, contour.project(end))
 
             end = calculate_endpoint(contour, distance)
 
+            possible_cycle = end is not None
+
             # if there is a new valid end point, cut the contour and save the piece between the start and end point
-            if end is not None:
+            if possible_cycle:
                 spiral_contours.append(cut(contour, contour.project(end))[0])
 
         return spiral_contours
@@ -122,7 +126,7 @@ class SpiralGenerator:
     def generate(self):
         '''
         Generate the spirals from the list of Polygons
-        
+
         Returns
         -------
         spirals: list of Spiral
@@ -178,7 +182,7 @@ def calculate_endpoint(contour, radius):
     radius: float
 
     Returns:
-    point: shapely.geometry.Point
+    point: shapely.geometry.Point |  None
     '''
 
     # reverse the contour coords to loop backwards through them

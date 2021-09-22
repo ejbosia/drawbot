@@ -34,7 +34,7 @@ class ZigZag:
         self.path = ZigZag._generate_zigzag(start_index, all_points, contour_indices, available)
 
     @jit(nopython=True)
-    def _generate_zigzag(start_index, all_points, contour_indices, available):    
+    def _generate_zigzag(start_index, all_points, contour_indices, available):
         '''
         Generate the zigzag path. Class level method
 
@@ -62,7 +62,7 @@ class ZigZag:
             p2 = all_points[i2]
 
             path.append(p2)
-            p1 = next_point(p2, contour_indices, all_points, available)    
+            p1 = next_point(p2, contour_indices, all_points, available)
 
         return path
 
@@ -144,7 +144,7 @@ class ZigZagGenerator:
         all_points = []
         sum = 0
 
-        vertex_list = np.array(list(polygon.exterior.coords)) 
+        vertex_list = np.array(list(polygon.exterior.coords))
         intersections = generate_intersections_contour(vertex_list, distance)
         intersections = remove_peaks(vertex_list, intersections, np.ones(intersections.shape[0], bool))
 

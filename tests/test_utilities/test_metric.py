@@ -6,16 +6,14 @@ from fill_strategy.spiral import SpiralGenerator
 
 from utilities.shapely_conversion import convert
 
-import numpy as np
 import cv2
 import os
-import pytest
 
-'''
-Test number of commands is correctly calculated
-'''
+
 def test_commands():
-
+    '''
+    Test number of commands is correctly calculated
+    '''
     metric = Metrics()
     image = cv2.imread(os.path.join('test_images', 'test.png'),0)
     polygons = convert(image)
@@ -34,8 +32,10 @@ def test_commands():
 def test_curvature():
     pass
 
+
 def test_overfill():
     pass
+
 
 def test_underfill():
     pass

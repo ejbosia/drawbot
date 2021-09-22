@@ -1,38 +1,30 @@
-'''
-
-'''
-
 import utilities.shapely_utilities as SU
 
 from shapely.geometry import LineString, Point
 
-import pytest
-
 EPSILON = 1e-8
 
-'''
-Create a list of linestrings for testing
-'''
+
 def generate_linestrings():
+    '''
+    Create a list of linestrings for testing
+    '''
     pass
 
 
-'''
-Test the distance transform
-'''
 def test_distance_transform():
+    '''
+    Test the distance transform
+    '''
     pass
 
 
-# not testing plotting functions
-
-'''
-Cut a linestring at a specified distance. This always returns at least one linestring and a None, or two linestrings
-'''
 def test_cut():
-
+    '''
+    Cut a linestring at a specified distance. This always returns at least one linestring and a None, or two linestrings
+    '''
     # create a linestring
-    ls = LineString([(0,0),(10,0),(10,10),(20,10)])
+    ls = LineString([(0, 0), (10, 0), (10, 10), (20, 10)])
 
     # test a normal cut
     start, end = SU.cut(ls, 15)
@@ -52,7 +44,7 @@ def test_cut():
     assert end is None
 
     # test cutting a negative distance
-    start, end = SU.cut(ls,-1)
+    start, end = SU.cut(ls, -1)
     assert start is None
     assert end == ls
 
@@ -67,13 +59,13 @@ def get_cycle_length(ls):
     return ls.length + Point(ls.coords[0]).distance(Point(ls.coords[-1]))
 
 
-'''
-Reformat the linestring so position 0 is the start point. This may involve inserting a new point into the contour.
-'''
 def test_cycle():
-    
+    '''
+    Reformat the linestring so position 0 is the start point. This may involve inserting a new point into the contour.
+    '''
+
     # create a linestring
-    ls = LineString([(0,0), (10,0), (10,10), (0,10)])
+    ls = LineString([(0, 0), (10, 0), (10, 10), (0, 10)])
 
     # test normal cycle
     output = SU.cycle(ls, 15)
@@ -97,44 +89,43 @@ def test_cycle():
     assert ls == SU.cycle(ls, ls.length)
 
 
-
-'''
-Find any self intersections in the input linestring
-'''
 def test_self_intersections():
-    no_intersection = LineString([(0,0), (5,5), (0,1)])
+    '''
+    Find any self intersections in the input linestring
+    '''
+    no_intersection = LineString([(0, 0), (5, 5), (0, 1)])
 
     assert no_intersection.is_simple
     assert not SU.self_intersections_binary(no_intersection)
 
 
-'''
-Find any self intersections in the input linestring
-'''
 def test_self_intersections_binary():
-    no_intersection = LineString([(0,0), (5,5), (0,1)])
+    '''
+    Find any self intersections in the input linestring
+    '''
+    no_intersection = LineString([(0, 0), (5, 5), (0, 1)])
 
     assert no_intersection.is_simple
     assert not SU.self_intersections_binary(no_intersection)
 
 
-'''
-Reverse a input linestring ~ this is helpful for projection when the distance is ambiguous (intersections)
-'''
 def test_reverse():
-    ls = LineString([(0,0),(10,0),(10,10),(20,10)])
-    coords = ls.coords
+    '''
+    Reverse a input linestring ~ this is helpful for projection when the distance is ambiguous (intersections)
+    '''
+    ls = LineString([(0, 0), (10, 0), (10, 10), (20, 10)])
 
     assert ls.coords[::-1] == list(SU.reverse(ls).coords)
 
 
-'''
-Merge two linestrings
-'''
 def test_merge():
-    ls = LineString([(0,0),(10,0),(10,10),(20,10)])
-    
-    start,end = SU.cut(ls, 15)
+    '''
+    Merge two linestrings
+    '''
+
+    ls = LineString([(0, 0), (10, 0), (10, 10), (20, 10)])
+
+    start, end = SU.cut(ls, 15)
 
     output = SU.merge(start, end)
 
@@ -143,14 +134,11 @@ def test_merge():
     assert output.coords[-1] == ls.coords[-1]
 
 
-'''
-Test sampling function
-'''
 def test_sample():
 
     SAMPLE_DIS = 1.0
-    
-    ls = LineString([(0,0),(10,0),(10,10),(20,10)])
+
+    ls = LineString([(0, 0), (10, 0), (10, 10), (20, 10)])
 
     points = SU.sample(ls, SAMPLE_DIS)
 
@@ -164,20 +152,16 @@ def test_sample():
     p0 = None
     for p1 in points.coords:
         p1 = Point(p1)
-        if not p0 is None:
-            
+        if p0 is not None:
+
             # check that the points are the correct sample distance apart
             assert abs(ls.project(p1) - ls.project(p0) - SAMPLE_DIS) < EPSILON
-        
+
         p0 = Point(p1)
 
         # check that the point is on the line
         assert ls.distance(p0) < EPSILON
 
 
-'''
-
-'''
 def test_virtual_boundary():
     pass
-
