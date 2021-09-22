@@ -7,9 +7,10 @@ The GcodeWriter takes in a array-like path of array-like points (2D or 3D) and c
 from shapely.geometry import Point, LineString
 from numpy import sqrt
 
-class GcodeWriter:
 
+class GcodeWriter:
     '''
+    Parameters:
     filename: file location to save the gcode
     extruder: true if the extruder should be enabled for printing
     x_offset: add this to every x coordinate
@@ -27,7 +28,7 @@ class GcodeWriter:
         self.offsets = {
             "X": x_offset,
             "Y": y_offset,
-            "Z": z_offset, 
+            "Z": z_offset,
         }
 
     '''
@@ -172,7 +173,7 @@ class GcodeWriter:
             output += "".join(f.readlines())
                 
         # write the code to a gcode file
-        if not self.filename is None:
+        if self.filename is not None:
             f = open(self.filename, "w")
             f.write(output)
             f.close()
